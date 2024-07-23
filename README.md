@@ -51,3 +51,11 @@ __KEYWORDS
 
 I try to keep dependencies relatively minimal. Ideally, this will become a [cold-blooded]() project and the dependencies will be vendored for relative permanence.
 
+## Other Stuff
+
+- [Semver]()
+- [POSIX Compliance]()
+- [CommonMark]()
+- [Djot]()
+- [Org]()
+- [KDL]()
