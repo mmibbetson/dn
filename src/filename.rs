@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::Local;
 
 #[derive(PartialEq)]
 pub enum Segment {
@@ -12,10 +12,10 @@ pub enum Segment {
 pub fn get_filename(order: Vec<Segment>) -> String {
     let identifier_is_first = order[0] == Segment::Identifier;
     let identifier = get_identifier(identifier_is_first);
-    let signature = get_signature(todo!());
-    let title = get_title(todo!());
-    let keywords = get_keywords(todo!());
-    let extension = get_extension(todo!());
+    let signature = get_signature("123".to_string());
+    let title = get_title("This is my title-thing!".to_string());
+    let keywords = get_keywords("foo,bar".to_string());
+    let extension = get_extension("txt".to_string());
 
     order
         .into_iter()
@@ -31,7 +31,7 @@ pub fn get_filename(order: Vec<Segment>) -> String {
 }
 
 fn get_identifier(is_first: bool) -> String {
-    let time = Utc::now().format("%Y%m%dT%H%M%S").to_string();
+    let time = Local::now().format("%Y%m%dT%H%M%S").to_string();
 
     if is_first {
         time
@@ -58,11 +58,11 @@ fn get_title(title: String) -> String {
 // keywords is provided as a comma-separated list of keywords.
 fn get_keywords(keywords: String) -> String {
     // NOTE: This is for the keywords as supplied by the user.
-    const arg_separator = ',';
+    const ARG_SEPARATOR: char = ',';
 
     let processed = keywords
         .to_lowercase()
-        .split(arg_separator)
+        .split(ARG_SEPARATOR)
         .flat_map(|word| word.split('_'))
         .collect::<Vec<&str>>()
         .join("_");
