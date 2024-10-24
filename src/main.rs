@@ -1,19 +1,24 @@
 use crate::filename::get_filename;
 use crate::filename::Segment;
 
+mod args;
+mod config;
 mod filename;
 mod frontmatter;
-mod config;
-mod args;
 
+const DEFAULT_SEGMENT_ORDER: [Segment; 5] = [
+    Segment::Identifier,
+    Segment::Signature,
+    Segment::Title,
+    Segment::Keywords,
+    Segment::Extension,
+];
 
 // Top-down draft using api
 fn main() {
-    let default_segment_order = vec![Segment::Identifier, Segment::Signature, Segment::Title, Segment::Keywords, Segment::Extension];
-
     // get_args();
     // get_config();
-    let filename = get_filename(default_segment_order);
+    let filename = get_filename(DEFAULT_SEGMENT_ORDER);
     // get_frontmatter();
     // get_template();
     // create_file();
@@ -31,10 +36,9 @@ struct FileDetails {
 // Config struct to represent various configuration parameters
 struct Config {
     directory: String,
-    order: Vec<filename::Segment>
+    order: Vec<filename::Segment>,
 }
 
 fn create_file(details: FileDetails, config: Config) {
     todo!()
 }
-
