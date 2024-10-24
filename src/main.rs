@@ -18,12 +18,10 @@ const DEFAULT_SEGMENT_ORDER: [Segment; 5] = [
 fn main() {
     // get_args();
     // get_config();
-    let filename = get_filename(DEFAULT_SEGMENT_ORDER);
+    // get_filename();
     // get_frontmatter();
     // get_template();
     // create_file();
-
-    println!("{}", filename);
 }
 
 // Struct to represent details pertinent to file being created
