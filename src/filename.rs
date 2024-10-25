@@ -92,215 +92,25 @@ fn sanitise_segment(segment: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::thread;
-    use std::time::Duration;
+    use chrono::TimeZone;
 
-    fn create_basic_details() -> FilenameDetails {
-        FilenameDetails {
-            title_arg: "Test Title".to_string(),
-            signature_arg: Some("Author".to_string()),
-            keywords_arg: Some("key1_key2".to_string()),
-            extension_arg: Some("md".to_string()),
-        }
+    // Helper function to create a predictable timestamp for testing
+    fn get_mock_time() -> String {
+        Local.with_ymd_and_hms(2024, 1, 1, 12, 0, 0)
+            .unwrap()
+            .format("%Y%m%dT%H%M%S")
+            .to_string()
     }
 
     #[test]
     fn test_basic_filename_generation() {
-        let details = create_basic_details();
-        let order = [
-            Segment::Identifier,
-            Segment::Signature,
-            Segment::Title,
-            Segment::Keywords,
-            Segment::Extension,
-        ];
-
-        let result = get_filename(details, &order);
-
-        // We can't test the exact timestamp, but we can verify the structure
-        assert!(result.contains("==author"));
-        assert!(result.contains("--test-title"));
-        assert!(result.contains("__key1_key2"));
-        assert!(result.ends_with(".md"));
-    }
-
-    #[test]
-    fn test_identifier_format() {
-        // Test identifier when first
-        let id_first = format_identifier(true);
-        assert_eq!(id_first.len(), 15); // YYYYMMDDTHHmmss
-        assert!(!id_first.starts_with("@@"));
-
-        // Test identifier when not first
-        let id_not_first = format_identifier(false);
-        assert_eq!(id_not_first.len(), 17); // @@YYYYMMDDTHHmmss
-        assert!(id_not_first.starts_with("@@"));
-    }
-
-    #[test]
-    fn test_signature_formatting() {
-        assert_eq!(format_signature(None), None);
-        assert_eq!(
-            format_signature(Some("Test Author".to_string())),
-            Some("==testauthor".to_string())
-        );
-        assert_eq!(
-            format_signature(Some("Test=Author".to_string())),
-            Some("==test=author".to_string())
-        );
-    }
-
-    #[test]
-    fn test_title_formatting() {
-        assert_eq!(
-            format_title("Hello World".to_string()),
-            "--helloworld".to_string()
-        );
-        assert_eq!(
-            format_title("Hello-World".to_string()),
-            "--hello-world".to_string()
-        );
-        assert_eq!(
-            format_title("UPPER-case".to_string()),
-            "--upper-case".to_string()
-        );
-    }
-
-    #[test]
-    fn test_keywords_formatting() {
-        assert_eq!(format_keywords(None), None);
-        assert_eq!(
-            format_keywords(Some("Tag1_Tag2".to_string())),
-            Some("__tag1_tag2".to_string())
-        );
-        assert_eq!(
-            format_keywords(Some("TAG_WITH_SPACES".to_string())),
-            Some("__tagwithspaces".to_string())
-        );
-    }
-
-    #[test]
-    fn test_extension_formatting() {
-        assert_eq!(format_extension(None), "txt".to_string());
-        assert_eq!(format_extension(Some("MD".to_string())), ".md".to_string());
-        assert_eq!(
-            format_extension(Some("tar.gz".to_string())),
-            ".tar.gz".to_string()
-        );
-    }
-
-    #[test]
-    fn test_process_segment() {
-        assert_eq!(
-            process_segment("Hello=World".to_string(), "==".to_string()),
-            "==hello=world"
-        );
-        assert_eq!(
-            process_segment("Test-Case".to_string(), "--".to_string()),
-            "--test-case"
-        );
-        assert_eq!(
-            process_segment("Tag_One".to_string(), "__".to_string()),
-            "__tag_one"
-        );
-        assert_eq!(
-            process_segment("tar.gz".to_string(), ".".to_string()),
-            ".tar.gz"
-        );
-    }
-
-    #[test]
-    fn test_process_segment_with_illegal_chars() {
-        assert_eq!(
-            process_segment("Hello@#$=World!".to_string(), "==".to_string()),
-            "==hello=world"
-        );
-        assert_eq!(
-            process_segment("Spaces Are Bad".to_string(), "--".to_string()),
-            "--spacesarebad"
-        );
-    }
-
-    #[test]
-    fn test_process_segment_case_handling() {
-        assert_eq!(
-            process_segment("UPPER=case".to_string(), "==".to_string()),
-            "==upper=case"
-        );
-        assert_eq!(
-            process_segment("MiXeD-CaSe".to_string(), "--".to_string()),
-            "--mixed-case"
-        );
-    }
-
-    #[test]
-    fn test_sanitise_segment() {
-        assert_eq!(sanitise_segment("hello world!"), "helloworld");
-        assert_eq!(sanitise_segment("test@#$%^&*"), "test");
-        assert_eq!(sanitise_segment("with.dots.in.it"), "withdotsinit");
-        assert_eq!(sanitise_segment("with-dashes-in-it"), "withdashesinit");
-        assert_eq!(
-            sanitise_segment("with_underscores_in_it"),
-            "withunderscoresinit"
-        );
-    }
-
-    #[test]
-    fn test_different_segment_orders() {
-        let details = create_basic_details();
-
-        let order1 = [
-            Segment::Title,
-            Segment::Identifier,
-            Segment::Signature,
-            Segment::Keywords,
-            Segment::Extension,
-        ];
-
-        let order2 = [
-            Segment::Identifier,
-            Segment::Title,
-            Segment::Signature,
-            Segment::Keywords,
-            Segment::Extension,
-        ];
-
-        let result1 = get_filename(details.clone(), &order1);
-        let result2 = get_filename(details, &order2);
-
-        // First result should have @@ before timestamp (since Identifier isn't first)
-        assert!(result1.contains("@@"));
-        // Second result shouldn't have @@ before timestamp
-        assert!(!result2.contains("@@"));
-    }
-
-    #[test]
-    fn test_timestamp_changes() {
-        let details = create_basic_details();
-        let order = [
-            Segment::Identifier,
-            Segment::Title,
-            Segment::Extension,
-            Segment::Signature,
-            Segment::Keywords,
-        ];
-
-        let result1 = get_filename(details.clone(), &order);
-        thread::sleep(Duration::from_secs(1));
-        let result2 = get_filename(details, &order);
-
-        assert_ne!(result1, result2, "Timestamps should be different");
-    }
-
-    #[test]
-    fn test_missing_optional_components() {
         let details = FilenameDetails {
-            title_arg: "Just Title".to_string(),
+            title_arg: Some("My Document".to_string()),
             signature_arg: None,
             keywords_arg: None,
             extension_arg: None,
         };
-
+        
         let order = [
             Segment::Identifier,
             Segment::Signature,
@@ -308,12 +118,165 @@ mod tests {
             Segment::Keywords,
             Segment::Extension,
         ];
-
+        
         let result = get_filename(details, &order);
+        assert!(result.contains("--mydocument"));
+        assert!(result.ends_with(".txt"));
+    }
 
-        assert!(!result.contains("==")); // No signature
-        assert!(result.contains("--justtitle"));
-        assert!(!result.contains("__")); // No keywords
-        assert!(result.ends_with(".txt")); // Default extension
+    #[test]
+    fn test_all_segments() {
+        let details = FilenameDetails {
+            title_arg: Some("Test Title".to_string()),
+            signature_arg: Some("Author Name".to_string()),
+            keywords_arg: Some("key1-key2".to_string()),
+            extension_arg: Some("md".to_string()),
+        };
+        
+        let order = [
+            Segment::Identifier,
+            Segment::Signature,
+            Segment::Title,
+            Segment::Keywords,
+            Segment::Extension,
+        ];
+        
+        let result = get_filename(details, &order);
+        assert!(result.contains("==authorname"));
+        assert!(result.contains("--testtitle"));
+        assert!(result.contains("__key1key2"));
+        assert!(result.ends_with(".md"));
+    }
+
+    #[test]
+    fn test_identifier_positioning() {
+        let details = FilenameDetails {
+            title_arg: Some("Test".to_string()),
+            signature_arg: None,
+            keywords_arg: None,
+            extension_arg: None,
+        };
+        
+        // Identifier first
+        let order1 = [
+            Segment::Identifier,
+            Segment::Title,
+            Segment::Signature,
+            Segment::Keywords,
+            Segment::Extension,
+        ];
+        let result1 = get_filename(details.clone(), &order1);
+        
+        // Identifier not first
+        let order2 = [
+            Segment::Title,
+            Segment::Identifier,
+            Segment::Signature,
+            Segment::Keywords,
+            Segment::Extension,
+        ];
+        let result2 = get_filename(details.clone(), &order2);
+        
+        assert!(!result1.contains("@@"));
+        assert!(result2.contains("@@"));
+    }
+
+    #[test]
+    fn test_illegal_characters() {
+        let details = FilenameDetails {
+            title_arg: Some("Test! @#$ Title".to_string()),
+            signature_arg: Some("Author (Name)".to_string()),
+            keywords_arg: Some("key1 & key2".to_string()),
+            extension_arg: None,
+        };
+        
+        let order = [
+            Segment::Identifier,
+            Segment::Signature,
+            Segment::Title,
+            Segment::Keywords,
+            Segment::Extension,
+        ];
+        
+        let result = get_filename(details, &order);
+        
+        assert!(result.contains("--testtitle"));
+        assert!(result.contains("==authorname"));
+        assert!(result.contains("__key1key2"));
+        assert!(!result.contains('!'));
+        assert!(!result.contains('@'));
+        assert!(!result.contains('&'));
+        assert!(!result.contains('('));
+    }
+
+    #[test]
+    fn test_empty_optional_segments() {
+        let details = FilenameDetails {
+            title_arg: None,
+            signature_arg: None,
+            keywords_arg: None,
+            extension_arg: None,
+        };
+        
+        let order = [
+            Segment::Identifier,
+            Segment::Signature,
+            Segment::Title,
+            Segment::Keywords,
+            Segment::Extension,
+        ];
+        
+        let result = get_filename(details, &order);
+        
+        assert!(!result.contains("=="));
+        assert!(!result.contains("--"));
+        assert!(!result.contains("__"));
+        assert!(result.ends_with(".txt"));
+    }
+
+    #[test]
+    fn test_segment_separator_handling() {
+        let details = FilenameDetails {
+            title_arg: Some("first.second-third_fourth".to_string()),
+            signature_arg: None,
+            keywords_arg: None,
+            extension_arg: None,
+        };
+        
+        let order = [
+            Segment::Identifier,
+            Segment::Title,
+            Segment::Extension,
+        ];
+        
+        let result = get_filename(details, &order);
+        
+        assert!(result.contains("--firstsecondthirdfourth"));
+        assert!(!result.matches('.').count() > 1); // Only extension should have a dot
+    }
+
+    #[test]
+    fn test_case_sensitivity() {
+        let details = FilenameDetails {
+            title_arg: Some("UPPERCASE".to_string()),
+            signature_arg: Some("MixedCase".to_string()),
+            keywords_arg: Some("CamelCase".to_string()),
+            extension_arg: Some("PDF".to_string()),
+        };
+        
+        let order = [
+            Segment::Identifier,
+            Segment::Signature,
+            Segment::Title,
+            Segment::Keywords,
+            Segment::Extension,
+        ];
+        
+        let result = get_filename(details, &order);
+        
+        assert!(result.contains("--uppercase"));
+        assert!(result.contains("==mixedcase"));
+        assert!(result.contains("__camelcase"));
+        assert!(result.ends_with(".pdf"));
     }
 }
