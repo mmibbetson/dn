@@ -87,13 +87,9 @@ dn
 -F/--frontmatter-format # Defaults to txt, other valid options are yaml, toml, org
 -s/--signature # Omitted if not specified
 -e/--extension # Defaults to txt unless --modifying, then defaults to extension of modified file
--k/--keywords # Comma-separated list
-
-# need a story for modular updates to the file name fragments
---add-keywords
---remove-keywords
---add-fragment
---remove-fragment
+-k/--keywords # String, can be separated with _ for multiple
+-A/--add-keywords # String, can be separated with _ for multiple
+-R/remove-keywords # String, can be separated with _ for multiple
 ```
 
 ## Configuration
@@ -101,23 +97,26 @@ dn
 dn looks for one environment variable, `DN_DIRECTORY`. This is the default directory dn will create files unless otherwise specified. If it is not set, it will default to `~/dnotes`. If a value is set in the `dn.toml` configuration file, it will take precedence over the environment variable and the default value.
 
 ```toml
-[file]
+[directory]
 directory = "~/dnotes"
-order = ["identifier", "signature", "title", "keywords"]
+
+[file]
+segment_order = ["identifier", "signature", "title", "keywords"]
 default_extension = "txt" # default extension
+preserve_extension = true # whether to preserve the original file extension when renaming if no new one is provided.
+preserve_identifier = true # ^
+preserve_keywords = true # ^
 
 [frontmatter]
 enabled = false
-format = "text" # text, yaml, toml, org
+format = "txt" # txt, yaml, toml, org
 date_time_style = "24h" # or "12h" or "none"
 order = ["title", "date", "keywords", "identifier"]
 
 [template]
-default = "" # default template content or path to a template file
+enabled = false
+default_path = "" # default path to a template file
 
-[rename]
-preserve_extension = true # whether to preserve the original file extension when renaming
-preserve_identifier = true
 ```
 
 ## Inspirations

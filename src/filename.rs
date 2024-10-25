@@ -1,8 +1,10 @@
 use crate::config::FilenameConfig;
-use chrono::Local;
+use chrono::{DateTime, Local};
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct FilenameDetails {
+    existing_filename: Option<String>, // TODO: Can be either a dn-compatible or non-compatible? Rename vs. Convert?
+    creation_time: DateTime<Local>,
     title_arg: Option<String>,
     signature_arg: Option<String>,
     keywords_arg: Option<String>,
@@ -18,26 +20,42 @@ pub enum Segment {
     Extension,
 }
 
+fn segment_prefix(segment: &Segment) -> &'static str {
+    match segment {
+        Segment::Identifier => "@@",
+        Segment::Signature => "==",
+        Segment::Title => "--",
+        Segment::Keywords => "__",
+        Segment::Extension => ".",
+    }
+}
+
+// TODO: Implementation of renaming checks/logic.
+// If preservation is on, include any non-provided existing details
+// But if any segment info is provided, add or overwrite with it.
 /// TODO: Documentation.
 pub fn get_filename(filename_details: &FilenameDetails, config: &FilenameConfig) -> String {
     config
         .segment_order
         .iter()
         .map(|segment| match segment {
-            Segment::Identifier => {
-                format_identifier(config.segment_order[0] == Segment::Identifier)
-            }
+            Segment::Identifier => format_identifier(
+                filename_details.creation_time,
+                config.segment_order[0] == Segment::Identifier,
+            ),
             Segment::Signature => format_optional(
                 &filename_details.signature_arg,
-                "==",
+                segment_prefix(segment),
                 &config.illegal_characters,
             ),
-            Segment::Title => {
-                format_optional(&filename_details.title_arg, "--", &config.illegal_characters)
-            }
+            Segment::Title => format_optional(
+                &filename_details.title_arg,
+                segment_prefix(segment),
+                &config.illegal_characters,
+            ),
             Segment::Keywords => format_optional(
                 &filename_details.keywords_arg,
-                "__",
+                segment_prefix(segment),
                 &config.illegal_characters,
             ),
             Segment::Extension => format_segment(
@@ -45,7 +63,7 @@ pub fn get_filename(filename_details: &FilenameDetails, config: &FilenameConfig)
                     .extension_arg
                     .as_deref()
                     .unwrap_or(&config.default_file_extension),
-                ".",
+                segment_prefix(segment),
                 &config.illegal_characters,
             ),
         })
@@ -53,18 +71,15 @@ pub fn get_filename(filename_details: &FilenameDetails, config: &FilenameConfig)
         .concat()
 }
 
-/// Generate a formatted identifier segment by getting the local time.
-fn format_identifier(is_first: bool) -> String {
-    let time = Local::now().format("%Y%m%dT%H%M%S").to_string();
+fn format_identifier(creation_time: DateTime<Local>, is_first: bool) -> String {
+    let time = creation_time.format("%Y%m%dT%H%M%S").to_string();
 
-    if is_first {
-        time
-    } else {
-        format!("@@{}", time)
+    match is_first {
+        true => time,
+        false => format!("{}{}", segment_prefix(&Segment::Identifier), time),
     }
 }
 
-/// Generate a formatted non-identifier segment.
 fn format_optional(
     segment: &Option<String>,
     prefix: &str,
@@ -103,7 +118,6 @@ fn sanitise_segment(segment: &str, illegal_characters: &Vec<char>) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::config::DEFAULT_ILLEGAL_CHARACTERS;
     use super::*;
 
     #[test]
@@ -113,21 +127,11 @@ mod tests {
             signature_arg: None,
             keywords_arg: None,
             extension_arg: None,
+            ..FilenameDetails::default()
         };
-
-        let config = FilenameConfig {
-            segment_order: [
-                Segment::Identifier,
-                Segment::Signature,
-                Segment::Title,
-                Segment::Keywords,
-                Segment::Extension,
-            ],
-            default_file_extension: "txt".to_string(),
-            illegal_characters: Vec::new(),
-        };
-
+        let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
+
         assert!(result.contains("--my-document.txt"));
     }
 
@@ -138,21 +142,11 @@ mod tests {
             signature_arg: Some("123".to_string()),
             keywords_arg: Some("key1_key2".to_string()),
             extension_arg: Some("md".to_string()),
+            ..FilenameDetails::default()
         };
-
-        let config = FilenameConfig {
-            segment_order: [
-                Segment::Identifier,
-                Segment::Signature,
-                Segment::Title,
-                Segment::Keywords,
-                Segment::Extension,
-            ],
-            default_file_extension: "txt".to_string(),
-            illegal_characters: Vec::new(),
-        };
-
+        let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
+
         assert!(result.contains("==123--test-title__key1_key2.md"));
     }
 
@@ -163,21 +157,11 @@ mod tests {
             signature_arg: None,
             keywords_arg: None,
             extension_arg: None,
+            ..FilenameDetails::default()
         };
 
         // Identifier first
-        let config_1 = FilenameConfig {
-            segment_order: [
-                Segment::Identifier,
-                Segment::Signature,
-                Segment::Title,
-                Segment::Keywords,
-                Segment::Extension,
-            ],
-            default_file_extension: "txt".to_string(),
-            illegal_characters: Vec::new(),
-        };
-
+        let config_1 = FilenameConfig::default();
         let result_1 = get_filename(&details, &config_1);
 
         // Identifier not first
@@ -189,10 +173,8 @@ mod tests {
                 Segment::Keywords,
                 Segment::Extension,
             ],
-            default_file_extension: "txt".to_string(),
-            illegal_characters: Vec::new(),
+            ..FilenameConfig::default()
         };
-
         let result2 = get_filename(&details, &config_2);
 
         assert!(!result_1.contains("@@"));
@@ -206,8 +188,8 @@ mod tests {
             signature_arg: Some("123".to_string()),
             keywords_arg: Some("key1_key2".to_string()),
             extension_arg: None,
+            ..FilenameDetails::default()
         };
-
         let config = FilenameConfig {
             segment_order: [
                 Segment::Identifier,
@@ -216,15 +198,14 @@ mod tests {
                 Segment::Title,
                 Segment::Signature,
             ],
-            default_file_extension: "txt".to_string(),
-            illegal_characters: Vec::new(),
+            ..FilenameConfig::default()
         };
-
         let result = get_filename(&details, &config);
 
         assert!(result.contains(".txt__key1_key2--my-title==123"));
     }
 
+    // TODO: test specific illegal character vec
     #[test]
     fn test_illegal_characters() {
         let details = FilenameDetails {
@@ -232,26 +213,15 @@ mod tests {
             signature_arg: Some("Auth[or](Name)".to_string()),
             keywords_arg: Some("key1&&^key2".to_string()),
             extension_arg: Some("...org".to_string()),
+            ..FilenameDetails::default()
         };
-
-        let config = FilenameConfig {
-            segment_order: [
-                Segment::Identifier,
-                Segment::Signature,
-                Segment::Title,
-                Segment::Keywords,
-                Segment::Extension,
-            ],
-            default_file_extension: "txt".to_string(),
-            illegal_characters: DEFAULT_ILLEGAL_CHARACTERS.to_vec(),
-        };
-
+        let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
 
         assert!(
             result
                 .chars()
-                .filter(|c| DEFAULT_ILLEGAL_CHARACTERS.contains(c))
+                .filter(|c| config.illegal_characters.contains(c))
                 .collect::<String>()
                 == "".to_string()
         );
@@ -264,20 +234,9 @@ mod tests {
             signature_arg: None,
             keywords_arg: None,
             extension_arg: None,
+            ..FilenameDetails::default()
         };
-
-        let config = FilenameConfig {
-            segment_order: [
-                Segment::Identifier,
-                Segment::Signature,
-                Segment::Title,
-                Segment::Keywords,
-                Segment::Extension,
-            ],
-            default_file_extension: "txt".to_string(),
-            illegal_characters: Vec::new(),
-        };
-
+        let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
 
         assert!(!result.contains("=="));
@@ -293,20 +252,9 @@ mod tests {
             signature_arg: None,
             keywords_arg: Some("_kwrd__check".to_string()),
             extension_arg: Some(".tar.gz".to_string()),
+            ..FilenameDetails::default()
         };
-
-        let config = FilenameConfig {
-            segment_order: [
-                Segment::Identifier,
-                Segment::Signature,
-                Segment::Title,
-                Segment::Keywords,
-                Segment::Extension,
-            ],
-            default_file_extension: "txt".to_string(),
-            illegal_characters: Vec::new(),
-        };
-
+        let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
 
         assert!(result.contains("--firstsecond-thirdfourth__kwrd_check.tar.gz"));
@@ -319,26 +267,24 @@ mod tests {
             signature_arg: Some("MixedCase".to_string()),
             keywords_arg: Some("CamelCase".to_string()),
             extension_arg: Some("PDF".to_string()),
+            ..FilenameDetails::default()
         };
-
-        let config = FilenameConfig {
-            segment_order: [
-                Segment::Identifier,
-                Segment::Signature,
-                Segment::Title,
-                Segment::Keywords,
-                Segment::Extension,
-            ],
-            default_file_extension: "txt".to_string(),
-            illegal_characters: Vec::new(),
-        };
-
+        let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
-        println!("{}", result);
 
         assert!(result.contains("--uppercase"));
         assert!(result.contains("==mixedcase"));
         assert!(result.contains("__camelcase"));
         assert!(result.ends_with(".pdf"));
+    }
+
+    #[test]
+    fn test_renaming_dn_format_file() {
+        todo!()
+    }
+
+    #[test]
+    fn test_renaming_non_dn_format_file() {
+        todo!()
     }
 }
