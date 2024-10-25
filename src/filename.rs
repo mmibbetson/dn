@@ -2,7 +2,7 @@ use chrono::Local;
 
 #[derive(Clone)]
 pub struct FilenameDetails {
-    title_arg: String,
+    title_arg: Option<String>,
     signature_arg: Option<String>,
     keywords_arg: Option<String>,
     extension_arg: Option<String>,
@@ -18,18 +18,24 @@ pub enum Segment {
 }
 
 const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
+// TODO: In the future, illegal characters should be configurable by the user.
 const ILLEGAL_CHARACTERS: [char; 33] = [
     ' ', '[', ']', '{', '}', '(', ')', '!', '@', '#', '$', '%', '^', '&', '*', '+', '\'', '\\',
     '"', '?', ',', '.', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*',
 ];
 
+// TODO: This should be configurable by the user.
+const DEFAULT_FILE_EXTENSION: &str = "txt";
+
 pub fn get_filename(filename_details: FilenameDetails, order: &[Segment; 5]) -> String {
-    let identifier_is_first = order[0] == Segment::Identifier;
-    let identifier = format_identifier(identifier_is_first);
-    let signature = format_signature(filename_details.signature_arg);
-    let title = format_title(filename_details.title_arg);
-    let keywords = format_keywords(filename_details.keywords_arg);
-    let extension = format_extension(filename_details.extension_arg);
+    let identifier = format_identifier(order[0] == Segment::Identifier);
+    let signature = format_segment(filename_details.signature_arg, "==".to_string());
+    let title = format_title(filename_details.title_arg, "--".to_string());
+    let keywords = format_keywords(filename_details.keywords_arg, "__".to_string());
+    let extension = format_extension(
+        Some(filename_details.extension_arg.unwrap_or("txt".to_string())),
+        ".".to_string(),
+    );
 
     order
         .iter()
@@ -44,6 +50,7 @@ pub fn get_filename(filename_details: FilenameDetails, order: &[Segment; 5]) -> 
         .concat()
 }
 
+/// Generate a formatted identifier segment by getting the local time.
 fn format_identifier(is_first: bool) -> String {
     let time = Local::now().format("%Y%m%dT%H%M%S").to_string();
 
@@ -54,24 +61,9 @@ fn format_identifier(is_first: bool) -> String {
     }
 }
 
-fn format_signature(signature: Option<String>) -> Option<String> {
-    signature.map(|sig| process_segment(sig, "==".to_string()))
-}
-
-fn format_title(title: String) -> String {
-    process_segment(title, "--".to_string())
-}
-
-fn format_keywords(keywords: Option<String>) -> Option<String> {
-    keywords.map(|key| process_segment(key, "__".to_string()))
-}
-
-fn format_extension(extension: Option<String>) -> String {
-    const DEFAULT_FILE_EXTENSION: &str = "txt";
-
-    extension
-        .map(|ext| process_segment(ext, ".".to_string()))
-        .unwrap_or(DEFAULT_FILE_EXTENSION.to_owned())
+/// Generate a formatted non-identifier segment.
+fn format_segment(segment: Option<String>, prefix: String) -> Option<String> {
+    segment.map(|seg| process_segment(seg, prefix))
 }
 
 fn process_segment(segment: String, prefix: String) -> String {
@@ -100,8 +92,8 @@ fn sanitise_segment(segment: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::time::Duration;
     use std::thread;
+    use std::time::Duration;
 
     fn create_basic_details() -> FilenameDetails {
         FilenameDetails {
@@ -124,7 +116,7 @@ mod tests {
         ];
 
         let result = get_filename(details, &order);
-        
+
         // We can't test the exact timestamp, but we can verify the structure
         assert!(result.contains("==author"));
         assert!(result.contains("--test-title"));
@@ -190,10 +182,7 @@ mod tests {
     #[test]
     fn test_extension_formatting() {
         assert_eq!(format_extension(None), "txt".to_string());
-        assert_eq!(
-            format_extension(Some("MD".to_string())),
-            ".md".to_string()
-        );
+        assert_eq!(format_extension(Some("MD".to_string())), ".md".to_string());
         assert_eq!(
             format_extension(Some("tar.gz".to_string())),
             ".tar.gz".to_string()
@@ -250,13 +239,16 @@ mod tests {
         assert_eq!(sanitise_segment("test@#$%^&*"), "test");
         assert_eq!(sanitise_segment("with.dots.in.it"), "withdotsinit");
         assert_eq!(sanitise_segment("with-dashes-in-it"), "withdashesinit");
-        assert_eq!(sanitise_segment("with_underscores_in_it"), "withunderscoresinit");
+        assert_eq!(
+            sanitise_segment("with_underscores_in_it"),
+            "withunderscoresinit"
+        );
     }
 
     #[test]
     fn test_different_segment_orders() {
         let details = create_basic_details();
-        
+
         let order1 = [
             Segment::Title,
             Segment::Identifier,
@@ -318,10 +310,10 @@ mod tests {
         ];
 
         let result = get_filename(details, &order);
-        
-        assert!(!result.contains("=="));  // No signature
+
+        assert!(!result.contains("==")); // No signature
         assert!(result.contains("--justtitle"));
-        assert!(!result.contains("__"));  // No keywords
+        assert!(!result.contains("__")); // No keywords
         assert!(result.ends_with(".txt")); // Default extension
     }
 }
