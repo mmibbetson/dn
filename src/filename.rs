@@ -127,7 +127,7 @@ mod tests {
             signature_arg: None,
             keywords_arg: None,
             extension_arg: None,
-            ..FilenameDetails::default()
+            ..Default::default()
         };
         let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
@@ -142,7 +142,7 @@ mod tests {
             signature_arg: Some("123".to_string()),
             keywords_arg: Some("key1_key2".to_string()),
             extension_arg: Some("md".to_string()),
-            ..FilenameDetails::default()
+            ..Default::default()
         };
         let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
@@ -157,7 +157,7 @@ mod tests {
             signature_arg: None,
             keywords_arg: None,
             extension_arg: None,
-            ..FilenameDetails::default()
+            ..Default::default()
         };
 
         // Identifier first
@@ -173,7 +173,7 @@ mod tests {
                 Segment::Keywords,
                 Segment::Extension,
             ],
-            ..FilenameConfig::default()
+            ..Default::default()
         };
         let result2 = get_filename(&details, &config_2);
 
@@ -188,7 +188,7 @@ mod tests {
             signature_arg: Some("123".to_string()),
             keywords_arg: Some("key1_key2".to_string()),
             extension_arg: None,
-            ..FilenameDetails::default()
+            ..Default::default()
         };
         let config = FilenameConfig {
             segment_order: [
@@ -198,7 +198,7 @@ mod tests {
                 Segment::Title,
                 Segment::Signature,
             ],
-            ..FilenameConfig::default()
+            ..Default::default()
         };
         let result = get_filename(&details, &config);
 
@@ -213,7 +213,7 @@ mod tests {
             signature_arg: Some("Auth[or](Name)".to_string()),
             keywords_arg: Some("key1&&^key2".to_string()),
             extension_arg: Some("...org".to_string()),
-            ..FilenameDetails::default()
+            ..Default::default()
         };
         let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
@@ -234,7 +234,7 @@ mod tests {
             signature_arg: None,
             keywords_arg: None,
             extension_arg: None,
-            ..FilenameDetails::default()
+            ..Default::default()
         };
         let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
@@ -252,7 +252,7 @@ mod tests {
             signature_arg: None,
             keywords_arg: Some("_kwrd__check".to_string()),
             extension_arg: Some(".tar.gz".to_string()),
-            ..FilenameDetails::default()
+            ..Default::default()
         };
         let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
@@ -266,8 +266,8 @@ mod tests {
             title_arg: Some("UPPERCASE".to_string()),
             signature_arg: Some("MixedCase".to_string()),
             keywords_arg: Some("CamelCase".to_string()),
-            extension_arg: Some("PDF".to_string()),
-            ..FilenameDetails::default()
+            extension_arg: Some("ORG".to_string()),
+            ..Default::default()
         };
         let config = FilenameConfig::default();
         let result = get_filename(&details, &config);
@@ -275,16 +275,58 @@ mod tests {
         assert!(result.contains("--uppercase"));
         assert!(result.contains("==mixedcase"));
         assert!(result.contains("__camelcase"));
-        assert!(result.ends_with(".pdf"));
+        assert!(result.ends_with(".org"));
     }
 
     #[test]
     fn test_renaming_dn_format_file() {
-        todo!()
+        let details_1 = FilenameDetails {
+            existing_filename: Some("20241025T184500==321--my-file__test.md".to_string()),
+            title_arg: Some("My New Title".to_string()),
+            ..Default::default()
+        };
+        let details_2 = FilenameDetails {
+            existing_filename: Some("20241025T184500==321--my-file__test.md".to_string()),
+            title_arg: Some("My New Title".to_string()),
+            signature_arg: Some("123".to_string()),
+            keywords_arg: Some("IMPORTANT_test".to_string()),
+            extension_arg: Some("dj".to_string()),
+            ..Default::default()
+        };
+
+        let config_1 = FilenameConfig::default();
+        let config_2 = FilenameConfig {
+            preserve_existing_details: false,
+            ..Default::default()
+        };
+
+        let result_1 = get_filename(&details_1, &config_1);
+        let result_2 = get_filename(&details_2, &config_2);
+
+        assert!(result_1.contains("20241025T184500==321--my-new-title__test.md"));
+        assert!(result_2.contains("==123--my-new-title__important_test.dj"));
     }
 
     #[test]
     fn test_renaming_non_dn_format_file() {
-        todo!()
+        let details = FilenameDetails {
+            existing_filename: Some("my_file.md".to_string()),
+            ..Default::default()
+        };
+
+        let config_1 = FilenameConfig::default();
+        let config_2 = FilenameConfig {
+            preserve_existing_details: false,
+            ..Default::default()
+        };
+
+        let result_1 = get_filename(&details, &config_1);
+        let result_2 = get_filename(&details, &config_2);
+
+        assert!(result_1.contains("--myfile.md"));
+        assert!(!result_2.contains("=="));
+        assert!(!result_2.contains("--"));
+        assert!(!result_2.contains("__"));
+        assert!(result_2.contains(".txt"));
     }
 }
