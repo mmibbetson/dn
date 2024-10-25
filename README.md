@@ -104,7 +104,7 @@ dn looks for one environment variable, `DN_DIRECTORY`. This is the default direc
 [file]
 directory = "~/dnotes"
 order = ["identifier", "signature", "title", "keywords"]
-extension = "txt" # default extension
+default_extension = "txt" # default extension
 
 [frontmatter]
 enabled = false
