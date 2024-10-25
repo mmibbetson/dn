@@ -18,13 +18,13 @@ pub enum Segment {
 }
 
 const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
-// TODO: In the future, illegal characters should be configurable by the user.
-const ILLEGAL_CHARACTERS: [char; 31] = [
+
+// TODO: Illegal characters and default file extension will be configurable.
+// Therefore, we will want to receive them from the config struct.
+const DEFAULT_ILLEGAL_CHARACTERS: [char; 31] = [
     '[', ']', '{', '}', '(', ')', '!', '@', '#', '$', '%', '^', '&', '*', '+', '\'', '\\', '"',
     '?', ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*',
 ];
-
-// TODO: This should be configurable by the user.
 const DEFAULT_FILE_EXTENSION: &str = "txt";
 
 pub fn get_filename(filename_details: FilenameDetails, order: &[Segment; 5]) -> String {
@@ -82,7 +82,7 @@ fn sanitise_segment(segment: &str) -> String {
     segment
         .chars()
         .filter(|c| !SEGMENT_SEPARATORS.contains(c))
-        .filter(|c| !ILLEGAL_CHARACTERS.contains(c))
+        .filter(|c| !DEFAULT_ILLEGAL_CHARACTERS.contains(c))
         .collect()
 }
 
@@ -169,6 +169,28 @@ mod tests {
     }
 
     #[test]
+    fn test_segment_reordering() {
+        let details = FilenameDetails {
+            title_arg: Some("my title".to_string()),
+            signature_arg: Some("123".to_string()),
+            keywords_arg: Some("key1_key2".to_string()),
+            extension_arg: None,
+        };
+
+        let order = [
+            Segment::Identifier,
+            Segment::Extension,
+            Segment::Keywords,
+            Segment::Title,
+            Segment::Signature,
+        ];
+        
+        let result = get_filename(details.clone(), &order);
+
+        assert!(result.contains(".txt__key1_key2--my-title==123"));
+    }
+
+    #[test]
     fn test_illegal_characters() {
         let details = FilenameDetails {
             title_arg: Some("Test! @#$ Title".to_string()),
@@ -190,7 +212,7 @@ mod tests {
         assert!(
             result
                 .chars()
-                .filter(|c| ILLEGAL_CHARACTERS.contains(c))
+                .filter(|c| DEFAULT_ILLEGAL_CHARACTERS.contains(c))
                 .collect::<String>()
                 == "".to_string()
         );
