@@ -4,8 +4,8 @@ use crate::filename::FilenameSegment;
 mod args;
 mod config;
 mod filename;
-mod frontmatter;
 mod filename_parse;
+mod frontmatter;
 
 // Top-down draft using api
 fn main() {
