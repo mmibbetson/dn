@@ -3,7 +3,6 @@ use regex::Regex;
 
 use crate::filename::{FilenameDetails, DN_IDENTIFIER_FORMAT};
 
-// Match 8 digits, the letter 'T', then 6 digits.
 const IDENTIFIER_PATTERN: &str = r"(\b[0-9]{8}T[0-9]{6}\b)";
 const SIGNATURE_PATTERN: &str = r"(==[^\@\-\_\.]*)";
 const TITLE_PATTERN: &str = r"(--[^\@\=\_\.]*)";
