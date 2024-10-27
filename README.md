@@ -73,13 +73,6 @@ The dn command primarily creates a new file following the Denote naming scheme, 
 dn
 ```
 
-### Subcommands
-
-```sh
-rename
-keywords
-```
-
 ### Boolean Flags
 
 ```sh
