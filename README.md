@@ -26,6 +26,7 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 
 | OS  | Version |
 | :-- | :------ |
+|     |         |
 
 ### Cargo
 
@@ -47,16 +48,16 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 
 ```bash
 # Create a new note
-dn -k personal_ideas "My First Note"
+dn new -k personal_ideas -t "My First Note"
 
 # Rename an existing note
-dn -r oldfile.txt -k converted -e md # produces something like 20241006T145030--oldfile__converted.md
+dn rename oldfile.txt -k converted -e md # produces something like 20241006T145030--oldfile__converted.md
 
 # Remove the title and change extension of an existing note
-dn -r 20241001T121314--oldtitle__foo.md -e dj - # produces something like 20241001T121314__foo.dj
+dn rename 20241001T121314--oldtitle__foo.md -e dj - # produces something like 20241001T121314__foo.dj
 
 # Add and remove keywords on an existing file
-dn -r 20241001T121314--oldtitle__foo.md -A bar_baz -R baz # produces 20241001T121314--oldtitle__foo_bar.md
+dn rename 20241001T121314--oldtitle__foo.md -A bar_baz -R baz # produces 20241001T121314--oldtitle__foo_bar.md
 
 # Search $DN_DIRECTORY for a note and then open it in neovim
 # this is obviously wrong atm
@@ -73,36 +74,73 @@ The dn command primarily creates a new file following the Denote naming scheme, 
 dn
 ```
 
-### Boolean Flags
+#### Boolean Flags
+
+```sh
+-h/--help # could also be subcommand?
+-v/--version
+```
+
+### Subcommands
+
+#### New
+
+```sh
+new
+```
+
+`new` takes no positional arguments and is used to create a new note.
+
+##### Boolean Flags
 
 ```sh
 -h/--help
--v/--version
--f/--frontmatter
+-G/--generate-frontmatter # generates or regenerates frontmatter
 ```
 
-### Option Flags
+##### Option Flags
 
 ```sh
 -d/--directory # Defaults to config file value if present, otherwise ~/dnotes
 -o/--order # Defaults to identifier,signature,title,keywords
 -O/--frontmatter-order # defaults to title,date,keywords,identifier
 -c/--config # Defaults to $XDG_CONFIG_HOME on Unix-like and the equivalent on Windows
+-T/--template # accepts an input file whose contents are to be inserted in the new file, below frontmatter if present
+-F/--frontmatter-format # Defaults to txt, other valid options are yaml, toml, org
+-s/--signature # Omitted if not specified
+-t/--title # The title to be used in frontmatter and formatted in filename
+-e/--extension # Defaults to txt unless --modifying, then defaults to extension of modified file
+-k/--keywords # String, can be separated with _ for multiple
+```
 
-# !WARN! -R and -r are mutually exclusive
--r/--rename # accepts an input file to be renamed
--R/--frontmatter-rename # renames file from frontmatter values 
+#### Rename
 
--t/--template # accepts an input file whose contents are to be inserted in the new file, below frontmatter if present
--f/--frontmatter # enable the addition of frontmatter to the created file
+```sh
+rename <input>
+```
+
+`rename` takes one positional argument, `<input>`, which is placed immediately after the `rename` subcommand, prior to any flags. This argument is the path to the input file which is to be renamed.
+
+##### Boolean Flags
+
+```sh
+-h/--help # could also be subcommand?
+-f/--frontmatter # renames file based on frontmatter values (overridden by provided values)
+-G/--generate-frontmatter # generates or regenerates frontmatter
+```
+
+##### Option Flags
+
+```sh
+-o/--order # Defaults to identifier,signature,title,keywords
+-O/--frontmatter-order # defaults to title,date,keywords,identifier
+-c/--config # Defaults to $XDG_CONFIG_HOME on Unix-like and the equivalent on Windows
 -F/--frontmatter-format # Defaults to txt, other valid options are yaml, toml, org
 -s/--signature # Omitted if not specified
 -e/--extension # Defaults to txt unless --modifying, then defaults to extension of modified file
 -k/--keywords # String, can be separated with _ for multiple
-
-# !WARN! -A and -D are ONLY able to be used with -r (NOT -R)
 -A/--add-keywords # String, can be separated with _ for multiple
--D/--delete-keywords # String, can be separated with _ for multiple
+-R/--remove-keywords # String, can be separated with _ for multiple
 ```
 
 ## Configuration
@@ -112,6 +150,7 @@ dn looks for one environment variable, `DN_DIRECTORY`. This is the default direc
 ```toml
 [directory]
 directory = "~/dnotes"
+# consider handling of possible subdirector(y/ies)
 
 [file]
 segment_order = ["Identifier", "Signature", "Title", "Keywords", "Extension"] # These are not optional, you must specify each segment.
@@ -120,14 +159,13 @@ default_extension = "txt" # default extension
 [frontmatter]
 enabled = false
 rewrite = true
-format = "txt" # txt, yaml, toml, org
-date_time_style = "24h" # or "12h" or "none"
+format = "Text" # Text, Yaml, Toml, Org
+date_time_style = "24h" # or "12h" or "None"
 order = ["Title", "Date", "Keywords", "Identifier"] # These are all optional so you can leave some out?
 
 [template]
 enabled = false
 default_path = "" # default path to a template file
-
 ```
 
 ## Inspirations
@@ -137,8 +175,7 @@ default_path = "" # default path to a template file
 
 ## Dependencies
 
-We try to keep dependencies minimal. Ideally, this will become a [cold-blooded]() project and the dependencies will be vendored if present.
-
+We try to keep dependencies minimal. Ideally, this will become a [cold-blooded]() project and the dependencies will be vendored.
 
 ## Development
 

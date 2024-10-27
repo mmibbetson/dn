@@ -4,3 +4,6 @@
 // 3. split words in remove_keywords_arg
 // 4. iterate over formatted string, remove instances of remove keywords arg words from [3]
 // 5. collect properly into nice single string, to be used as final keywords_arg value
+
+// When renaming a file, be sure to parse the filename correctly out of the input path
+// and rejoin if necessary when writing to disk or w/e.
