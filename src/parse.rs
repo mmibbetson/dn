@@ -15,7 +15,6 @@ pub fn parse_filename_details(filename: &str, parse_time: DateTime<Local>) -> Fi
     let title_arg = if identifier_arg.is_some() {
         parse_segment(filename, TITLE_PATTERN)
     } else {
-        // Take the existing file name sans the extension.
         Some(filename.chars().take_while(|&c| c != '.').collect())
     };
     let keywords_arg = parse_segment(filename, KEYWORDS_PATTERN);
