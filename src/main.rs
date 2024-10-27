@@ -9,10 +9,10 @@ mod parse;
 
 // Top-down draft using api
 fn main() {
-	// get_args();
-	// get_config();
-	// get_filename();
-	// get_frontmatter();
-	// get_template();
-	// create_file();
+    // get_args();
+    // get_config();
+    // get_filename();
+    // get_frontmatter();
+    // get_template();
+    // create_file();
 }
