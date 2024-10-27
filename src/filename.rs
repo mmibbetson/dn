@@ -3,10 +3,11 @@ use chrono::{DateTime, Local};
 
 #[derive(Clone, Default)]
 pub struct FilenameDetails {
-    existing_filename: Option<String>, // TODO: Can be either a dn-compatible or non-compatible? Rename vs. Convert?
     creation_time: DateTime<Local>,
-    title_arg: Option<String>,
+    existing_filename: Option<String>,
+    identifier_arg: Option<String>,
     signature_arg: Option<String>,
+    title_arg: Option<String>,
     keywords_arg: Option<String>,
     extension_arg: Option<String>,
 }
@@ -30,45 +31,42 @@ fn segment_prefix(segment: &Segment) -> &'static str {
     }
 }
 
-// TODO: Implementation of renaming checks/logic.
-// If preservation is on, include any non-provided existing details
-// But if any segment info is provided, add or overwrite with it.
 /// TODO: Documentation.
 pub fn get_filename(filename_details: &FilenameDetails, config: &FilenameConfig) -> String {
     config
         .segment_order
         .iter()
-        .map(|segment| match segment {
-            Segment::Identifier => format_identifier(
-                filename_details.creation_time,
-                config.segment_order[0] == Segment::Identifier,
-            ),
-            Segment::Signature => format_optional(
-                &filename_details.signature_arg,
-                segment_prefix(segment),
-                &config.illegal_characters,
-            ),
-            Segment::Title => format_optional(
-                &filename_details.title_arg,
-                segment_prefix(segment),
-                &config.illegal_characters,
-            ),
-            Segment::Keywords => format_optional(
-                &filename_details.keywords_arg,
-                segment_prefix(segment),
-                &config.illegal_characters,
-            ),
-            Segment::Extension => format_segment(
-                filename_details
-                    .extension_arg
-                    .as_deref()
-                    .unwrap_or(&config.default_file_extension),
-                segment_prefix(segment),
-                &config.illegal_characters,
-            ),
-        })
+        .map(|segment| process_segment(segment, filename_details, config))
         .collect::<Vec<_>>()
         .concat()
+}
+
+fn process_segment(
+    segment: &Segment,
+    filename_details: &FilenameDetails,
+    config: &FilenameConfig,
+) -> String {
+    let arg = match segment {
+        Segment::Identifier => &filename_details.identifier_arg,
+        Segment::Signature => &filename_details.signature_arg,
+        Segment::Title => &filename_details.title_arg,
+        Segment::Keywords => &filename_details.keywords_arg,
+        Segment::Extension => &filename_details.extension_arg,
+    };
+    let prefix = segment_prefix(&segment);
+
+    match segment {
+        Segment::Identifier => format_identifier(
+            filename_details.creation_time,
+            config.segment_order[0] == *segment,
+        ),
+        Segment::Extension => format_segment(
+            arg.as_deref().unwrap_or(&config.default_file_extension),
+            prefix,
+            &config.illegal_characters,
+        ),
+        _ => format_optional(arg, prefix, &config.illegal_characters),
+    }
 }
 
 fn format_identifier(creation_time: DateTime<Local>, is_first: bool) -> String {
@@ -276,57 +274,5 @@ mod tests {
         assert!(result.contains("==mixedcase"));
         assert!(result.contains("__camelcase"));
         assert!(result.ends_with(".org"));
-    }
-
-    #[test]
-    fn test_renaming_dn_format_file() {
-        let details_1 = FilenameDetails {
-            existing_filename: Some("20241025T184500==321--my-file__test.md".to_string()),
-            title_arg: Some("My New Title".to_string()),
-            ..Default::default()
-        };
-        let details_2 = FilenameDetails {
-            existing_filename: Some("20241025T184500==321--my-file__test.md".to_string()),
-            title_arg: Some("My New Title".to_string()),
-            signature_arg: Some("123".to_string()),
-            keywords_arg: Some("IMPORTANT_test".to_string()),
-            extension_arg: Some("dj".to_string()),
-            ..Default::default()
-        };
-
-        let config_1 = FilenameConfig::default();
-        let config_2 = FilenameConfig {
-            preserve_existing_details: false,
-            ..Default::default()
-        };
-
-        let result_1 = get_filename(&details_1, &config_1);
-        let result_2 = get_filename(&details_2, &config_2);
-
-        assert!(result_1.contains("20241025T184500==321--my-new-title__test.md"));
-        assert!(result_2.contains("==123--my-new-title__important_test.dj"));
-    }
-
-    #[test]
-    fn test_renaming_non_dn_format_file() {
-        let details = FilenameDetails {
-            existing_filename: Some("my_file.md".to_string()),
-            ..Default::default()
-        };
-
-        let config_1 = FilenameConfig::default();
-        let config_2 = FilenameConfig {
-            preserve_existing_details: false,
-            ..Default::default()
-        };
-
-        let result_1 = get_filename(&details, &config_1);
-        let result_2 = get_filename(&details, &config_2);
-
-        assert!(result_1.contains("--myfile.md"));
-        assert!(!result_2.contains("=="));
-        assert!(!result_2.contains("--"));
-        assert!(!result_2.contains("__"));
-        assert!(result_2.contains(".txt"));
     }
 }

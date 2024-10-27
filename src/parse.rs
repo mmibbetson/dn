@@ -1,0 +1,1 @@
+// TODO: Parse existing filename if provided to provide a filedetails struct for use elsewhere.
