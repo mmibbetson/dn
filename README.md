@@ -56,7 +56,7 @@ dn -r oldfile.txt -k converted -e md # produces something like 20241006T145030--
 dn -r 20241001T121314--oldtitle__foo.md -e dj - # produces something like 20241001T121314__foo.dj
 
 # Add and remove keywords on an existing file
-dn -A 
+dn -r 20241001T121314--oldtitle__foo.md -A bar_baz -R baz # produces 20241001T121314--oldtitle__foo_bar.md
 
 # Search $DN_DIRECTORY for a note and then open it in neovim
 # this is obviously wrong atm
@@ -95,8 +95,11 @@ keywords
 -o/--order # Defaults to identifier,signature,title,keywords
 -O/--frontmatter-order # defaults to title,date,keywords,identifier
 -c/--config # Defaults to $XDG_CONFIG_HOME on Unix-like and the equivalent on Windows
+
+# !WARN! -R and -r are mutually exclusive
 -r/--rename # accepts an input file to be renamed
--R/--frontmatter-rename # renames file from frontmatter values
+-R/--frontmatter-rename # renames file from frontmatter values 
+
 -t/--template # accepts an input file whose contents are to be inserted in the new file, below frontmatter if present
 -f/--frontmatter # enable the addition of frontmatter to the created file
 -F/--frontmatter-format # Defaults to txt, other valid options are yaml, toml, org
@@ -104,7 +107,7 @@ keywords
 -e/--extension # Defaults to txt unless --modifying, then defaults to extension of modified file
 -k/--keywords # String, can be separated with _ for multiple
 
-# TO BE IMPLEMENTED LATER #
+# !WARN! -A and -D are ONLY able to be used with -r (NOT -R)
 -A/--add-keywords # String, can be separated with _ for multiple
 -D/--delete-keywords # String, can be separated with _ for multiple
 ```
