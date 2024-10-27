@@ -47,10 +47,16 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 
 ```bash
 # Create a new note
-dn -k personal,ideas "My First Note"
+dn -k personal_ideas "My First Note"
 
 # Rename an existing note
-dn -r oldfile.txt -k converted -e md # produces something like 2024106T145030--oldfile__converted.md
+dn -r oldfile.txt -k converted -e md # produces something like 20241006T145030--oldfile__converted.md
+
+# Remove the title and change extension of an existing note
+dn -r 20241001T121314--oldtitle__foo.md -e dj - # produces something like 20241001T121314__foo.dj
+
+# Add and remove keywords on an existing file
+dn -A 
 
 # Search $DN_DIRECTORY for a note and then open it in neovim
 # this is obviously wrong atm
@@ -67,6 +73,13 @@ The dn command primarily creates a new file following the Denote naming scheme, 
 dn
 ```
 
+### Subcommands
+
+```sh
+rename
+keywords
+```
+
 ### Boolean Flags
 
 ```sh
@@ -78,18 +91,20 @@ dn
 ### Option Flags
 
 ```sh
--d/--directory # Defaults to $DN_DIRECTORY environment variable if present, otherwise ~/dnotes
+-d/--directory # Defaults to config file value if present, otherwise ~/dnotes
 -o/--order # Defaults to identifier,signature,title,keywords
 -O/--frontmatter-order # defaults to title,date,keywords,identifier
--c/--config # Defaults to $XDG_CONFIG or equivalent on Unix and the equivalent on Windows
+-c/--config # Defaults to $XDG_CONFIG_HOME on Unix-like and the equivalent on Windows
 -r/--rename # accepts an input file to be renamed
+-R/--frontmatter-rename # renames file from frontmatter values
 -t/--template # accepts an input file whose contents are to be inserted in the new file, below frontmatter if present
+-f/--frontmatter # enable the addition of frontmatter to the created file
 -F/--frontmatter-format # Defaults to txt, other valid options are yaml, toml, org
 -s/--signature # Omitted if not specified
 -e/--extension # Defaults to txt unless --modifying, then defaults to extension of modified file
 -k/--keywords # String, can be separated with _ for multiple
 -A/--add-keywords # String, can be separated with _ for multiple
--R/remove-keywords # String, can be separated with _ for multiple
+-D/--delete-keywords # String, can be separated with _ for multiple
 ```
 
 ## Configuration
@@ -101,17 +116,15 @@ dn looks for one environment variable, `DN_DIRECTORY`. This is the default direc
 directory = "~/dnotes"
 
 [file]
-segment_order = ["identifier", "signature", "title", "keywords"]
+segment_order = ["Identifier", "Signature", "Title", "Keywords", "Extension"] # These are not optional, you must specify each segment.
 default_extension = "txt" # default extension
-preserve_extension = true # whether to preserve the original file extension when renaming if no new one is provided.
-preserve_identifier = true # ^
-preserve_keywords = true # ^
 
 [frontmatter]
 enabled = false
+rewrite = true
 format = "txt" # txt, yaml, toml, org
 date_time_style = "24h" # or "12h" or "none"
-order = ["title", "date", "keywords", "identifier"]
+order = ["Title", "Date", "Keywords", "Identifier"] # These are all optional so you can leave some out?
 
 [template]
 enabled = false
