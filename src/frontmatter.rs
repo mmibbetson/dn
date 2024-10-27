@@ -1,10 +1,16 @@
 use crate::{config::FrontmatterConfig, filename::FilenameDetails};
 
-pub fn get_frontmatter(filename_details: &FilenameDetails, config: &FrontmatterConfig) -> String {
-    config
-        .segment_order
-        .iter()
-        .map(|segment| process_segment(segment, filename_details, config))
-        .collect::<Vec<_>>()
-        .concat()
+pub enum FrontmatterSegment {
+    Title,
+    Date,
+    Keywords,
+    Identifier,
 }
+
+pub fn get_frontmatter(filename_details: &FilenameDetails, config: &FrontmatterConfig) -> String {
+    todo!()
+}
+
+// TODO: Handle processing for YAML, TOML, org, plaintext frontmatter.
+
+// TODO: Handle parsing existing frontmatter for a rename.

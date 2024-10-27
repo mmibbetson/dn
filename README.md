@@ -103,6 +103,8 @@ keywords
 -s/--signature # Omitted if not specified
 -e/--extension # Defaults to txt unless --modifying, then defaults to extension of modified file
 -k/--keywords # String, can be separated with _ for multiple
+
+# TO BE IMPLEMENTED LATER #
 -A/--add-keywords # String, can be separated with _ for multiple
 -D/--delete-keywords # String, can be separated with _ for multiple
 ```

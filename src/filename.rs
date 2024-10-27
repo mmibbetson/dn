@@ -12,7 +12,7 @@ pub struct FilenameDetails {
 }
 
 #[derive(PartialEq)]
-pub enum Segment {
+pub enum FilenameSegment {
     Identifier,
     Signature,
     Title,
@@ -33,25 +33,25 @@ pub fn get_filename(filename_details: &FilenameDetails, config: &FilenameConfig)
 }
 
 fn process_segment(
-    segment: &Segment,
+    segment: &FilenameSegment,
     filename_details: &FilenameDetails,
     config: &FilenameConfig,
 ) -> String {
     let arg = match segment {
-        Segment::Identifier => &filename_details.identifier_arg,
-        Segment::Signature => &filename_details.signature_arg,
-        Segment::Title => &filename_details.title_arg,
-        Segment::Keywords => &filename_details.keywords_arg,
-        Segment::Extension => &filename_details.extension_arg,
+        FilenameSegment::Identifier => &filename_details.identifier_arg,
+        FilenameSegment::Signature => &filename_details.signature_arg,
+        FilenameSegment::Title => &filename_details.title_arg,
+        FilenameSegment::Keywords => &filename_details.keywords_arg,
+        FilenameSegment::Extension => &filename_details.extension_arg,
     };
     let prefix = segment_prefix(&segment);
 
     match segment {
-        Segment::Identifier => format_identifier(
+        FilenameSegment::Identifier => format_identifier(
             filename_details.creation_time,
             config.segment_order[0] == *segment,
         ),
-        Segment::Extension => format_segment(
+        FilenameSegment::Extension => format_segment(
             arg.as_deref().unwrap_or(&config.default_file_extension),
             prefix,
             &config.illegal_characters,
@@ -60,13 +60,13 @@ fn process_segment(
     }
 }
 
-fn segment_prefix(segment: &Segment) -> &'static str {
+fn segment_prefix(segment: &FilenameSegment) -> &'static str {
     match segment {
-        Segment::Identifier => "@@",
-        Segment::Signature => "==",
-        Segment::Title => "--",
-        Segment::Keywords => "__",
-        Segment::Extension => ".",
+        FilenameSegment::Identifier => "@@",
+        FilenameSegment::Signature => "==",
+        FilenameSegment::Title => "--",
+        FilenameSegment::Keywords => "__",
+        FilenameSegment::Extension => ".",
     }
 }
 
@@ -75,7 +75,7 @@ fn format_identifier(creation_time: DateTime<Local>, is_first: bool) -> String {
 
     match is_first {
         true => time,
-        false => format!("{}{}", segment_prefix(&Segment::Identifier), time),
+        false => format!("{}{}", segment_prefix(&FilenameSegment::Identifier), time),
     }
 }
 
@@ -174,11 +174,11 @@ mod tests {
         // Identifier not first
         let config_2 = FilenameConfig {
             segment_order: [
-                Segment::Title,
-                Segment::Identifier,
-                Segment::Signature,
-                Segment::Keywords,
-                Segment::Extension,
+                FilenameSegment::Title,
+                FilenameSegment::Identifier,
+                FilenameSegment::Signature,
+                FilenameSegment::Keywords,
+                FilenameSegment::Extension,
             ],
             ..Default::default()
         };
@@ -207,11 +207,11 @@ mod tests {
         };
         let config = FilenameConfig {
             segment_order: [
-                Segment::Identifier,
-                Segment::Extension,
-                Segment::Keywords,
-                Segment::Title,
-                Segment::Signature,
+                FilenameSegment::Identifier,
+                FilenameSegment::Extension,
+                FilenameSegment::Keywords,
+                FilenameSegment::Title,
+                FilenameSegment::Signature,
             ],
             ..Default::default()
         };

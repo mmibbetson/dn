@@ -1,11 +1,11 @@
 use crate::filename::get_filename;
-use crate::filename::Segment;
+use crate::filename::FilenameSegment;
 
 mod args;
 mod config;
 mod filename;
 mod frontmatter;
-mod parse;
+mod filename_parse;
 
 // Top-down draft using api
 fn main() {

@@ -1,4 +1,4 @@
-use crate::filename::Segment;
+use crate::{filename::FilenameSegment, frontmatter::FrontmatterSegment};
 use std::path::PathBuf;
 
 pub struct DnConfig {
@@ -13,7 +13,7 @@ pub struct DirectoryConfig {
 }
 
 pub struct FilenameConfig {
-    pub segment_order: [Segment; 5],
+    pub segment_order: [FilenameSegment; 5],
     pub default_file_extension: String,
     pub illegal_characters: Vec<char>,
     pub preserve_existing_details: bool,
@@ -23,11 +23,11 @@ impl Default for FilenameConfig {
     fn default() -> Self {
         FilenameConfig {
             segment_order: [
-                Segment::Identifier,
-                Segment::Signature,
-                Segment::Title,
-                Segment::Keywords,
-                Segment::Extension,
+                FilenameSegment::Identifier,
+                FilenameSegment::Signature,
+                FilenameSegment::Title,
+                FilenameSegment::Keywords,
+                FilenameSegment::Extension,
             ],
             default_file_extension: "txt".to_string(),
             illegal_characters: vec![
@@ -39,28 +39,17 @@ impl Default for FilenameConfig {
     }
 }
 
-// TODO: This is a draft.
-pub enum FrontmatterOrder {
-    Title,
-    Date,
-    Identifier,
-    Signature,
-    Keywords,
-    Author,
+pub struct FrontmatterConfig {
+    pub enabled: bool,
+    pub rewrite: bool,
+    pub format: String,
+    pub date_time_format: Option<FrontmatterDateTimeFormat>,
+    pub segment_order: Vec<FrontmatterSegment>,
 }
 
-// TODO: This is a draft.
 pub enum FrontmatterDateTimeFormat {
     TwentyFourHour,
     TwelveHour,
-}
-
-// TODO: Consider either using none or an explicit enabled boolean. Uniformity matters here.
-pub struct FrontmatterConfig {
-    pub enabled: bool,
-    pub format: String,
-    pub date_time_format: Option<FrontmatterDateTimeFormat>,
-    pub order: FrontmatterOrder,
 }
 
 pub struct TemplateConfig {
