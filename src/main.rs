@@ -5,6 +5,7 @@ mod args;
 mod config;
 mod filename;
 mod frontmatter;
+mod parse;
 
 // Top-down draft using api
 fn main() {
