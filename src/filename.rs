@@ -32,7 +32,11 @@ pub fn get_filename(filename_details: &FilenameDetails, config: &FilenameConfig)
 		.concat()
 }
 
-fn process_segment(segment: &Segment, filename_details: &FilenameDetails, config: &FilenameConfig) -> String {
+fn process_segment(
+	segment: &Segment,
+	filename_details: &FilenameDetails,
+	config: &FilenameConfig,
+) -> String {
 	let arg = match segment {
 		Segment::Identifier => &filename_details.identifier_arg,
 		Segment::Signature => &filename_details.signature_arg,
@@ -75,7 +79,11 @@ fn format_identifier(creation_time: DateTime<Local>, is_first: bool) -> String {
 	}
 }
 
-fn format_optional(segment: &Option<String>, prefix: &str, illegal_characters: &Vec<char>) -> String {
+fn format_optional(
+	segment: &Option<String>,
+	prefix: &str,
+	illegal_characters: &Vec<char>,
+) -> String {
 	segment.as_deref().map_or(String::new(), |seg| {
 		format_segment(seg, prefix, illegal_characters)
 	})
