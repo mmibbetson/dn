@@ -1,6 +1,6 @@
 use chrono::{DateTime, Local};
 
-use crate::{config::FrontmatterConfig, filename::{format_identifier, FilenameDetails}};
+use crate::{config::FrontmatterConfig, filename::FilenameDetails};
 
 #[derive(Copy, Clone)]
 pub enum FrontmatterFormat {
@@ -39,22 +39,6 @@ pub fn get_frontmatter(filename_details: &FilenameDetails, config: &FrontmatterC
         _ => "",
     };
 
-    let title = filename_details.title_arg.clone().map_or(String::new(), |seg| {
-        format_segment(seg.to_owned(), &config.format)
-    });
-
-    let date = filename_details.title_arg.clone().map_or(String::new(), |seg| {
-        format_segment(seg.to_owned(), &config.format)
-    });
-
-    let keywords = filename_details.title_arg.clone().map_or(String::new(), |seg| {
-        format_segment(seg.to_owned(), &config.format)
-    });
-    
-    let identifier = filename_details.creation_time.clone().map_or(String::new(), |seg| {
-        format_segment(seg.to_owned(), &config.format)
-    });
-
     let content = config
         .segment_order
         .iter()
@@ -82,11 +66,11 @@ fn process_segment(
 }
 
 fn format_optional(segment: &Option<String>, format: &FrontmatterFormat) -> String {
-    
+    todo!()
 }
 
 fn format_segment(segment: String, format: &FrontmatterFormat) -> String {
-    let 
+    todo!()
 }
 
 fn format_title(title: String, format: &FrontmatterFormat) -> String {
@@ -96,7 +80,11 @@ fn format_title(title: String, format: &FrontmatterFormat) -> String {
     }
 }
 
-fn format_date(date: DateTime<Local>, format: &FrontmatterFormat, time_format: TimeFormat) -> String {
+fn format_date(
+    date: DateTime<Local>,
+    format: &FrontmatterFormat,
+    time_format: TimeFormat,
+) -> String {
     let content = match format {
         FrontmatterFormat::Org => match time_format {
             TimeFormat::Hour24 => date.format("[%Y-%m-%d %a %H:%M]").to_string(),
@@ -107,13 +95,43 @@ fn format_date(date: DateTime<Local>, format: &FrontmatterFormat, time_format: T
             TimeFormat::Hour24 => date.format("%Y-%m-%dT%H:%M:%S%:z").to_string(),
             TimeFormat::Hour12 => date.format("%Y-%m-%d %I:%M:%S %p %:z").to_string(), // Non-standard ISO but human readable
             TimeFormat::None => date.format("%Y-%m-%d").to_string(),
-        }
+        },
     };
 
     format!("{}\n", content)
 }
 
-fn format_keywords() {}
+// TODO: This whole file is a complete mess
+fn format_keywords(keywords: String, format: FrontmatterFormat) -> String {
+    let processed = keywords
+        .to_lowercase()
+        .split(['_', ' '].as_ref())
+        .filter(|sub| !sub.is_empty())
+        // .map(|sub| sanitise_segment(sub, illegal_characters))
+        .map(|sub| sub.to_string())
+        .collect::<Vec<_>>();
+
+    match format {
+        FrontmatterFormat::YAML | FrontmatterFormat::TOML => {
+            let formatted = processed
+                .iter()
+                .map(|word| format!("\"{}\"", word))
+                .collect::<Vec<String>>()
+                .join(", ");
+
+            format!("[{}]", formatted)
+        },
+        FrontmatterFormat::Org => format!(":{}:", processed.join(":")),
+        _ => processed.join("  "),
+    }
+}
+
+fn format_identifier(identifier: String, format: &FrontmatterFormat) -> String {
+    match format {
+        FrontmatterFormat::YAML | FrontmatterFormat::TOML => format!("\"{}\"\n", identifier),
+        _ => format!("{}\n", identifier),
+    }
+}
 
 fn segment_prefix(segment: &FrontmatterSegment, format: &FrontmatterFormat) -> &'static str {
     match format {
@@ -126,36 +144,36 @@ fn segment_prefix(segment: &FrontmatterSegment, format: &FrontmatterFormat) -> &
 
 fn text_prefix(segment: &FrontmatterSegment) -> &'static str {
     match segment {
-        FrontmatterSegment::Title =>      "title:      ",
-        FrontmatterSegment::Date =>       "date:       ",
-        FrontmatterSegment::Keywords =>   "keywords:   ",
+        FrontmatterSegment::Title => "title:      ",
+        FrontmatterSegment::Date => "date:       ",
+        FrontmatterSegment::Keywords => "keywords:   ",
         FrontmatterSegment::Identifier => "identifier: ",
     }
 }
 
 fn yaml_prefix(segment: &FrontmatterSegment) -> &'static str {
     match segment {
-        FrontmatterSegment::Title =>      "title:      ",
-        FrontmatterSegment::Date =>       "date:       ",
-        FrontmatterSegment::Keywords =>   "keywords:   ",
+        FrontmatterSegment::Title => "title:      ",
+        FrontmatterSegment::Date => "date:       ",
+        FrontmatterSegment::Keywords => "keywords:   ",
         FrontmatterSegment::Identifier => "identifier: ",
     }
 }
 
 fn toml_prefix(segment: &FrontmatterSegment) -> &'static str {
     match segment {
-        FrontmatterSegment::Title =>      "title      = ",
-        FrontmatterSegment::Date =>       "date       = ",
-        FrontmatterSegment::Keywords =>   "keywords   = ",
+        FrontmatterSegment::Title => "title      = ",
+        FrontmatterSegment::Date => "date       = ",
+        FrontmatterSegment::Keywords => "keywords   = ",
         FrontmatterSegment::Identifier => "identifier = ",
     }
 }
 
 fn org_prefix(segment: &FrontmatterSegment) -> &'static str {
     match segment {
-        FrontmatterSegment::Title =>      "#+title:      ",
-        FrontmatterSegment::Date =>       "#+date:       ",
-        FrontmatterSegment::Keywords =>   "#+keywords:   ",
+        FrontmatterSegment::Title => "#+title:      ",
+        FrontmatterSegment::Date => "#+date:       ",
+        FrontmatterSegment::Keywords => "#+keywords:   ",
         FrontmatterSegment::Identifier => "#+identifier: ",
     }
 }
