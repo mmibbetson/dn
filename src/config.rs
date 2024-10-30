@@ -1,4 +1,4 @@
-use crate::{filename::FilenameSegment, frontmatter::FrontmatterSegment};
+use crate::{filename::FilenameSegment, frontmatter::{FrontmatterFormat, FrontmatterSegment}};
 use std::path::PathBuf;
 
 pub struct DnConfig {
@@ -16,7 +16,7 @@ pub struct FilenameConfig {
     pub segment_order: [FilenameSegment; 5],
     pub default_file_extension: String,
     pub illegal_characters: Vec<char>,
-    pub preserve_existing_details: bool,
+    pub regenerate_identifier: bool
 }
 
 impl Default for FilenameConfig {
@@ -34,7 +34,7 @@ impl Default for FilenameConfig {
                 '[', ']', '{', '}', '(', ')', '!', '@', '#', '$', '%', '^', '&', '*', '+', '\'',
                 '\\', '"', '?', ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*',
             ],
-            preserve_existing_details: true,
+            regenerate_identifier: true,
         }
     }
 }
@@ -42,7 +42,7 @@ impl Default for FilenameConfig {
 pub struct FrontmatterConfig {
     pub enabled: bool,
     pub rewrite: bool,
-    pub format: String,
+    pub format: FrontmatterFormat,
     pub date_time_format: Option<FrontmatterDateTimeFormat>,
     pub segment_order: Vec<FrontmatterSegment>,
 }

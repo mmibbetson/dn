@@ -50,9 +50,9 @@ fn derive_creation_time(identifier: &str) -> DateTime<Local> {
     }
 }
 
-///////////
+//-------//
 // Tests //
-///////////
+//-------//
 
 #[cfg(test)]
 mod tests {

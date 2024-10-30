@@ -5,7 +5,7 @@ const YAML_FILETAGS_PATTERN = r"(?m)^\+filetags:\s*(.*?)\n?";
 const YAML_IDENTIFIER_PATTERN = r"(?m)^\+identifier:\s*(.*?)\n?";
 
 // if its toml, first line is "^+++$"
-const TOML_TITLE_PATTERN = r"(?m)^title:\s*(\".*\")\n?";
+const TOML_TITLE_PATTERN: &str = r#"(?m)^title:\s*(\".*\")\n?"#;
 const TOML_DATE_PATTERN = 
 const TOML_FILETAGS_PATTERN = 
 const TOML_IDENTIFIER_PATTERN = 
@@ -22,3 +22,6 @@ const TEXT_DATE_PATTERN = r"(?m)^\+date:\s*(.*?)\n?";
 const TEXT_FILETAGS_PATTERN = r"(?m)^\+filetags:\s*(.*?)\n?";
 const TEXT_IDENTIFIER_PATTERN = r"(?m)^\+identifier:\s*(.*?)\n?";
 
+pub fn parse_frontmatter(file_head: String) -> FilenameDetails {
+    todo!()
+}

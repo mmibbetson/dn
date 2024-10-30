@@ -34,28 +34,35 @@ pub fn get_filename(filename_details: &FilenameDetails, config: &FilenameConfig)
 
 fn process_segment(
     segment: &FilenameSegment,
-    filename_details: &FilenameDetails,
+    details: &FilenameDetails,
     config: &FilenameConfig,
 ) -> String {
     let arg = match segment {
-        FilenameSegment::Identifier => &filename_details.identifier_arg,
-        FilenameSegment::Signature => &filename_details.signature_arg,
-        FilenameSegment::Title => &filename_details.title_arg,
-        FilenameSegment::Keywords => &filename_details.keywords_arg,
-        FilenameSegment::Extension => &filename_details.extension_arg,
+        FilenameSegment::Identifier => &details.identifier_arg,
+        FilenameSegment::Signature => &details.signature_arg,
+        FilenameSegment::Title => &details.title_arg,
+        FilenameSegment::Keywords => &details.keywords_arg,
+        FilenameSegment::Extension => &details.extension_arg,
     };
-    let prefix = segment_prefix(&segment);
+    let prefix = segment_prefix(segment);
 
     match segment {
-        FilenameSegment::Identifier => format_identifier(
-            filename_details.creation_time,
-            config.segment_order[0] == *segment,
-        ),
-        FilenameSegment::Extension => format_segment(
-            arg.as_deref().unwrap_or(&config.default_file_extension),
-            prefix,
-            &config.illegal_characters,
-        ),
+        FilenameSegment::Identifier if arg.is_some() && !config.regenerate_identifier => {
+            arg.clone().unwrap()
+        }
+        FilenameSegment::Identifier => {
+            format_identifier(details.creation_time, config.segment_order[0] == *segment)
+        }
+        FilenameSegment::Extension => {
+            let extension = arg.as_deref().unwrap_or(&config.default_file_extension);
+            let formatted = format_segment(extension, prefix, &config.illegal_characters);
+
+            if formatted.is_empty() {
+                format!("{}{}", prefix, config.default_file_extension)
+            } else {
+                formatted
+            }
+        }
         _ => format_optional(arg, prefix, &config.illegal_characters),
     }
 }
@@ -70,7 +77,7 @@ fn segment_prefix(segment: &FilenameSegment) -> &'static str {
     }
 }
 
-fn format_identifier(creation_time: DateTime<Local>, is_first: bool) -> String {
+pub fn format_identifier(creation_time: DateTime<Local>, is_first: bool) -> String {
     let time = creation_time.format(DN_IDENTIFIER_FORMAT).to_string();
 
     match is_first {
@@ -98,7 +105,10 @@ fn format_segment(segment: &str, prefix: &str, illegal_characters: &Vec<char>) -
         .collect::<Vec<_>>()
         .join(&prefix[..1]);
 
-    format!("{}{}", prefix, out)
+    match out == "".to_string() {
+        true => out,
+        false => format!("{}{}", prefix, out),
+    }
 }
 
 fn sanitise_segment(segment: &str, illegal_characters: &Vec<char>) -> String {
@@ -111,9 +121,9 @@ fn sanitise_segment(segment: &str, illegal_characters: &Vec<char>) -> String {
         .collect()
 }
 
-///////////
+//-------//
 // Tests //
-///////////
+//-------//
 
 #[cfg(test)]
 mod tests {
@@ -332,6 +342,61 @@ mod tests {
         assert!(
             result.ends_with(".org"),
             "Expected lowercase extension '.org', but got filename: {:?}",
+            result
+        );
+    }
+
+    #[test]
+    fn test_empty_segments() {
+        let details = FilenameDetails {
+            title_arg: Some("-".to_string()),
+            signature_arg: Some("==".to_string()),
+            keywords_arg: Some("___".to_string()),
+            extension_arg: Some("...".to_string()),
+            ..Default::default()
+        };
+        let config = FilenameConfig::default();
+        let result = get_filename(&details, &config);
+
+        assert!(
+            !result.contains("--"),
+            "Expected no title, but got filename: {:?}",
+            result
+        );
+        assert!(
+            !result.contains("=="),
+            "Expected no signature, but got filename: {:?}",
+            result
+        );
+        assert!(
+            !result.contains("__"),
+            "Expected no keywords, but got filename: {:?}",
+            result
+        );
+        assert!(
+            result.ends_with(".txt"),
+            "Expected lowercase extension '.txt', but got filename: {:?}",
+            result
+        );
+    }
+
+    #[test]
+    fn test_use_existing_identifier() {
+        let details = FilenameDetails {
+            identifier_arg: Some("20001212T121212".to_string()),
+            ..Default::default()
+        };
+
+        let config = FilenameConfig {
+            regenerate_identifier: false,
+            ..Default::default()
+        };
+
+        let result = get_filename(&details, &config);
+
+        assert!(
+            !result.contains("1970"),
+            "Expected no unix epoch, but got filename: {:?}",
             result
         );
     }

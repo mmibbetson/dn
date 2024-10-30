@@ -125,6 +125,7 @@ rename <input>
 
 ```sh
 -h/--help # could also be subcommand?
+-I/--regenerate-identifier # generate identifier even if there is an existing one
 -f/--frontmatter # renames file based on frontmatter values (overridden by provided values)
 -G/--generate-frontmatter # generates or regenerates frontmatter
 ```
