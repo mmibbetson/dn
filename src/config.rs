@@ -16,7 +16,6 @@ pub struct FilenameConfig {
     pub segment_order: [FilenameSegment; 5],
     pub default_file_extension: String,
     pub illegal_characters: Vec<char>,
-    pub regenerate_identifier: bool
 }
 
 impl Default for FilenameConfig {
@@ -34,7 +33,6 @@ impl Default for FilenameConfig {
                 '[', ']', '{', '}', '(', ')', '!', '@', '#', '$', '%', '^', '&', '*', '+', '\'',
                 '\\', '"', '?', ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*',
             ],
-            regenerate_identifier: true,
         }
     }
 }
@@ -56,3 +54,6 @@ pub struct TemplateConfig {
     pub enabled: bool,
     pub default_path: PathBuf,
 }
+
+// TODO: When creating the config struct instances, we resolve the hierarchy:
+// Command Line Option > Config File > Default

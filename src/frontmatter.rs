@@ -52,7 +52,7 @@ pub fn get_frontmatter(filename_details: &FilenameDetails, config: &FrontmatterC
     });
     
     let identifier = filename_details.creation_time.clone().map_or(String::new(), |seg| {
-        format_identifier(seg.to_owned(), &config.format)
+        format_segment(seg.to_owned(), &config.format)
     });
 
     let content = config

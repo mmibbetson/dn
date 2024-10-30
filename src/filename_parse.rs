@@ -33,6 +33,10 @@ pub fn parse_filename_details(filename: &str, parse_time: DateTime<Local>) -> Fi
     }
 }
 
+pub fn get_identifier(filename: &str) -> Option<String> {
+    parse_segment(filename, IDENTIFIER_PATTERN)
+}
+
 fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
     Regex::new(pattern)
         .unwrap()
@@ -172,7 +176,7 @@ mod tests {
         assert_eq!(
             truncate_nanoseconds(result),
             truncate_nanoseconds(expected),
-            "DateTime parsing failed. Input: {}, Format: {}, Expected: {:?}, Got: {:?}",
+            "DateTime parsing failed. Input: {:?}, Format: {:?}, Expected: {:?}, Got: {:?}",
             identifier,
             DN_IDENTIFIER_FORMAT,
             truncate_nanoseconds(expected),

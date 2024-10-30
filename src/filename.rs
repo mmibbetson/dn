@@ -47,9 +47,6 @@ fn process_segment(
     let prefix = segment_prefix(segment);
 
     match segment {
-        FilenameSegment::Identifier if arg.is_some() && !config.regenerate_identifier => {
-            arg.clone().unwrap()
-        }
         FilenameSegment::Identifier => {
             format_identifier(details.creation_time, config.segment_order[0] == *segment)
         }
