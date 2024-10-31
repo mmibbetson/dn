@@ -1,17 +1,3 @@
-// When getting --add-keywords or --remove-keywords we want to modify the keywords_arg
-// 1. Take existing keywords_arg (-k>filename_parse>None)
-// 2. format!("{}_{}", keywords_arg, add_keywords_arg)
-// 3. split words in remove_keywords_arg
-// 4. iterate over formatted string, remove instances of remove keywords arg words from [3]
-// 5. collect properly into nice single string, to be used as final keywords_arg value
-
-// When renaming a file, be sure to parse the filename correctly out of the input path
-// and rejoin if necessary when writing to disk or w/e.
-
-// When --regenerate-identifier is false, check get_identifier() and if the file has an identifier
-// we will use that to get the creation_time and identifier_arg. This way, frontmatter.rs can be
-// agnostic wrt the identifier arg.
-
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -38,14 +24,14 @@ enum Commands {
         generate_frontmatter: bool,
 
         /// Directory to save the note
-        #[arg(short = 'd', long)]
+        #[arg(short = 'd', long, value_name = "DIRECTORY")]
         directory: Option<String>,
 
-        /// Order of elements
-        #[arg(short = 'o', long)]
+        /// Order of filename segments, provided as a comma-delimited string
+        #[arg(short = 'o', long, value_name = "LIST")]
         order: Option<String>,
 
-        /// Frontmatter order
+        /// Frontmatter order of metadata, provided as a comma-delimited string
         #[arg(short = 'O', long)]
         frontmatter_order: Option<String>,
 

@@ -1,4 +1,4 @@
-use crate::config::FilenameConfig;
+use crate::{config::FilenameConfig, FileMetadata};
 use chrono::{DateTime, Local};
 
 #[derive(Clone, Default)]
@@ -23,13 +23,25 @@ pub enum FilenameSegment {
 pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
 
 /// TODO: Documentation.
-pub fn get_filename(filename_details: &FilenameDetails, config: &FilenameConfig) -> String {
+pub fn get_filename(metadata: &FileMetadata, config: &FilenameConfig) -> String {
+    let identifier = todo!();
+    let signature = todo!();
+    let title = todo!();
+    let keywords = todo!();
+    let extension = todo!();
+
     config
         .segment_order
         .iter()
-        .map(|segment| process_segment(segment, filename_details, config))
+        .map(|seg| match seg {
+            FilenameSegment::Identifier => identifier,
+            FilenameSegment::Signature => signature,
+            FilenameSegment::Title => title,
+            FilenameSegment::Keywords => keywords,
+            FilenameSegment::Extension => extension,
+        })
         .collect::<Vec<_>>()
-        .concat()
+        .concat();
 }
 
 fn process_segment(
@@ -60,7 +72,9 @@ fn process_segment(
                 formatted
             }
         }
-        _ => format_optional(arg, prefix, &config.illegal_characters),
+        _ => arg.as_deref().map_or(String::new(), |seg| {
+            format_segment(seg, prefix, &config.illegal_characters)
+        }),
     }
 }
 
@@ -83,20 +97,10 @@ pub fn format_identifier(creation_time: DateTime<Local>, is_first: bool) -> Stri
     }
 }
 
-fn format_optional(
-    segment: &Option<String>,
-    prefix: &str,
-    illegal_characters: &Vec<char>,
-) -> String {
-    segment.as_deref().map_or(String::new(), |seg| {
-        format_segment(seg, prefix, illegal_characters)
-    })
-}
-
 fn format_segment(segment: &str, prefix: &str, illegal_characters: &Vec<char>) -> String {
     let out = segment
         .to_lowercase()
-        .split([prefix.chars().next(), ' '].as_ref())
+        .split([prefix.chars().next().unwrap(), ' '].as_ref())
         .filter(|sub| !sub.is_empty())
         .map(|sub| sanitise_segment(sub, illegal_characters))
         .collect::<Vec<_>>()
@@ -377,24 +381,25 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_use_existing_identifier() {
-        let details = FilenameDetails {
-            identifier_arg: Some("20001212T121212".to_string()),
-            ..Default::default()
-        };
+    // TODO: I'm still not sure whether we should handle existing identifiers in here or in the argparsing.
+    // #[test]
+    // fn test_use_existing_identifier() {
+    //     let details = FilenameDetails {
+    //         identifier_arg: Some("20001212T121212".to_string()),
+    //         ..Default::default()
+    //     };
 
-        let config = FilenameConfig {
-            regenerate_identifier: false,
-            ..Default::default()
-        };
+    //     let config = FilenameConfig {
+    //         regenerate_identifier: false,
+    //         ..Default::default()
+    //     };
 
-        let result = get_filename(&details, &config);
+    //     let result = get_filename(&details, &config);
 
-        assert!(
-            !result.contains("1970"),
-            "Expected no unix epoch, but got filename: {:?}",
-            result
-        );
-    }
+    //     assert!(
+    //         !result.contains("1970"),
+    //         "Expected no unix epoch, but got filename: {:?}",
+    //         result
+    //     );
+    // }
 }

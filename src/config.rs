@@ -1,4 +1,7 @@
-use crate::{filename::FilenameSegment, frontmatter::{FrontmatterFormat, FrontmatterSegment}};
+use crate::{
+    filename::FilenameSegment,
+    frontmatter::{FrontmatterFormat, FrontmatterSegment},
+};
 use std::path::PathBuf;
 
 pub struct DnConfig {
@@ -41,13 +44,32 @@ pub struct FrontmatterConfig {
     pub enabled: bool,
     pub rewrite: bool,
     pub format: FrontmatterFormat,
-    pub date_time_format: Option<FrontmatterDateTimeFormat>,
+    pub date_time_format: FrontmatterDateTimeFormat,
     pub segment_order: Vec<FrontmatterSegment>,
 }
 
+impl Default for FrontmatterConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            rewrite: false,
+            format: FrontmatterFormat::Text,
+            date_time_format: FrontmatterDateTimeFormat::TwentyFourHour,
+            segment_order: vec![
+                FrontmatterSegment::Title,
+                FrontmatterSegment::Date,
+                FrontmatterSegment::Keywords,
+                FrontmatterSegment::Identifier,
+            ],
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
 pub enum FrontmatterDateTimeFormat {
     TwentyFourHour,
     TwelveHour,
+    None,
 }
 
 pub struct TemplateConfig {
