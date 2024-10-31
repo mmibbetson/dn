@@ -103,6 +103,7 @@ fn format_date(
 
 // TODO: This whole file is a complete mess
 fn format_keywords(keywords: String, format: FrontmatterFormat) -> String {
+    // This is repeated logic from filename processing.
     let processed = keywords
         .to_lowercase()
         .split(['_', ' '].as_ref())

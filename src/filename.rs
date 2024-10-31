@@ -96,7 +96,7 @@ fn format_optional(
 fn format_segment(segment: &str, prefix: &str, illegal_characters: &Vec<char>) -> String {
     let out = segment
         .to_lowercase()
-        .split([prefix.chars().nth(0).unwrap(), ' '].as_ref())
+        .split([prefix.chars().next(), ' '].as_ref())
         .filter(|sub| !sub.is_empty())
         .map(|sub| sanitise_segment(sub, illegal_characters))
         .collect::<Vec<_>>()
