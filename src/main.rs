@@ -1,23 +1,55 @@
 use chrono::DateTime;
 use chrono::Local;
+use clap::Parser;
+use cli::Cli;
 
-use crate::filename::get_filename;
-use crate::filename::FilenameSegment;
-
-mod cli;
-mod config;
-mod filename;
-mod filename_parse;
-mod frontmatter;
+mod format;
 
 // Top-down draft using api
 fn main() {
-    // get_args();
-    // get_config();
-    // get_filename();
-    // get_frontmatter();
-    // get_template();
-    // create_file();
+    let cli = Cli::parse();
+    let instance_time = chrono::Local::now();
+
+    match &cli.command {
+        cli::Commands::New {
+            generate_frontmatter,
+            directory,
+            order,
+            frontmatter_order,
+            config,
+            template,
+            frontmatter_format,
+            signature,
+            title,
+            extension,
+            keywords,
+        } => {
+            let config = build_config(); // coordinate available config
+            let metadata = get_metadata();
+            let filename = get_filename(metadata, config.filename_config);
+            let frontmatter = get_frontmatter(metadata, config.frontmatter_config); // optional
+            let template = get_template(template_path, config.template_config); // optional
+            let path = get_path(config.directory_config);
+            let content = get_content(frontmatter, template);
+
+            file.write(path, filecontent)
+        }
+        cli::Commands::Rename {
+            input,
+            regenerate_identifier,
+            frontmatter,
+            generate_frontmatter,
+            order,
+            frontmatter_order,
+            config,
+            frontmatter_format,
+            signature,
+            extension,
+            keywords,
+            add_keywords,
+            remove_keywords,
+        } => {}
+    }
 }
 
 // When getting --add-keywords or --remove-keywords we want to modify the keywords_arg
@@ -43,11 +75,14 @@ pub struct FileMetadata {
     datetime: DateTime<Local>,
 }
 
+pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
+
 // let example = FileMetadata {
 //     identifier: "20241031T232930",
-//     signature: "GGL210",
-//     title: "Sprint Goals - 210",
-//     keywords: vec!["ggl", "client", "admin"],
+//     signature: "ggl210",
+//     title_raw: "Sprint Goals! - 210",
+//     title: "sprint-goals-210",
+//     keywords: vec!["ggl", "client-ADmtars!!", "admin"],
 //     extension: "md",
 //     datetime: chrono::Local::now(),
 // }

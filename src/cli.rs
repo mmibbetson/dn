@@ -2,21 +2,21 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "dn", version = "0.1", about = "A command to manage notes following the Denote naming scheme.")]
-struct Cli {
+pub struct Cli {
     #[command(subcommand)]
-    command: Commands,
+    pub command: Commands,
 
     /// Display help information
     #[arg(short, long)]
-    help: bool,
+    pub help: bool,
 
     /// Display version information
     #[arg(short, long)]
-    version: bool,
+    pub version: bool,
 }
 
 #[derive(Subcommand)]
-enum Commands {
+pub enum Commands {
     /// Create a new note
     New {
         /// Generate or regenerate frontmatter
@@ -63,7 +63,7 @@ enum Commands {
         #[arg(short = 'k', long)]
         keywords: Option<String>,
     },
-    
+
     /// Rename an existing note
     Rename {
         /// Path to the input file
