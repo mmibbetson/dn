@@ -149,11 +149,8 @@ rename <input>
 dn looks for one environment variable, `DN_DIRECTORY`. This is the default directory dn will create files unless otherwise specified. If it is not set, it will default to `~/dnotes`. If a value is set in the `dn.toml` configuration file, it will take precedence over the environment variable and the default value.
 
 ```toml
-[directory]
-directory = "~/dnotes"
-# consider handling of possible subdirector(y/ies)
-
 [file]
+directory = "~/dnotes"
 segment_order = ["Identifier", "Signature", "Title", "Keywords", "Extension"] # These are not optional, you must specify each segment.
 default_extension = "txt" # default extension
 

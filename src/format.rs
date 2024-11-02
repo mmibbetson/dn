@@ -1,4 +1,3 @@
 fn sanitise() {}
 
-fn format-title() {}
-
+fn format_title() {}

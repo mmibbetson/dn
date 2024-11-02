@@ -3,7 +3,11 @@ use chrono::Local;
 use clap::Parser;
 use cli::Cli;
 
+mod cli;
+mod directory;
+mod config;
 mod format;
+mod file;
 
 // Top-down draft using api
 fn main() {
@@ -27,8 +31,8 @@ fn main() {
             let config = build_config(); // coordinate available config
             let metadata = get_metadata();
             let filename = get_filename(metadata, config.filename_config);
-            let frontmatter = get_frontmatter(metadata, config.frontmatter_config); // optional
-            let template = get_template(template_path, config.template_config); // optional
+            // let frontmatter = get_frontmatter(metadata, config.frontmatter_config); // optional
+            // let template = get_template(template_path, config.template_config); // optional
             let path = get_path(config.directory_config);
             let content = get_content(frontmatter, template);
 
