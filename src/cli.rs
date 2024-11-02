@@ -19,6 +19,8 @@ pub struct Cli {
     pub version: bool,
 }
 
+// TODO: Reconsider clone.
+// TODO: Give explicit long names and better-differentiated struct value names.
 #[derive(Subcommand, Clone)]
 pub enum Commands {
     /// Create a new note

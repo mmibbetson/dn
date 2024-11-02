@@ -22,20 +22,25 @@ pub fn get_metadata(
     config: &FileConfig,
 ) -> FileMetadata {
     let identifier = derive_identifier(instance_time, identifier_arg);
+
     let signature = signature_arg
         .as_ref()
         .and_then(|sig| parse_signature(&sig, &config.illegal_characters));
+
     let title_raw = title_arg.as_ref().map(String::from);
     let title = title_arg
         .as_ref()
         .and_then(|ttl| parse_title(&ttl, &config.illegal_characters));
+
     let keywords = keywords_arg
         .as_ref()
-        .and_then(|keys| parse_keywords(&keys, &config.illegal_characters));
+        .and_then(|key| parse_keywords(&key, &config.illegal_characters));
+
     let extension = extension_arg
         .as_ref()
         .and_then(|ext| parse_extension(&ext, &config.illegal_characters))
         .unwrap_or(config.default_extension.clone());
+
     let datetime = *instance_time;
 
     FileMetadata {
@@ -49,8 +54,8 @@ pub fn get_metadata(
     }
 }
 
-fn derive_identifier(instance_time: &DateTime<Local>, signature_arg: &Option<String>) -> String {
-    match signature_arg {
+fn derive_identifier(instance_time: &DateTime<Local>, identifier_arg: &Option<String>) -> String {
+    match identifier_arg {
         Some(id) => id.to_string(),
         None => instance_time.format(DN_IDENTIFIER_FORMAT).to_string(),
     }
@@ -60,9 +65,11 @@ fn parse_signature(signature_arg: &str, illegal_characters: &[char]) -> Option<S
     let out = signature_arg
         .to_lowercase()
         .chars()
-        .filter(|&c| !illegal_characters.contains(&c))
+        .filter(|c| !SEGMENT_SEPARATORS.contains(&c))
+        .filter(|c| !illegal_characters.contains(&c))
         .collect::<String>();
 
+    // NOTE: (!out.is_empty()).then_some(out) is equivalent; pretty cool.
     match out.is_empty() {
         true => None,
         false => Some(out),
@@ -74,10 +81,10 @@ fn parse_title(title_arg: &str, illegal_characters: &[char]) -> Option<String> {
         .to_lowercase()
         .split(['-', ' '])
         .map(|w| sanitise(w, illegal_characters))
+        .filter(|w| !w.is_empty())
         .collect::<Vec<_>>()
         .join("-");
 
-    // NOTE: (!out.is_empty()).then_some(out) is equivalent; pretty cool.
     match out.is_empty() {
         true => None,
         false => Some(out),
@@ -89,6 +96,7 @@ fn parse_keywords(keywords_arg: &str, illegal_characters: &[char]) -> Option<Vec
         .to_lowercase()
         .split(['_', ' '])
         .map(|w| sanitise(w, illegal_characters))
+        .filter(|w| !w.is_empty())
         .collect::<Vec<_>>();
 
     match out.is_empty() {
@@ -102,6 +110,7 @@ fn parse_extension(extension_arg: &str, illegal_characters: &[char]) -> Option<S
         .to_lowercase()
         .split(['.', ' '])
         .map(|w| sanitise(w, illegal_characters))
+        .filter(|w| !w.is_empty())
         .collect::<Vec<_>>()
         .join(".");
 
@@ -139,7 +148,7 @@ mod tests {
     }
 
     #[test]
-    fn test_derive_identifier_with_no_signature() {
+    fn derive_identifier_with_no_identifier_arg() {
         // Arrange
         let time = setup_datetime();
         let expected = "20240101T120000";
@@ -156,14 +165,14 @@ mod tests {
     }
 
     #[test]
-    fn test_derive_identifier_with_custom_signature() {
+    fn derive_identifier_with_existing_identifier_arg() {
         // Arrange
         let time = setup_datetime();
-        let signature = Some("custom-id".to_string());
-        let expected = "custom-id";
+        let identifier = Some("20241212T121212".to_string());
+        let expected = "20241212T121212";
 
         // Act
-        let result = derive_identifier(&time, &signature);
+        let result = derive_identifier(&time, &identifier);
 
         // Assert
         assert_eq!(
@@ -174,10 +183,10 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_signature_with_illegal_chars() {
+    fn parse_signature_with_multiple_parts() {
         // Arrange
         let config = setup_config();
-        let input = "Test@Signature!";
+        let input = "Test=Signature!";
         let expected = Some("testsignature".to_string());
 
         // Act
@@ -192,7 +201,25 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_signature_with_only_illegal_chars() {
+    fn parse_signature_with_illegal_chars() {
+        // Arrange
+        let config = setup_config();
+        let input = "Test@Signature!-";
+        let expected = Some("testsignature".to_string());
+
+        // Act
+        let result = parse_signature(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn parse_signature_with_only_illegal_chars() {
         // Arrange
         let config = setup_config();
         let input = "@!#";
@@ -210,10 +237,10 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_title_with_spaces() {
+    fn parse_title_with_multiple_parts() {
         // Arrange
         let config = setup_config();
-        let input = "My Cool Title!";
+        let input = "My-Cool Title";
         let expected = Some("my-cool-title".to_string());
 
         // Act
@@ -228,28 +255,10 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_title_with_existing_hyphens() {
+    fn parse_keywords_with_multiple_parts() {
         // Arrange
         let config = setup_config();
-        let input = "My-Cool-Title";
-        let expected = Some("my-cool-title".to_string());
-
-        // Act
-        let result = parse_title(input, &config.illegal_characters);
-
-        // Assert
-        assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
-            input, expected, result
-        );
-    }
-
-    #[test]
-    fn test_parse_keywords_with_spaces() {
-        // Arrange
-        let config = setup_config();
-        let input = "rust programming test";
+        let input = "_rust_programming test";
         let expected = Some(vec![
             "rust".to_string(),
             "programming".to_string(),
@@ -268,32 +277,10 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_keywords_with_underscores() {
+    fn parse_extension_with_multiple_parts() {
         // Arrange
         let config = setup_config();
-        let input = "rust_programming_test";
-        let expected = Some(vec![
-            "rust".to_string(),
-            "programming".to_string(),
-            "test".to_string(),
-        ]);
-
-        // Act
-        let result = parse_keywords(input, &config.illegal_characters);
-
-        // Assert
-        assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected keywords: {:?}\nGot: {:?}",
-            input, expected, result
-        );
-    }
-
-    #[test]
-    fn test_parse_extension_with_multipart() {
-        // Arrange
-        let config = setup_config();
-        let input = "tar.gz";
+        let input = ".tar.gz";
         let expected = Some("tar.gz".to_string());
 
         // Act
@@ -308,7 +295,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_extension_with_uppercase() {
+    fn parse_extension_with_uppercase() {
         // Arrange
         let config = setup_config();
         let input = "MD";
@@ -326,7 +313,7 @@ mod tests {
     }
 
     #[test]
-    fn test_get_metadata_full_integration() {
+    fn get_metadata_full_integration() {
         // Arrange
         let config = setup_config();
         let time = setup_datetime();
@@ -386,7 +373,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sanitise_with_illegal_chars() {
+    fn sanitise_with_illegal_chars() {
         // Arrange
         let config = setup_config();
         let input = "hello@world!";

@@ -52,7 +52,7 @@ fn main() {
                 title,
                 keywords,
                 extension,
-                &config_content.file,
+                &config_final.file,
             );
 
             // let filename = get_filename(metadata, config_content.file);

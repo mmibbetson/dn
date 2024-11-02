@@ -13,11 +13,11 @@ pub fn get_default_notes_dir() -> PathBuf {
             PathBuf::from,
         );
 
-    // TODO: If home_dir.join("Documents") exists, use that.join("dn")
-    // Otherwise use just home_dir.join("dn")
-    let notes_dir = home_dir.join("Documents").join("dn");
-
-    notes_dir
+    match home_dir.join("Documents") {
+        path if path.exists() && path.is_dir() => path,
+        _ => home_dir,
+    }
+    .join("dn")
 }
 
 /// Get the default config directory in a platform-agnostic way.
