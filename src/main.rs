@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::PathBuf;
 
 use chrono::DateTime;
@@ -23,8 +24,6 @@ fn main() {
         cli::Commands::New {
             generate_frontmatter,
             directory,
-            order,
-            frontmatter_order,
             config,
             template,
             frontmatter_format,
@@ -43,15 +42,11 @@ fn main() {
                 Err(_) => Config::default(),
             };
 
-            let metadata = get_metadata(
-                signature,
-                title,
-                keywords,
-                extension,
-                config_content.file_config,
-            );
+            let config_final = update_config_with_cli_args(cli.command, config_content);
 
-            let filename = get_filename(metadata, config_content.filename_config);
+            let metadata = get_metadata(signature, title, keywords, extension, config_content.file);
+
+            let filename = get_filename(metadata, config_content.file);
 
             // let frontmatter = get_frontmatter(metadata, config.frontmatter_config); // optional
             // let template = get_template(template_path, config.template_config); // optional
@@ -59,15 +54,13 @@ fn main() {
             let path = get_path(config_content.directory_config);
             let content = get_content(frontmatter, template);
 
-            fs.write(path, filecontent)
+            fs::write(path, content);
         }
         cli::Commands::Rename {
             input,
             regenerate_identifier,
             frontmatter,
             generate_frontmatter,
-            order,
-            frontmatter_order,
             config,
             frontmatter_format,
             signature,
@@ -77,6 +70,87 @@ fn main() {
             remove_keywords,
         } => {}
     }
+}
+
+fn update_config_with_cli_args(args: cli::Commands, config: Config) -> Config {
+    let mut cfg = config;
+
+    match args {
+        cli::Commands::New {
+            generate_frontmatter,
+            directory,
+            template,
+            frontmatter_format,
+            extension,
+            config: _,
+            signature: _,
+            title: _,
+            keywords: _,
+        } => {
+            if generate_frontmatter {
+                cfg.frontmatter.enabled = generate_frontmatter;
+            };
+
+            if let Some(dir) = directory {
+                cfg.file.directory = PathBuf::from(dir);
+            };
+
+            if let Some(ext) = extension {
+                cfg.file.default_extension = ext;
+            };
+
+            if let Some(tmp) = template {
+                cfg.file.template_path = Some(PathBuf::from(tmp));
+            }
+
+            if let Some(fmt) = frontmatter_format {
+                cfg.frontmatter.format = match fmt.to_lowercase().as_str() {
+                    "text" => config::FrontmatterFormat::Text,
+                    "yaml" => config::FrontmatterFormat::YAML,
+                    "toml" => config::FrontmatterFormat::TOML,
+                    "org" => config::FrontmatterFormat::Org,
+                    _ => panic!("Invalid frontmatter format provided, must be one of: text, yaml, toml, org"), // TODO: throw anyhow error alert invalid format, or something
+                };
+            }
+        }
+        cli::Commands::Rename {
+            regenerate_identifier,
+            generate_frontmatter,
+            frontmatter_format,
+            extension,
+            input: _,
+            frontmatter: _,
+            config: _,
+            signature: _,
+            keywords: _,
+            add_keywords: _,
+            remove_keywords: _,
+        } => {
+            if regenerate_identifier {
+                cfg.file.regenerate_identifier = regenerate_identifier;
+            };
+
+            if generate_frontmatter {
+                cfg.frontmatter.rewrite = generate_frontmatter;
+            };
+
+            if let Some(ext) = extension {
+                cfg.file.default_extension = ext;
+            };
+
+            if let Some(fmt) = frontmatter_format {
+                cfg.frontmatter.format = match fmt.to_lowercase().as_str() {
+                    "text" => config::FrontmatterFormat::Text,
+                    "yaml" => config::FrontmatterFormat::YAML,
+                    "toml" => config::FrontmatterFormat::TOML,
+                    "org" => config::FrontmatterFormat::Org,
+                    _ => panic!("Invalid frontmatter format provided, must be one of: text, yaml, toml, org"), // TODO: throw anyhow error alert invalid format, or something
+                };
+            }
+        }
+    };
+
+    cfg
 }
 
 // When getting --add-keywords or --remove-keywords we want to modify the keywords_arg

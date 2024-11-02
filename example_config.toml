@@ -3,6 +3,7 @@ directory = "~/Documents/dn"
 segment_order = ["identifier", "signature", "title", "keywords", "extension"] # These are not optional, you must specify each segment.
 default_extension = "txt"
 regenerate_identifier = false
+template_path = ""
 
 [frontmatter]
 enabled = false
@@ -10,7 +11,3 @@ rewrite = true
 format = "text" # text, yaml, toml, org
 date_time_style = "hour24" # or "hour12" or "none"
 order = ["title", "date", "keywords", "identifier"] # These are all optional so you can leave some out?
-
-[template]
-enabled = false
-default_path = "" # default path to a template file

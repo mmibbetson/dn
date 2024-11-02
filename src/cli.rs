@@ -31,14 +31,6 @@ pub enum Commands {
         #[arg(short = 'd', long, value_name = "DIRECTORY")]
         directory: Option<String>,
 
-        /// Order of filename segments, provided as a comma-delimited string
-        #[arg(short = 'o', long, value_name = "LIST")]
-        order: Option<String>,
-
-        /// Frontmatter order of metadata, provided as a comma-delimited string
-        #[arg(short = 'O', long)]
-        frontmatter_order: Option<String>,
-
         /// Config file location
         #[arg(short = 'c', long)]
         config: Option<String>,
@@ -84,14 +76,6 @@ pub enum Commands {
         /// Generate or regenerate frontmatter
         #[arg(short = 'G', long)]
         generate_frontmatter: bool,
-
-        /// Order of elements
-        #[arg(short = 'o', long)]
-        order: Option<String>,
-
-        /// Frontmatter order
-        #[arg(short = 'O', long)]
-        frontmatter_order: Option<String>,
 
         /// Config file location
         #[arg(short = 'c', long)]

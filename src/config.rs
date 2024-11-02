@@ -9,8 +9,8 @@ use crate::directory::get_default_notes_dir;
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Config {
-    #[serde(rename = "file")]
-    pub file_config: FileConfig,
+    pub file: FileConfig,
+    pub frontmatter: FrontmatterConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,9 +24,54 @@ pub struct FileConfig {
     #[serde(default = "default_file_extension")]
     pub default_extension: String,
 
-    #[serde(default = "default_regenerate_identifier")]
+    #[serde(default = "r#false")]
     pub regenerate_identifier: bool,
+
+    #[serde(default = "none")]
+    pub template_path: Option<PathBuf>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FrontmatterConfig {
+    #[serde(default = "r#false")]
+    pub enabled: bool,
+
+    #[serde(default = "r#true")]
+    pub rewrite: bool,
+
+    #[serde(default = "default_frontmatter_format")]
+    pub format: FrontmatterFormat,
+
+    #[serde(default = "default_frontmatter_time_format")]
+    pub time_style: FrontmatterTimeFormat,
+
+    #[serde(default = "default_frontmatter_segment_order")]
+    pub order: Vec<FrontmatterSegment>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum FrontmatterFormat {
+    Text,
+    YAML,
+    TOML,
+    Org,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum FrontmatterTimeFormat {
+    Hour24,
+    Hour12,
+    None,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum FrontmatterSegment {
+    Title,
+    Date,
+    Keywords,
+    Identifier,
+}
+
 
 fn default_segment_order() -> [FilenameSegment; 5] {
     [
@@ -42,8 +87,33 @@ fn default_file_extension() -> String {
     "txt".to_owned()
 }
 
-fn default_regenerate_identifier() -> bool {
+fn default_frontmatter_format() -> FrontmatterFormat {
+    FrontmatterFormat::Text
+}
+
+fn default_frontmatter_time_format() -> FrontmatterTimeFormat {
+    FrontmatterTimeFormat::Hour24
+}
+
+fn default_frontmatter_segment_order() -> Vec<FrontmatterSegment> {
+    vec![
+        FrontmatterSegment::Title,
+        FrontmatterSegment::Date,
+        FrontmatterSegment::Keywords,
+        FrontmatterSegment::Identifier,
+    ]
+}
+
+fn r#false() -> bool {
     false
+}
+
+fn r#true() -> bool {
+    true
+}
+
+fn none<T>() -> Option<T> {
+    None
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -62,7 +132,20 @@ impl Default for FileConfig {
             directory: get_default_notes_dir(),
             segment_order: default_segment_order(),
             default_extension: default_file_extension(),
-            regenerate_identifier: default_regenerate_identifier(),
+            regenerate_identifier: r#false(),
+            template_path: none::<PathBuf>(),
+        }
+    }
+}
+
+impl Default for FrontmatterConfig {
+    fn default() -> Self {
+        Self {
+            enabled: Default::default(),
+            rewrite: Default::default(),
+            format: default_frontmatter_format(),
+            time_style: default_frontmatter_time_format(),
+            order: Default::default(),
         }
     }
 }
