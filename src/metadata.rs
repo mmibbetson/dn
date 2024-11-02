@@ -120,3 +120,286 @@ fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
 }
 
 const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::TimeZone;
+
+    fn setup_config() -> FileConfig {
+        FileConfig {
+            illegal_characters: vec!['#', '@', '!'],
+            default_extension: String::from("md"),
+            ..Default::default()
+        }
+    }
+
+    fn setup_datetime() -> DateTime<Local> {
+        Local.with_ymd_and_hms(2024, 1, 1, 12, 0, 0).unwrap()
+    }
+
+    #[test]
+    fn test_derive_identifier_with_no_signature() {
+        // Arrange
+        let time = setup_datetime();
+        let expected = "20240101T120000";
+
+        // Act
+        let result = derive_identifier(&time, &None);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Expected identifier {:?} but got {:?}",
+            expected, result
+        );
+    }
+
+    #[test]
+    fn test_derive_identifier_with_custom_signature() {
+        // Arrange
+        let time = setup_datetime();
+        let signature = Some("custom-id".to_string());
+        let expected = "custom-id";
+
+        // Act
+        let result = derive_identifier(&time, &signature);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Expected identifier {:?} but got {:?}",
+            expected, result
+        );
+    }
+
+    #[test]
+    fn test_parse_signature_with_illegal_chars() {
+        // Arrange
+        let config = setup_config();
+        let input = "Test@Signature!";
+        let expected = Some("testsignature".to_string());
+
+        // Act
+        let result = parse_signature(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn test_parse_signature_with_only_illegal_chars() {
+        // Arrange
+        let config = setup_config();
+        let input = "@!#";
+        let expected = None;
+
+        // Act
+        let result = parse_signature(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn test_parse_title_with_spaces() {
+        // Arrange
+        let config = setup_config();
+        let input = "My Cool Title!";
+        let expected = Some("my-cool-title".to_string());
+
+        // Act
+        let result = parse_title(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn test_parse_title_with_existing_hyphens() {
+        // Arrange
+        let config = setup_config();
+        let input = "My-Cool-Title";
+        let expected = Some("my-cool-title".to_string());
+
+        // Act
+        let result = parse_title(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn test_parse_keywords_with_spaces() {
+        // Arrange
+        let config = setup_config();
+        let input = "rust programming test";
+        let expected = Some(vec![
+            "rust".to_string(),
+            "programming".to_string(),
+            "test".to_string(),
+        ]);
+
+        // Act
+        let result = parse_keywords(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected keywords: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn test_parse_keywords_with_underscores() {
+        // Arrange
+        let config = setup_config();
+        let input = "rust_programming_test";
+        let expected = Some(vec![
+            "rust".to_string(),
+            "programming".to_string(),
+            "test".to_string(),
+        ]);
+
+        // Act
+        let result = parse_keywords(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected keywords: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn test_parse_extension_with_multipart() {
+        // Arrange
+        let config = setup_config();
+        let input = "tar.gz";
+        let expected = Some("tar.gz".to_string());
+
+        // Act
+        let result = parse_extension(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected extension: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn test_parse_extension_with_uppercase() {
+        // Arrange
+        let config = setup_config();
+        let input = "MD";
+        let expected = Some("md".to_string());
+
+        // Act
+        let result = parse_extension(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected extension: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn test_get_metadata_full_integration() {
+        // Arrange
+        let config = setup_config();
+        let time = setup_datetime();
+        let inputs = (
+            &None,
+            &Some("test@signature".to_string()),
+            &Some("My Cool Title!".to_string()),
+            &Some("rust programming".to_string()),
+            &Some("RS".to_string()),
+        );
+        let expected = FileMetadata {
+            identifier: "20240101T120000".to_string(),
+            signature: Some("testsignature".to_string()),
+            title: Some("my-cool-title".to_string()),
+            title_raw: Some("My Cool Title!".to_string()),
+            keywords: Some(vec!["rust".to_string(), "programming".to_string()]),
+            extension: "rs".to_string(),
+            datetime: time,
+        };
+
+        // Act
+        let result = get_metadata(
+            &time, inputs.0, inputs.1, inputs.2, inputs.3, inputs.4, &config,
+        );
+
+        // Assert
+        assert_eq!(
+            result.identifier, expected.identifier,
+            "Identifier mismatch:\nExpected: {:?}\nGot: {:?}",
+            expected.identifier, result.identifier
+        );
+        assert_eq!(
+            result.signature, expected.signature,
+            "Signature mismatch:\nExpected: {:?}\nGot: {:?}",
+            expected.signature, result.signature
+        );
+        assert_eq!(
+            result.title, expected.title,
+            "Title mismatch:\nExpected: {:?}\nGot: {:?}",
+            expected.title, result.title
+        );
+        assert_eq!(
+            result.keywords, expected.keywords,
+            "Keywords mismatch:\nExpected: {:?}\nGot: {:?}",
+            expected.keywords, result.keywords
+        );
+        assert_eq!(
+            result.extension, expected.extension,
+            "Extension mismatch:\nExpected: {:?}\nGot: {:?}",
+            expected.extension, result.extension
+        );
+        assert_eq!(
+            result.datetime, expected.datetime,
+            "Datetime mismatch:\nExpected: {:?}\nGot: {:?}",
+            expected.datetime, result.datetime
+        );
+    }
+
+    #[test]
+    fn test_sanitise_with_illegal_chars() {
+        // Arrange
+        let config = setup_config();
+        let input = "hello@world!";
+        let expected = "helloworld".to_string();
+
+        // Act
+        let result = sanitise(input, &config.illegal_characters);
+
+        // Assert
+        assert_eq!(
+            result, expected,
+            "Input: {:?}\nExpected sanitized string: {:?}\nGot: {:?}",
+            input, expected, result
+        );
+    }
+}

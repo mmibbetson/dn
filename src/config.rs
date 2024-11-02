@@ -8,13 +8,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::directory::get_default_notes_dir;
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct Config {
     pub file: FileConfig,
     pub frontmatter: FrontmatterConfig,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FileConfig {
     #[serde(default = "get_default_notes_dir")]
     pub directory: PathBuf,
@@ -35,7 +35,7 @@ pub struct FileConfig {
     pub illegal_characters: Vec<char>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FrontmatterConfig {
     #[serde(default = "r#false")]
     pub enabled: bool,
@@ -53,7 +53,7 @@ pub struct FrontmatterConfig {
     pub order: Vec<FrontmatterSegment>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum FrontmatterFormat {
     Text,
     YAML,
@@ -61,14 +61,14 @@ pub enum FrontmatterFormat {
     Org,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum FrontmatterTimeFormat {
     Hour24,
     Hour12,
     None,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum FrontmatterSegment {
     Title,
     Date,
@@ -126,7 +126,7 @@ fn default_illegal_characters() -> Vec<char> {
     ]
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum FilenameSegment {
     Identifier,

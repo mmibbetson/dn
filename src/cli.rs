@@ -19,7 +19,7 @@ pub struct Cli {
     pub version: bool,
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum Commands {
     /// Create a new note
     New {

@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 
+use clap::Parser;
 use cli::Cli;
 use config::read_config;
 use config::Config;
@@ -41,27 +42,28 @@ fn main() {
                 Err(_) => Config::default(),
             };
 
-            let config_final = update_config_with_cli_args(cli.command, config_content);
+            // WARN: This clones the command struct and then matches on it again...
+            let config_final = update_config_with_cli_args(cli.command.clone(), &config_content);
 
             let metadata = get_metadata(
                 &instance_time,
                 &None,
-                &signature,
-                &title,
-                &keywords,
-                &extension,
+                signature,
+                title,
+                keywords,
+                extension,
                 &config_content.file,
             );
 
-            let filename = get_filename(metadata, config_content.file);
+            // let filename = get_filename(metadata, config_content.file);
 
-            // let frontmatter = get_frontmatter(metadata, config.frontmatter_config); // optional
-            // let template = get_template(template_path, config.template_config); // optional
+            // // let frontmatter = get_frontmatter(metadata, config.frontmatter_config); // optional
+            // // let template = get_template(template_path, config.template_config); // optional
 
-            let path = get_path(config_content.directory_config);
-            let content = get_content(frontmatter, template);
+            // let path = get_path(config_content.directory_config);
+            // let content = get_content(frontmatter, template);
 
-            fs::write(path, content);
+            // fs::write(path, content);
         }
         cli::Commands::Rename {
             input,
@@ -79,8 +81,8 @@ fn main() {
     }
 }
 
-fn update_config_with_cli_args(args: cli::Commands, config: Config) -> Config {
-    let mut cfg = config;
+fn update_config_with_cli_args(args: cli::Commands, original_config: &Config) -> Config {
+    let mut config = original_config.clone();
 
     match args {
         cli::Commands::New {
@@ -95,23 +97,23 @@ fn update_config_with_cli_args(args: cli::Commands, config: Config) -> Config {
             keywords: _,
         } => {
             if generate_frontmatter {
-                cfg.frontmatter.enabled = generate_frontmatter;
+                config.frontmatter.enabled = generate_frontmatter;
             };
 
             if let Some(dir) = directory {
-                cfg.file.directory = PathBuf::from(dir);
+                config.file.directory = PathBuf::from(dir);
             };
 
             if let Some(ext) = extension {
-                cfg.file.default_extension = ext;
+                config.file.default_extension = ext;
             };
 
             if let Some(tmp) = template {
-                cfg.file.template_path = Some(PathBuf::from(tmp));
+                config.file.template_path = Some(PathBuf::from(tmp));
             }
 
             if let Some(fmt) = frontmatter_format {
-                cfg.frontmatter.format = match fmt.to_lowercase().as_str() {
+                config.frontmatter.format = match fmt.to_lowercase().as_str() {
                     "text" => config::FrontmatterFormat::Text,
                     "yaml" => config::FrontmatterFormat::YAML,
                     "toml" => config::FrontmatterFormat::TOML,
@@ -136,19 +138,19 @@ fn update_config_with_cli_args(args: cli::Commands, config: Config) -> Config {
             remove_keywords: _,
         } => {
             if regenerate_identifier {
-                cfg.file.regenerate_identifier = regenerate_identifier;
+                config.file.regenerate_identifier = regenerate_identifier;
             };
 
             if generate_frontmatter {
-                cfg.frontmatter.rewrite = generate_frontmatter;
+                config.frontmatter.rewrite = generate_frontmatter;
             };
 
             if let Some(ext) = extension {
-                cfg.file.default_extension = ext;
+                config.file.default_extension = ext;
             };
 
             if let Some(fmt) = frontmatter_format {
-                cfg.frontmatter.format = match fmt.to_lowercase().as_str() {
+                config.frontmatter.format = match fmt.to_lowercase().as_str() {
                     "text" => config::FrontmatterFormat::Text,
                     "yaml" => config::FrontmatterFormat::YAML,
                     "toml" => config::FrontmatterFormat::TOML,
@@ -159,8 +161,10 @@ fn update_config_with_cli_args(args: cli::Commands, config: Config) -> Config {
         }
     };
 
-    cfg
+    config
 }
+
+
 
 // When getting --add-keywords or --remove-keywords we want to modify the keywords_arg
 // 1. Take existing keywords_arg (-k>filename_parse>None)
