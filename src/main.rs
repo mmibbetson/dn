@@ -1,13 +1,18 @@
+use std::path::PathBuf;
+
 use chrono::DateTime;
 use chrono::Local;
 use clap::Parser;
 use cli::Cli;
+use config::read_config;
+use config::Config;
+use directory::get_default_config_dir;
 
 mod cli;
-mod directory;
 mod config;
-mod format;
+mod directory;
 mod file;
+mod format;
 
 // Top-down draft using api
 fn main() {
@@ -28,15 +33,33 @@ fn main() {
             extension,
             keywords,
         } => {
-            let config = build_config(); // coordinate available config
-            let metadata = get_metadata();
-            let filename = get_filename(metadata, config.filename_config);
+            let config_path = match config {
+                Some(path) => PathBuf::from(path),
+                None => get_default_config_dir(),
+            };
+
+            let config_content = match read_config(config_path) {
+                Ok(content) => content,
+                Err(_) => Config::default(),
+            };
+
+            let metadata = get_metadata(
+                signature,
+                title,
+                keywords,
+                extension,
+                config_content.file_config,
+            );
+
+            let filename = get_filename(metadata, config_content.filename_config);
+
             // let frontmatter = get_frontmatter(metadata, config.frontmatter_config); // optional
             // let template = get_template(template_path, config.template_config); // optional
-            let path = get_path(config.directory_config);
+
+            let path = get_path(config_content.directory_config);
             let content = get_content(frontmatter, template);
 
-            file.write(path, filecontent)
+            fs.write(path, filecontent)
         }
         cli::Commands::Rename {
             input,

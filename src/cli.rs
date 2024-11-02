@@ -1,7 +1,11 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "dn", version = "0.1", about = "A command to manage notes following the Denote naming scheme.")]
+#[command(
+    name = "dn",
+    version = "0.1",
+    about = "A command to manage notes following the Denote naming scheme."
+)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -118,4 +122,3 @@ pub enum Commands {
         remove_keywords: Option<String>,
     },
 }
-
