@@ -150,16 +150,16 @@ dn looks for one environment variable, `DN_DIRECTORY`. This is the default direc
 
 ```toml
 [file]
-directory = "~/dnotes"
-segment_order = ["Identifier", "Signature", "Title", "Keywords", "Extension"] # These are not optional, you must specify each segment.
+directory = "~/Documents/dn"
+segment_order = ["identifier", "signature", "title", "keywords", "extension"] # These are not optional, you must specify each segment.
 default_extension = "txt" # default extension
 
 [frontmatter]
 enabled = false
 rewrite = true
-format = "Text" # Text, Yaml, Toml, Org
-date_time_style = "24h" # or "12h" or "None"
-order = ["Title", "Date", "Keywords", "Identifier"] # These are all optional so you can leave some out?
+format = "text" # text, yaml, toml, org
+date_time_style = "hour24" # or "hour12" or "none"
+order = ["title", "date", "keywords", "identifier"] # These are all optional so you can leave some out?
 
 [template]
 enabled = false

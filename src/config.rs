@@ -1,27 +1,70 @@
-use std::path::PathBuf;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
-pub struct DnConfig {
-    pub filename_config: FileConfig,
+use serde::{Deserialize, Serialize};
+
+use crate::directory::get_default_notes_dir;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Config {
+    #[serde(rename = "file")]
+    pub file_config: FileConfig,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FileConfig {
+    #[serde(default = "get_default_notes_dir")]
     pub directory: PathBuf,
-    pub segment_order: [String; 5],
+
+    #[serde(default = "default_segment_order")]
+    pub segment_order: [FilenameSegment; 5],
+
+    #[serde(default = "default_file_extension")]
     pub default_extension: String,
+}
+
+fn default_segment_order() -> [FilenameSegment; 5] {
+    [
+        FilenameSegment::Identifier,
+        FilenameSegment::Signature,
+        FilenameSegment::Title,
+        FilenameSegment::Keywords,
+        FilenameSegment::Extension,
+    ]
+}
+
+fn default_file_extension() -> String {
+    "txt".to_owned()
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum FilenameSegment {
+    Identifier,
+    Signature,
+    Title,
+    Keywords,
+    Extension,
 }
 
 impl Default for FileConfig {
     fn default() -> Self {
         Self {
-            directory: Default::default(),
-            segment_order: Default::default(),
-            default_extension: Default::default(),
+            directory: get_default_notes_dir(),
+            segment_order: default_segment_order(),
+            default_extension: default_file_extension(),
         }
     }
 }
 
 // parse toml config file
-// pub fn parse_toml_config(path: PathBuf, )
+fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Box<dyn std::error::Error>> {
+    let contents = fs::read_to_string(path)?;
+    let config = toml::from_str(&contents)?;
+    Ok(config)
+}
 
 // overlay config file onto default configuration
-// pub fn override_defaults()
+// pub fn merge_configs(, template) {}
