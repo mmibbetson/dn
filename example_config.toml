@@ -4,6 +4,7 @@ segment_order = ["identifier", "signature", "title", "keywords", "extension"] # 
 default_extension = "txt"
 regenerate_identifier = false
 template_path = ""
+illegal_characters = ['a', '!']
 
 [frontmatter]
 enabled = false

@@ -1,19 +1,18 @@
 use std::fs;
 use std::path::PathBuf;
 
-use chrono::DateTime;
-use chrono::Local;
-use clap::Parser;
 use cli::Cli;
 use config::read_config;
 use config::Config;
 use directory::get_default_config_dir;
+use metadata::get_metadata;
 
 mod cli;
 mod config;
 mod directory;
 mod file;
 mod format;
+mod metadata;
 
 // Top-down draft using api
 fn main() {
@@ -44,7 +43,15 @@ fn main() {
 
             let config_final = update_config_with_cli_args(cli.command, config_content);
 
-            let metadata = get_metadata(signature, title, keywords, extension, config_content.file);
+            let metadata = get_metadata(
+                &instance_time,
+                &None,
+                &signature,
+                &title,
+                &keywords,
+                &extension,
+                &config_content.file,
+            );
 
             let filename = get_filename(metadata, config_content.file);
 
@@ -109,7 +116,9 @@ fn update_config_with_cli_args(args: cli::Commands, config: Config) -> Config {
                     "yaml" => config::FrontmatterFormat::YAML,
                     "toml" => config::FrontmatterFormat::TOML,
                     "org" => config::FrontmatterFormat::Org,
-                    _ => panic!("Invalid frontmatter format provided, must be one of: text, yaml, toml, org"), // TODO: throw anyhow error alert invalid format, or something
+                    // WARN: Panicking.
+                    // TODO: Maybe throw anyhow error alert invalid format, or something?
+                    _ => panic!("Invalid frontmatter format provided, must be one of: text, yaml, toml, org"), 
                 };
             }
         }
@@ -167,17 +176,6 @@ fn update_config_with_cli_args(args: cli::Commands, config: Config) -> Config {
 // we will use that to get the creation_time and identifier_arg. This way, frontmatter.rs can be
 // agnostic wrt the identifier arg.
 
-pub struct FileMetadata {
-    identifier: String,
-    signature: Option<String>,
-    title: Option<String>,
-    keywords: Option<Vec<String>>,
-    extension: String,
-    datetime: DateTime<Local>,
-}
-
-pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
-
 // let example = FileMetadata {
 //     identifier: "20241031T232930",
 //     signature: "ggl210",
@@ -189,6 +187,9 @@ pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
 // }
 
 // 20241031T232930==GGL210--sprint-goals-210__ggl_client_admin.md
+
+// NOTE: It's important that tags/filetags are named as such rather than keywords
+// This is due to the way various existing programs parse them.
 
 // ---
 // title:      "Sprint Goals - 210"
@@ -212,5 +213,5 @@ pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
 
 // #+title:      Sprint Goals - 210
 // #+date:       [2024-10-31 23:34:30 +2:00]
-// #+tags:       :ggl:client:admin:
+// #+filetags:   :ggl:client:admin:
 // #+identifier: 20241031T232930

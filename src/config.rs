@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use anyhow::Error;
 use serde::{Deserialize, Serialize};
 
 use crate::directory::get_default_notes_dir;
@@ -29,6 +30,9 @@ pub struct FileConfig {
 
     #[serde(default = "none")]
     pub template_path: Option<PathBuf>,
+
+    #[serde(default = "default_illegal_characters")]
+    pub illegal_characters: Vec<char>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -71,7 +75,6 @@ pub enum FrontmatterSegment {
     Keywords,
     Identifier,
 }
-
 
 fn default_segment_order() -> [FilenameSegment; 5] {
     [
@@ -116,6 +119,13 @@ fn none<T>() -> Option<T> {
     None
 }
 
+fn default_illegal_characters() -> Vec<char> {
+    vec![
+        '[', ']', '{', '}', '(', ')', '!', '#', '$', '%', '^', '&', '*', '+', '\'', '\\', '"', '?',
+        ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*', ' ', '@', '=', '-', '_', '.',
+    ]
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum FilenameSegment {
@@ -134,6 +144,7 @@ impl Default for FileConfig {
             default_extension: default_file_extension(),
             regenerate_identifier: r#false(),
             template_path: none::<PathBuf>(),
+            illegal_characters: default_illegal_characters(),
         }
     }
 }
@@ -151,11 +162,8 @@ impl Default for FrontmatterConfig {
 }
 
 // parse toml config file
-pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Box<dyn std::error::Error>> {
+pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let contents = fs::read_to_string(path)?;
     let config = toml::from_str(&contents)?;
     Ok(config)
 }
-
-// overlay config file onto default configuration
-// pub fn merge_configs(, template) {}
