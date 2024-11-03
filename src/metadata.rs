@@ -12,47 +12,92 @@ pub struct FileMetadata {
     datetime: DateTime<Local>,
 }
 
-pub fn get_metadata(
-    instance_time: &DateTime<Local>,
-    identifier_arg: &Option<String>,
-    signature_arg: &Option<String>,
-    title_arg: &Option<String>,
-    keywords_arg: &Option<String>,
-    extension_arg: &Option<String>,
-    config: &FileConfig,
-) -> FileMetadata {
-    let identifier = derive_identifier(instance_time, identifier_arg);
+pub struct FileMetadataBuilder {
+    identifier: Option<String>,
+    signature: Option<String>,
+    title: Option<String>,
+    keywords: Option<String>,
+    extension: Option<String>,
+    instance_time: DateTime<Local>,
+}
 
-    let signature = signature_arg
-        .as_ref()
-        .and_then(|sig| parse_signature(&sig, &config.illegal_characters));
+impl FileMetadataBuilder {
+    pub fn new(instance_time: DateTime<Local>) -> Self {
+        Self {
+            identifier: None,
+            signature: None,
+            title: None,
+            keywords: None,
+            extension: None,
+            instance_time,
+        }
+    }
 
-    let title_raw = title_arg.as_ref().map(String::from);
-    let title = title_arg
-        .as_ref()
-        .and_then(|ttl| parse_title(&ttl, &config.illegal_characters));
+    pub fn with_identifier(mut self, value: &Option<String>) -> Self {
+        self.identifier = value.clone();
+        self
+    }
 
-    let keywords = keywords_arg
-        .as_ref()
-        .and_then(|key| parse_keywords(&key, &config.illegal_characters));
+    pub fn with_signature(mut self, value: &Option<String>) -> Self {
+        self.signature = value.clone();
+        self
+    }
 
-    let extension = extension_arg
-        .as_ref()
-        .and_then(|ext| parse_extension(&ext, &config.illegal_characters))
-        .unwrap_or(config.default_extension.clone());
+    pub fn with_title(mut self, value: &Option<String>) -> Self {
+        self.title = value.clone();
+        self
+    }
 
-    let datetime = *instance_time;
+    pub fn with_keywords(mut self, value: &Option<String>) -> Self {
+        self.keywords = value.clone();
+        self
+    }
 
-    FileMetadata {
-        identifier,
-        signature,
-        title,
-        title_raw,
-        keywords,
-        extension,
-        datetime,
+    pub fn with_extension(mut self, value: &Option<String>) -> Self {
+        self.extension = value.clone();
+        self
+    }
+
+    pub fn build(&self, config: &FileConfig) -> FileMetadata {
+        let identifier = derive_identifier(&self.instance_time, &self.identifier);
+
+        let signature = self
+            .signature
+            .as_ref()
+            .and_then(|sig| parse_signature(&sig, &config.illegal_characters));
+
+        let title = self
+            .title
+            .as_ref()
+            .and_then(|ttl| parse_title(&ttl, &config.illegal_characters));
+        let title_raw = self.title.as_ref().map(String::from);
+
+        let keywords = self
+            .keywords
+            .as_ref()
+            .and_then(|key| parse_keywords(&key, &config.illegal_characters));
+
+        let extension = self
+            .extension
+            .as_ref()
+            .and_then(|ext| parse_extension(&ext, &config.illegal_characters))
+            .unwrap_or(config.default_extension.clone());
+
+        let datetime = self.instance_time;
+
+        FileMetadata {
+            identifier,
+            signature,
+            title,
+            title_raw,
+            keywords,
+            extension,
+            datetime,
+        }
     }
 }
+
+const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
 
 fn derive_identifier(instance_time: &DateTime<Local>, identifier_arg: &Option<String>) -> String {
     match identifier_arg {
@@ -128,8 +173,6 @@ fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
         .collect::<String>()
 }
 
-const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -159,7 +202,7 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Expected identifier {:?} but got {:?}",
+            "Expected: {:?}\nReceived: {:?}",
             expected, result
         );
     }
@@ -177,7 +220,7 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Expected identifier {:?} but got {:?}",
+            "Expected: {:?}\nReceived: {:?}",
             expected, result
         );
     }
@@ -195,7 +238,7 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
+            "Input: {:?}\nExpected: {:?}\nReceived: {:?}",
             input, expected, result
         );
     }
@@ -213,7 +256,7 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
+            "Input: {:?}\nExpected: {:?}\nReceived: {:?}",
             input, expected, result
         );
     }
@@ -231,7 +274,7 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
+            "Input: {:?}\nExpected: {:?}\nReceived: {:?}",
             input, expected, result
         );
     }
@@ -249,7 +292,7 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Input: {:?}\nExpected: {:?}\nGot: {:?}",
+            "Input: {:?}\nExpected: {:?}\nReceived: {:?}",
             input, expected, result
         );
     }
@@ -271,7 +314,7 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Input: {:?}\nExpected keywords: {:?}\nGot: {:?}",
+            "Input: {:?}\nExpected keywords: {:?}\nReceived: {:?}",
             input, expected, result
         );
     }
@@ -289,7 +332,7 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Input: {:?}\nExpected extension: {:?}\nGot: {:?}",
+            "Input: {:?}\nExpected extension: {:?}\nReceived: {:?}",
             input, expected, result
         );
     }
@@ -307,23 +350,22 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Input: {:?}\nExpected extension: {:?}\nGot: {:?}",
+            "Input: {:?}\nExpected extension: {:?}\nReceived: {:?}",
             input, expected, result
         );
     }
 
     #[test]
-    fn get_metadata_full_integration() {
+    fn new_metadata_full_integration() {
         // Arrange
         let config = setup_config();
         let time = setup_datetime();
-        let inputs = (
-            &None,
-            &Some("test@signature".to_string()),
-            &Some("My Cool Title!".to_string()),
-            &Some("rust programming".to_string()),
-            &Some("RS".to_string()),
-        );
+        let args = FileMetadataBuilder::new(time)
+            .with_signature(&Some("test@signature".to_string()))
+            .with_title(&Some("My Cool Title!".to_string()))
+            .with_keywords(&Some("rust programming".to_string()))
+            .with_extension(&Some("RS".to_string()));
+
         let expected = FileMetadata {
             identifier: "20240101T120000".to_string(),
             signature: Some("testsignature".to_string()),
@@ -335,39 +377,42 @@ mod tests {
         };
 
         // Act
-        let result = get_metadata(
-            &time, inputs.0, inputs.1, inputs.2, inputs.3, inputs.4, &config,
-        );
+        let result = args.build(&config);
 
         // Assert
         assert_eq!(
             result.identifier, expected.identifier,
-            "Identifier mismatch:\nExpected: {:?}\nGot: {:?}",
+            "Identifier mismatch:\nExpected: {:?}\nReceived: {:?}",
             expected.identifier, result.identifier
         );
         assert_eq!(
             result.signature, expected.signature,
-            "Signature mismatch:\nExpected: {:?}\nGot: {:?}",
+            "Signature mismatch:\nExpected: {:?}\nReceived: {:?}",
             expected.signature, result.signature
         );
         assert_eq!(
             result.title, expected.title,
-            "Title mismatch:\nExpected: {:?}\nGot: {:?}",
+            "Title mismatch:\nExpected: {:?}\nReceived: {:?}",
             expected.title, result.title
         );
         assert_eq!(
+            result.title_raw, expected.title_raw,
+            "Title raw mismatch:\nExpected: {:?}\nReceived: {:?}",
+            expected.title_raw, result.title_raw
+        );
+        assert_eq!(
             result.keywords, expected.keywords,
-            "Keywords mismatch:\nExpected: {:?}\nGot: {:?}",
+            "Keywords mismatch:\nExpected: {:?}\nReceived: {:?}",
             expected.keywords, result.keywords
         );
         assert_eq!(
             result.extension, expected.extension,
-            "Extension mismatch:\nExpected: {:?}\nGot: {:?}",
+            "Extension mismatch:\nExpected: {:?}\nReceived: {:?}",
             expected.extension, result.extension
         );
         assert_eq!(
             result.datetime, expected.datetime,
-            "Datetime mismatch:\nExpected: {:?}\nGot: {:?}",
+            "Datetime mismatch:\nExpected: {:?}\nReceived: {:?}",
             expected.datetime, result.datetime
         );
     }
@@ -385,7 +430,7 @@ mod tests {
         // Assert
         assert_eq!(
             result, expected,
-            "Input: {:?}\nExpected sanitized string: {:?}\nGot: {:?}",
+            "Input: {:?}\nExpected sanitized string: {:?}\nReceived: {:?}",
             input, expected, result
         );
     }

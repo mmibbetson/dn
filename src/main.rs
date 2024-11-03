@@ -6,7 +6,7 @@ use cli::Cli;
 use config::read_config;
 use config::Config;
 use directory::get_default_config_dir;
-use metadata::get_metadata;
+use metadata::FileMetadataBuilder;
 
 mod cli;
 mod config;
@@ -45,15 +45,12 @@ fn main() {
             // WARN: This clones the command struct and then matches on it again...
             let config_final = update_config_with_cli_args(cli.command.clone(), &config_content);
 
-            let metadata = get_metadata(
-                &instance_time,
-                &None,
-                signature,
-                title,
-                keywords,
-                extension,
-                &config_final.file,
-            );
+            let metadata = FileMetadataBuilder::new(instance_time)
+                .with_signature(signature)
+                .with_title(title)
+                .with_keywords(keywords)
+                .with_extension(extension)
+                .build(&config_final.file);
 
             // let filename = get_filename(metadata, config_content.file);
 
@@ -163,8 +160,6 @@ fn update_config_with_cli_args(args: cli::Commands, original_config: &Config) ->
 
     config
 }
-
-
 
 // When getting --add-keywords or --remove-keywords we want to modify the keywords_arg
 // 1. Take existing keywords_arg (-k>filename_parse>None)
