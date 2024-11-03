@@ -1,11 +1,13 @@
 use std::fs;
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use clap::Parser;
 use cli::Cli;
 use config::read_config;
 use config::Config;
 use directory::get_default_config_dir;
+use filename::Filename;
 use filename::ToFilename;
 use metadata::FileMetadataBuilder;
 
@@ -13,14 +15,13 @@ mod cli;
 mod config;
 mod directory;
 mod file;
+mod filename;
 mod format;
 mod metadata;
-mod filename;
 
 // Top-down draft using api
 fn main() {
     let cli = Cli::parse();
-    let instance_time = chrono::Local::now();
 
     match &cli.command {
         cli::Commands::New {
@@ -34,6 +35,8 @@ fn main() {
             extension,
             keywords,
         } => {
+            let creation_time = chrono::Local::now();
+
             let config_path = match config {
                 Some(path) => PathBuf::from(path),
                 None => get_default_config_dir(),
@@ -47,7 +50,7 @@ fn main() {
             // WARN: This clones the command struct and then matches on it again...
             let config_final = update_config_with_cli_args(cli.command.clone(), &config_content);
 
-            let metadata = FileMetadataBuilder::new(instance_time)
+            let metadata = FileMetadataBuilder::new(creation_time)
                 .with_signature(signature)
                 .with_title(title)
                 .with_keywords(keywords)
@@ -76,7 +79,57 @@ fn main() {
             keywords,
             add_keywords,
             remove_keywords,
-        } => {}
+        } => {
+            let input_content = fs::read_to_string(input);
+
+            let config_path = match config {
+                Some(path) => PathBuf::from(path),
+                None => get_default_config_dir(),
+            };
+
+            let config_content = match read_config(config_path) {
+                Ok(content) => content,
+                Err(_) => Config::default(),
+            };
+
+            // WARN: This clones the command struct and then matches on it again...
+            let config_final = update_config_with_cli_args(cli.command.clone(), &config_content);
+
+            let existing_filename = input.to_pathbuf().slug().to_filename();
+            let mut ident = existing_filename.identifier;
+            let mut siggy = existing_filename.signature;
+            let mut title = existing_filename.title;
+            let mut kwrds = existing_filename.keywords;
+            let mut exten = existing_filename.extension;
+            
+            if frontmatter {
+                let existing_frontmatter = input.to_pathbuf().slug().to_frontmatter();
+                ident = existing_frontmatter.identifier ?? ident;
+                siggy = existing_frontmatter.signature ?? siggy;
+                title = existing_frontmatter.title ?? title;
+                kwrds = existing_frontmatter.keywords ?? kwrds;
+                exten = existing_frontmatter.extension ?? exten;
+            }
+
+            siggy = signature ?? siggy;
+            title = input.to_pathbuf().slug() ?? title;
+            kwrds = keywords ?? kwrds;
+            exten = extension ?? exten;
+
+            let metadata = FileMetadataBuilder::new(instance_time)
+                .with_identifier(ident)
+                .with_signature(siggy)
+                .with_title(title)
+                .with_keywords(kwrds)
+                .with_extension(exten);
+
+            let new_filename = metadata.to_filename(&config_content.file);
+            // let new_frontmatter = metadata.to_frontmatter(config_content.frontmatter); // NOTE: This is optional based on generate_frontmatter arg.
+
+            // let output_content = get_output_content(frontmatter, input_content);
+
+            // fs::write(input, output_content);
+        }
     }
 }
 

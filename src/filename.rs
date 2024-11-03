@@ -11,16 +11,48 @@ use crate::{
 
 #[derive(Debug, Default, Clone)]
 pub struct Filename {
-    identifier: String,
-    signature: Option<String>,
-    title: Option<String>,
-    keywords: Option<String>,
-    extension: String,
-    segment_order: [FilenameSegment; 5],
+    pub identifier: String,
+    pub signature: Option<String>,
+    pub title: Option<String>,
+    pub keywords: Option<String>,
+    pub extension: String,
+    pub segment_order: [FilenameSegment; 5],
 }
 
 pub trait ToFilename {
     fn to_filename(&self, config: &FileConfig) -> Filename;
+}
+
+impl ToFilename for String {
+    fn to_filename(&self, config: &FileConfig) -> Filename {
+        const IDENTIFIER_PATTERN: &str = r"(?P<identifier>\b[0-9]{8}T[0-9]{6}\b)";
+        const SIGNATURE_PATTERN: &str = r"(?P<signature>==[^\@\-\_\.]*)";
+        const TITLE_PATTERN: &str = r"(?P<title>--[^\@\=\_\.]*)";
+        const KEYWORDS_PATTERN: &str = r"(?P<keywords>__[^\@\=\-\.]*)";
+        const EXTENSION_PATTERN: &str = r"(?P<extension>\.[^\@\=\-\_]*)";
+
+        let combined_pattern = format!(
+            "{}|{}|{}|{}|{}",
+            IDENTIFIER_PATTERN,
+            SIGNATURE_PATTERN,
+            TITLE_PATTERN,
+            KEYWORDS_PATTERN,
+            EXTENSION_PATTERN
+        );
+
+        // identifier is either found or formatted from local now I guess?
+        // extension is either found or config.default_extension
+
+        // TODO: Iterate over captures to determine their values and order.
+        Filename {
+            identifier: todo!(),
+            signature: todo!(),
+            title: todo!(),
+            keywords: todo!(),
+            extension: todo!(),
+            segment_order: todo!(),
+        }
+    }
 }
 
 impl ToFilename for FileMetadata {
@@ -38,41 +70,6 @@ impl ToFilename for FileMetadata {
             extension: self.extension.clone(),
             segment_order: config.segment_order.clone(),
         }
-    }
-}
-
-impl FromStr for Filename {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        const IDENTIFIER_PATTERN: &str = r"(\b[0-9]{8}T[0-9]{6}\b)";
-        const SIGNATURE_PATTERN: &str = r"(==[^\@\-\_\.]*)";
-        const TITLE_PATTERN: &str = r"(--[^\@\=\_\.]*)";
-        const KEYWORDS_PATTERN: &str = r"(__[^\@\=\-\.]*)";
-        const EXTENSION_PATTERN: &str = r"(\.[^\@\=\-\_]*)";
-
-        let identifier = parse_segment(s, IDENTIFIER_PATTERN);
-        let signature = parse_segment(s, SIGNATURE_PATTERN);
-
-        // NOTE: If there is no identifier, it's a non-dn name. Therefore the whole thing is the title.
-        let title = if let Some(_) = identifier {
-            parse_segment(s, TITLE_PATTERN)
-        } else {
-            Some(s.chars().take_while(|&c| c != '.').collect())
-        };
-
-        let keywords = parse_segment(s, KEYWORDS_PATTERN);
-        let extension = parse_segment(s, EXTENSION_PATTERN);
-        let segment_order = derive_segment_order();
-
-        Ok(Filename {
-            identifier,
-            signature,
-            title,
-            keywords,
-            extension,
-            segment_order,
-        })
     }
 }
 
@@ -108,18 +105,6 @@ fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
         .unwrap()
         .find(filename)
         .map(|m| m.as_str().to_owned())
-}
-
-// TODO: Move to appropriate location. Will be used to get
-// The creation_time for FileMetadata
-fn derive_creation_time(identifier: &str) -> DateTime<Local> {
-    match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
-        Ok(naive) => Local
-            .from_local_datetime(&naive)
-            .single()
-            .unwrap_or_else(|| Local::now()),
-        Err(_) => Local::now(),
-    }
 }
 
 ///////////
