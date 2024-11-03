@@ -126,7 +126,7 @@ fn default_illegal_characters() -> Vec<char> {
     ]
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum FilenameSegment {
     Identifier,
@@ -134,6 +134,12 @@ pub enum FilenameSegment {
     Title,
     Keywords,
     Extension,
+}
+
+impl Default for FilenameSegment {
+    fn default() -> Self {
+        FilenameSegment::Identifier
+    }
 }
 
 impl Default for FileConfig {

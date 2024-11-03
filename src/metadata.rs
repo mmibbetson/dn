@@ -2,15 +2,17 @@ use chrono::{DateTime, Local};
 
 use crate::{config::FileConfig, format::DN_IDENTIFIER_FORMAT};
 
+const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
+
 #[derive(Debug, Default, Clone)]
 pub struct FileMetadata {
-    identifier: String,
-    signature: Option<String>,
-    title: Option<String>,
-    title_raw: Option<String>,
-    keywords: Option<Vec<String>>,
-    extension: String,
-    datetime: DateTime<Local>,
+    pub identifier: String,
+    pub signature: Option<String>,
+    pub title: Option<String>,
+    pub title_raw: Option<String>,
+    pub keywords: Option<Vec<String>>,
+    pub extension: String,
+    pub datetime: DateTime<Local>,
 }
 
 #[derive(Debug, Default)]
@@ -94,8 +96,6 @@ impl FileMetadataBuilder {
         }
     }
 }
-
-const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
 
 fn derive_identifier(instance_time: &DateTime<Local>, identifier_arg: &Option<String>) -> String {
     match identifier_arg {

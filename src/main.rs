@@ -6,6 +6,7 @@ use cli::Cli;
 use config::read_config;
 use config::Config;
 use directory::get_default_config_dir;
+use filename::ToFilename;
 use metadata::FileMetadataBuilder;
 
 mod cli;
@@ -14,6 +15,7 @@ mod directory;
 mod file;
 mod format;
 mod metadata;
+mod filename;
 
 // Top-down draft using api
 fn main() {
@@ -52,10 +54,10 @@ fn main() {
                 .with_extension(extension)
                 .build(&config_final.file);
 
-            // let filename = get_filename(metadata, config_content.file);
+            let filename = metadata.to_filename(&config_content.file);
+            // let frontmatter = metadata.to_frontmatter(config_content.frontmatter); // NOTE: This is optional based on generate_frontmatter arg.
 
-            // // let frontmatter = get_frontmatter(metadata, config.frontmatter_config); // optional
-            // // let template = get_template(template_path, config.template_config); // optional
+            // let template = get_template(template_path, config.template_config); // optional
 
             // let path = get_path(config_content.directory_config);
             // let content = get_content(frontmatter, template);
