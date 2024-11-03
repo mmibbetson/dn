@@ -197,12 +197,12 @@ mod tests {
         let expected = "20240101T120000";
 
         // Act
-        let result = FileMetadata::derive_identifier(&time, &None);
+        let result = derive_identifier(&time, &None);
 
         // Assert
         assert_eq!(
             result, expected,
-            "Expected identifier {:?} but got {:?}",
+            "Expected: {:?}\nReceived: {:?}",
             expected, result
         );
     }
@@ -215,12 +215,12 @@ mod tests {
         let expected = "20241212T121212";
 
         // Act
-        let result = FileMetadata::derive_identifier(&time, &identifier);
+        let result = derive_identifier(&time, &identifier);
 
         // Assert
         assert_eq!(
             result, expected,
-            "Expected identifier {:?} but got {:?}",
+            "Expected: {:?}\nReceived: {:?}",
             expected, result
         );
     }
@@ -233,7 +233,7 @@ mod tests {
         let expected = Some("testsignature".to_string());
 
         // Act
-        let result = FileMetadata::parse_signature(input, &config.illegal_characters);
+        let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
         assert_eq!(
@@ -251,7 +251,7 @@ mod tests {
         let expected = Some("testsignature".to_string());
 
         // Act
-        let result = FileMetadata::parse_signature(input, &config.illegal_characters);
+        let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
         assert_eq!(
@@ -269,7 +269,7 @@ mod tests {
         let expected = None;
 
         // Act
-        let result = FileMetadata::parse_signature(input, &config.illegal_characters);
+        let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
         assert_eq!(
@@ -287,7 +287,7 @@ mod tests {
         let expected = Some("my-cool-title".to_string());
 
         // Act
-        let result = FileMetadata::parse_title(input, &config.illegal_characters);
+        let result = parse_title(input, &config.illegal_characters);
 
         // Assert
         assert_eq!(
@@ -309,7 +309,7 @@ mod tests {
         ]);
 
         // Act
-        let result = FileMetadata::parse_keywords(input, &config.illegal_characters);
+        let result = parse_keywords(input, &config.illegal_characters);
 
         // Assert
         assert_eq!(
@@ -327,7 +327,7 @@ mod tests {
         let expected = Some("tar.gz".to_string());
 
         // Act
-        let result = FileMetadata::parse_extension(input, &config.illegal_characters);
+        let result = parse_extension(input, &config.illegal_characters);
 
         // Assert
         assert_eq!(
@@ -345,7 +345,7 @@ mod tests {
         let expected = Some("md".to_string());
 
         // Act
-        let result = FileMetadata::parse_extension(input, &config.illegal_characters);
+        let result = parse_extension(input, &config.illegal_characters);
 
         // Assert
         assert_eq!(
@@ -360,13 +360,11 @@ mod tests {
         // Arrange
         let config = setup_config();
         let time = setup_datetime();
-        let args = FileMetadataBuilder {
-            identifier: None,
-            signature: Some("test@signature".to_string()),
-            title: Some("My Cool Title!".to_string()),
-            keywords: Some("rust programming".to_string()),
-            extension: Some("RS".to_string()),
-        };
+        let args = FileMetadataBuilder::new(time)
+            .with_signature(&Some("test@signature".to_string()))
+            .with_title(&Some("My Cool Title!".to_string()))
+            .with_keywords(&Some("rust programming".to_string()))
+            .with_extension(&Some("RS".to_string()));
 
         let expected = FileMetadata {
             identifier: "20240101T120000".to_string(),
@@ -379,7 +377,7 @@ mod tests {
         };
 
         // Act
-        let result = FileMetadata::new(&args, &time, &config);
+        let result = args.build(&config);
 
         // Assert
         assert_eq!(
@@ -427,7 +425,7 @@ mod tests {
         let expected = "helloworld".to_string();
 
         // Act
-        let result = FileMetadata::sanitise(input, &config.illegal_characters);
+        let result = sanitise(input, &config.illegal_characters);
 
         // Assert
         assert_eq!(
