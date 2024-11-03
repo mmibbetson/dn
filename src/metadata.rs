@@ -2,6 +2,7 @@ use chrono::{DateTime, Local};
 
 use crate::{config::FileConfig, format::DN_IDENTIFIER_FORMAT};
 
+#[derive(Debug, Default, Clone)]
 pub struct FileMetadata {
     identifier: String,
     signature: Option<String>,
@@ -12,6 +13,7 @@ pub struct FileMetadata {
     datetime: DateTime<Local>,
 }
 
+#[derive(Debug, Default)]
 pub struct FileMetadataBuilder {
     identifier: Option<String>,
     signature: Option<String>,
@@ -24,12 +26,8 @@ pub struct FileMetadataBuilder {
 impl FileMetadataBuilder {
     pub fn new(instance_time: DateTime<Local>) -> Self {
         Self {
-            identifier: None,
-            signature: None,
-            title: None,
-            keywords: None,
-            extension: None,
             instance_time,
+            ..Default::default()
         }
     }
 
