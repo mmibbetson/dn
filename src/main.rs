@@ -9,6 +9,7 @@ use config::Config;
 use directory::get_default_config_dir;
 use filename::Filename;
 use filename::ToFilename;
+use metadata::derive_creation_time;
 use metadata::FileMetadataBuilder;
 
 mod cli;
@@ -37,16 +38,8 @@ fn main() {
         } => {
             let creation_time = chrono::Local::now();
 
-            let config_path = match config {
-                Some(path) => PathBuf::from(path),
-                None => get_default_config_dir(),
-            };
-
-            let config_content = match read_config(config_path) {
-                Ok(content) => content,
-                Err(_) => Config::default(),
-            };
-
+            let config_path = config.map_or(get_default_config_dir(), PathBuf::from);
+            let config_content = read_config(config_path).unwrap_or_default();
             // WARN: This clones the command struct and then matches on it again...
             let config_final = update_config_with_cli_args(cli.command.clone(), &config_content);
 
@@ -58,14 +51,18 @@ fn main() {
                 .build(&config_final.file);
 
             let filename = metadata.to_filename(&config_content.file);
-            // let frontmatter = metadata.to_frontmatter(config_content.frontmatter); // NOTE: This is optional based on generate_frontmatter arg.
 
-            // let template = get_template(template_path, config.template_config); // optional
+            let frontmatter =
+                generate_frontmatter.then(|| metadata.to_frontmatter(config_final.frontmatter));
 
-            // let path = get_path(config_content.directory_config);
-            // let content = get_content(frontmatter, template);
+            let template_content = template.map(|tmp| get_template(tmp, config_final.file));
 
-            // fs::write(path, content);
+
+            let path = directory.map_or(get_path(config_final.file.directory), PathBuf::from);
+
+            let content = get_content(frontmatter, template_content);
+
+            fs::write(path, content);
         }
         cli::Commands::Rename {
             input,
@@ -80,55 +77,78 @@ fn main() {
             add_keywords,
             remove_keywords,
         } => {
-            let input_content = fs::read_to_string(input);
+            let input_path = PathBuf::from(input);
+            let input_content = fs::read_to_string(input_path);
 
-            let config_path = match config {
-                Some(path) => PathBuf::from(path),
-                None => get_default_config_dir(),
-            };
-
-            let config_content = match read_config(config_path) {
-                Ok(content) => content,
-                Err(_) => Config::default(),
-            };
-
+            let config_path = config.map_or(get_default_config_dir(), PathBuf::from);
+            let config_content = read_config(config_path).unwrap_or_default();
             // WARN: This clones the command struct and then matches on it again...
             let config_final = update_config_with_cli_args(cli.command.clone(), &config_content);
 
-            let existing_filename = input.to_pathbuf().slug().to_filename();
-            let mut ident = existing_filename.identifier;
-            let mut siggy = existing_filename.signature;
-            let mut title = existing_filename.title;
-            let mut kwrds = existing_filename.keywords;
-            let mut exten = existing_filename.extension;
-            
-            if frontmatter {
-                let existing_frontmatter = input.to_pathbuf().slug().to_frontmatter();
-                ident = existing_frontmatter.identifier ?? ident;
-                siggy = existing_frontmatter.signature ?? siggy;
-                title = existing_frontmatter.title ?? title;
-                kwrds = existing_frontmatter.keywords ?? kwrds;
-                exten = existing_frontmatter.extension ?? exten;
+            // Get the filename as a string, fallback to empty string if invalid UTF-8 or no filename
+            let file_name = PathBuf::from(input)
+                .file_name()
+                .and_then(|os_str| os_str.to_str())
+                .unwrap() // WARN: Smells funny.
+                .to_string();
+
+            // Get initial filename data
+            let mut existing_filename = file_name.to_filename(&config_final.file);
+            let mut parse_time = derive_creation_time(&existing_filename.identifier);
+
+            // If frontmatter is true, override with frontmatter values where they exist
+            if *frontmatter {
+                let existing_frontmatter = file_name.to_frontmatter();
+
+                if let Some(dt) = existing_frontmatter.datetime {
+                    parse_time = dt;
+                }
+
+                if let Some(id) = existing_frontmatter.identifier {
+                    existing_filename.identifier = existing_frontmatter.identifier;
+                }
+
+                existing_filename.signature = existing_frontmatter
+                    .signature
+                    .or(existing_filename.signature);
+                existing_filename.title = existing_frontmatter.title.or(existing_filename.title);
+                existing_filename.keywords =
+                    existing_frontmatter.keywords.or(existing_filename.keywords);
+
+                if !existing_frontmatter.extension.is_empty() {
+                    existing_filename.extension = existing_frontmatter.extension;
+                }
             }
 
-            siggy = signature ?? siggy;
-            title = input.to_pathbuf().slug() ?? title;
-            kwrds = keywords ?? kwrds;
-            exten = extension ?? exten;
+            // Override with provided CLI values where they exist
+            if let Some(sig) = signature {
+                existing_filename.signature = Some(sig.to_string());
+            }
 
-            let metadata = FileMetadataBuilder::new(instance_time)
-                .with_identifier(ident)
-                .with_signature(siggy)
-                .with_title(title)
-                .with_keywords(kwrds)
-                .with_extension(exten);
+            if let Some(kw) = keywords {
+                existing_filename.keywords = Some(kw.to_string());
+            }
+
+            if let Some(ext) = extension {
+                existing_filename.extension = ext.to_string();
+            }
+
+            let metadata = FileMetadataBuilder::new(parse_time)
+                .with_identifier(&Some(existing_filename.identifier))
+                .with_signature(&existing_filename.signature)
+                .with_title(&existing_filename.title)
+                .with_keywords(&existing_filename.keywords)
+                .with_extension(&Some(existing_filename.extension))
+                .build(&config_final.file); // WARN: Possible code smell. Why does metadata take a FILE config?
 
             let new_filename = metadata.to_filename(&config_content.file);
-            // let new_frontmatter = metadata.to_frontmatter(config_content.frontmatter); // NOTE: This is optional based on generate_frontmatter arg.
 
-            // let output_content = get_output_content(frontmatter, input_content);
+            let new_frontmatter =
+                generate_frontmatter.then(|| metadata.to_frontmatter(config_content.frontmatter));
 
-            // fs::write(input, output_content);
+            let output_content = get_rename_content(new_frontmatter, input_content);
+
+            fs::write(input_path, output_content);
         }
     }
 }
@@ -172,7 +192,7 @@ fn update_config_with_cli_args(args: cli::Commands, original_config: &Config) ->
                     "org" => config::FrontmatterFormat::Org,
                     // WARN: Panicking.
                     // TODO: Maybe throw anyhow error alert invalid format, or something?
-                    _ => panic!("Invalid frontmatter format provided, must be one of: text, yaml, toml, org"), 
+                    _ => panic!("Invalid frontmatter format provided, must be one of: text, yaml, toml, org"),
                 };
             }
         }

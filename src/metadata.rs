@@ -173,7 +173,7 @@ fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
 
 // TODO: Move to appropriate location. Will be used to get
 // The creation_time for Metadata
-fn derive_creation_time(identifier: &str) -> DateTime<Local> {
+pub fn derive_creation_time(identifier: &str) -> DateTime<Local> {
     match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
         Ok(naive) => Local
             .from_local_datetime(&naive)

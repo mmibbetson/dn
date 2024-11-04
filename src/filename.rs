@@ -1,6 +1,3 @@
-use std::str::FromStr;
-
-use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 use regex::Regex;
 
 use crate::{
@@ -40,16 +37,26 @@ impl ToFilename for String {
             EXTENSION_PATTERN
         );
 
-        // identifier is either found or formatted from local now I guess?
-        // extension is either found or config.default_extension
-
         // TODO: Iterate over captures to determine their values and order.
+
+        let identifier = match identifier_match {
+            Some(id) => id.to_string(),
+            None => chrono::Local::now()
+                .format(DN_IDENTIFIER_FORMAT)
+                .to_string(),
+        };
+
+        let extension = match extension_match {
+            Some(ext) => ext.to_string(),
+            None => config.default_extension,
+        };
+
         Filename {
-            identifier: todo!(),
+            identifier,
             signature: todo!(),
             title: todo!(),
             keywords: todo!(),
-            extension: todo!(),
+            extension,
             segment_order: todo!(),
         }
     }
