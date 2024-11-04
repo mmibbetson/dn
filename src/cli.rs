@@ -26,23 +26,23 @@ pub enum Commands {
     New {
         /// Print the absolute path of the created file
         #[arg(short = 'p', long = "print")]
-        print_path: bool,
+        cli_print: bool,
 
         /// Generate or regenerate frontmatter
         #[arg(short = 'G', long = "generate-frontmatter")]
-        generate_frontmatter: bool,
+        cli_generate_frontmatter: bool,
 
         /// Directory to save the note
         #[arg(short = 'd', long = "directory", value_name = "PATH")]
-        directory: Option<String>,
+        cli_directory_path: Option<String>,
 
         /// Config file location
         #[arg(short = 'c', long = "config", value_name = "PATH")]
-        config: Option<String>,
+        cli_config_path: Option<String>,
 
         /// Template file
         #[arg(short = 'T', long = "template", value_name = "PATH")]
-        template: Option<String>,
+        cli_template_path: Option<String>,
 
         /// Frontmatter format
         #[arg(
@@ -50,23 +50,23 @@ pub enum Commands {
             long = "frontmatter-format",
             value_name = "Text|YAML|TOML|Org"
         )]
-        frontmatter_format: Option<String>,
+        cli_frontmatter_format: Option<String>,
 
         /// Signature to use
         #[arg(short = 's', long = "signature", value_name = "SIGNATURE")]
-        signature: Option<String>,
+        cli_signature: Option<String>,
 
         /// Title for the note
         #[arg(short = 't', long = "title", value_name = "TITLE")]
-        title: Option<String>,
+        cli_title: Option<String>,
 
         /// File extension
         #[arg(short = 'e', long = "extension", value_name = "EXTENSION")]
-        extension: Option<String>,
+        cli_extension: Option<String>,
 
         /// Keywords for the note
         #[arg(short = 'k', long = "keywords", value_name = "KEYWORD(S)")]
-        keywords: Option<String>,
+        cli_keywords: Option<String>,
     },
 
     /// Rename an existing note
@@ -76,23 +76,23 @@ pub enum Commands {
 
         /// Print the absolute path of the created file
         #[arg(short = 'p', long = "print")]
-        print_path: bool,
+        cli_print: bool,
 
         /// Generate identifier even if there is an existing one
         #[arg(short = 'I', long = "regenerate-identifier")]
-        regenerate_identifier: bool,
+        cli_regenerate_identifier: bool,
 
         /// Rename based on frontmatter values
         #[arg(short = 'f', long = "frontmatter")]
-        frontmatter: bool,
+        cli_rename_from_frontmatter: bool,
 
         /// Generate or regenerate frontmatter
         #[arg(short = 'G', long = "generate-frontmatter")]
-        generate_frontmatter: bool,
+        cli_generate_frontmatter: bool,
 
         /// Config file location
         #[arg(short = 'c', long = "config", value_name = "PATH")]
-        config: Option<String>,
+        cli_config_path: Option<String>,
 
         /// Frontmatter format
         #[arg(
@@ -100,30 +100,30 @@ pub enum Commands {
             long = "frontmatter-format",
             value_name = "Text|YAML|TOML|Org"
         )]
-        frontmatter_format: Option<String>,
+        cli_frontmatter_format: Option<String>,
 
         /// Signature to use
         #[arg(short = 's', long = "signature", value_name = "SIGNATURE")]
-        signature: Option<String>,
+        cli_signature: Option<String>,
 
         /// Title for the note
         #[arg(short = 't', long = "title", value_name = "TITLE")]
-        title: Option<String>,
+        cli_title: Option<String>,
 
         /// Keywords for the note
         #[arg(short = 'k', long = "keywords", value_name = "KEYWORDS")]
-        keywords: Option<String>,
+        cli_keywords: Option<String>,
 
         /// Add keywords
         #[arg(short = 'A', long = "add-keywords", value_name = "KEYWORDS")]
-        add_keywords: Option<String>,
+        cli_add_keywords: Option<String>,
 
         /// Remove keywords
         #[arg(short = 'R', long = "remove-keywords", value_name = "KEYWORDS")]
-        remove_keywords: Option<String>,
+        cli_remove_keywords: Option<String>,
 
         /// File extension
         #[arg(short = 'e', long = "extension", value_name = "EXTENSION")]
-        extension: Option<String>,
+        cli_extension: Option<String>,
     },
 }

@@ -173,3 +173,10 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let config = toml::from_str(&contents)?;
     Ok(config)
 }
+
+///////////
+// Tests //
+///////////
+
+#[cfg(test)]
+mod tests {}

@@ -34,3 +34,10 @@ pub fn get_default_config_dir() -> PathBuf {
 
     config_dir.join("dn")
 }
+
+///////////
+// Tests //
+///////////
+
+#[cfg(test)]
+mod tests {}
