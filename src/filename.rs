@@ -39,14 +39,14 @@ impl ToFilename for String {
 
         // TODO: Iterate over captures to determine their values and order.
 
-        let identifier = match identifier_match {
+        let identifier = match identifier_capture {
             Some(id) => id.to_string(),
             None => chrono::Local::now()
                 .format(DN_IDENTIFIER_FORMAT)
                 .to_string(),
         };
 
-        let extension = match extension_match {
+        let extension = match extension_capture {
             Some(ext) => ext.to_string(),
             None => config.default_extension,
         };
@@ -109,6 +109,7 @@ fn prefix_segment(value: String, segment: &FilenameSegment) -> String {
 
 fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
     Regex::new(pattern)
+        // WARN: Unwrap may panic.
         .unwrap()
         .find(filename)
         .map(|m| m.as_str().to_owned())

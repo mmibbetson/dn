@@ -174,9 +174,8 @@ fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
 // TODO: Move to appropriate location. Will be used to get
 // The creation_time for Metadata
 pub fn derive_creation_time(identifier: &str) -> DateTime<Local> {
-    match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
-        Ok(naive) => Local
-            .from_local_datetime(&naive)
+    match chrono::NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
+        Ok(naive) => chrono::TimeZone::from_local_datetime(&Local, &naive)
             .single()
             .unwrap_or_else(|| Local::now()),
         Err(_) => Local::now(),
@@ -197,6 +196,7 @@ mod tests {
     }
 
     fn setup_datetime() -> DateTime<Local> {
+        // WARN: Unwrap may panic.
         Local.with_ymd_and_hms(2024, 1, 1, 12, 0, 0).unwrap()
     }
 
