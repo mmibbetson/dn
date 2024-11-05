@@ -120,7 +120,7 @@ fn main() {
                     .unwrap_or(config_builder);
 
                 config_builder = cli_frontmatter_format
-                    .map(|f| config_builder.with_frontmatter_format(cli_frontmatter_format))
+                    .map(|f| config_builder.with_frontmatter_format(f))
                     .unwrap_or(config_builder);
 
                 config_builder.build()

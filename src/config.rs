@@ -6,7 +6,7 @@ use std::{
 use anyhow::{anyhow, Error};
 use serde::{Deserialize, Serialize};
 
-use crate::directory::default_notes_directory_from_environment;
+use crate::directory::environment_notes_dir;
 
 /// Represents the configuration state for dn as a whole.
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
@@ -16,6 +16,7 @@ pub struct Config {
 }
 
 // TODO
+///
 struct ConfigBuilder {}
 
 /// The configuration values for the file name, directory, template, and general metadata.
@@ -108,8 +109,48 @@ pub enum FrontmatterTimeFormat {
 }
 
 impl Config {
+    ///
     pub fn builder(path: Option<String>) -> ConfigBuilder {
         // TODO: If path is present read it into relevant values and assign, otherwise default.
+        // If the path is present but fails to parse, eprintln!() and std::process::exit(1)
+        todo!()
+    }
+}
+
+impl ConfigBuilder {
+    ///
+    pub fn with_frontmatter_enabled(&self, arg: bool) -> ConfigBuilder {
+        todo!()
+    }
+
+    ///
+    pub fn with_file_directory(&self, p: String) -> ConfigBuilder {
+        todo!()
+    }
+
+    ///
+    pub fn file_default_extension(&self, e: String) -> ConfigBuilder {
+        todo!()
+    }
+
+    ///
+    pub fn file_template_path(&self, p: String) -> ConfigBuilder {
+        todo!()
+    }
+
+    ///
+    pub fn with_frontmatter_format(&self, f: String) -> ConfigBuilder {
+        todo!()
+    }
+
+    ///
+    pub fn with_file_regenerate_identifier(&self, arg: bool) -> ConfigBuilder {
+        todo!()
+    }
+
+    ///
+    pub fn build(&self) -> Config {
+        todo!()
     }
 }
 
@@ -165,7 +206,7 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
 }
 
 fn default_notes_directory() -> PathBuf {
-    default_notes_directory_from_environment()
+    environment_notes_dir()
         .unwrap_or(env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
 }
 

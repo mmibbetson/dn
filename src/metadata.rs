@@ -2,8 +2,10 @@ use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 
 use crate::{config::FileConfig, format::DN_IDENTIFIER_FORMAT};
 
+///
 const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
 
+///
 #[derive(Debug, Default, Clone)]
 pub struct FileMetadata {
     pub identifier: String,
@@ -15,6 +17,7 @@ pub struct FileMetadata {
     pub datetime: DateTime<Local>,
 }
 
+///
 #[derive(Debug, Default)]
 struct FileMetadataBuilder {
     identifier: Option<String>,
@@ -26,37 +29,44 @@ struct FileMetadataBuilder {
 }
 
 impl FileMetadata {
+    ///
     pub fn builder() -> FileMetadataBuilder {
         FileMetadataBuilder::default()
     }
 }
 
 impl FileMetadataBuilder {
+    ///
     pub fn with_identifier(mut self, value: &Option<String>) -> Self {
         self.identifier = value.clone();
         self
     }
 
+    ///
     pub fn with_signature(mut self, value: &Option<String>) -> Self {
         self.signature = value.clone();
         self
     }
 
+    ///
     pub fn with_title(mut self, value: &Option<String>) -> Self {
         self.title = value.clone();
         self
     }
 
+    ///
     pub fn with_keywords(mut self, value: &Option<String>) -> Self {
         self.keywords = value.clone();
         self
     }
 
+    ///
     pub fn with_extension(mut self, value: &Option<String>) -> Self {
         self.extension = value.clone();
         self
     }
 
+    ///
     pub fn build(&self, config: &FileConfig) -> FileMetadata {
         let datetime = derive_datetime(&self.identifier);
 

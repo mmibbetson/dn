@@ -7,6 +7,7 @@ use crate::{
     metadata::FileMetadata,
 };
 
+///
 #[derive(Debug, Default, Clone)]
 pub struct Filename {
     pub identifier: String,
@@ -17,6 +18,7 @@ pub struct Filename {
     pub segment_order: [FilenameSegment; 5],
 }
 
+///
 pub trait ToFilename {
     fn to_filename(&self, config: &FileConfig) -> Filename;
 }

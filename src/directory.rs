@@ -5,7 +5,7 @@ use anyhow::Error;
 /// Get the default notes directory in a platform-agnostic way.
 /// Tries to get `$HOME` (Unix-like systems) or `$USERPROFILE` (Windows).
 /// If both cases fail, falls back to current directory.
-pub fn default_notes_directory_from_environment() -> Result<PathBuf, Error> {
+pub fn environment_notes_dir() -> Result<PathBuf, Error> {
     let home_dir = env::var("HOME").or_else(|_| env::var("USERPROFILE"))?;
 
     let path = match PathBuf::from(home_dir).join("Documents") {
@@ -19,7 +19,7 @@ pub fn default_notes_directory_from_environment() -> Result<PathBuf, Error> {
 /// Get the default config directory in a platform-agnostic way.
 /// Tries to get `$XDG_CONFIG_HOME` (Unix-like systems) or `$USERPROFILE\AppData\Roaming` (Windows)
 /// If both cases fail, falls back to current directory.
-pub fn default_config_directory_from_environment() -> Result<PathBuf, Error> {
+pub fn environment_config_dir() -> Result<PathBuf, Error> {
     let config_dir = env::var("XDG_CONFIG_HOME")
         .map(PathBuf::from)
         .or_else(|_| {
