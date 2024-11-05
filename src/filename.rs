@@ -45,16 +45,14 @@ impl ToFilename for String {
         const EXTENSION_PATTERN: &str = r"(\.[^\@\=\-\_]*)";
 
         let identifier = match parse_segment(&self, IDENTIFIER_PATTERN) {
-            Some(id) => id.to_string(),
-            None => Local::now()
-                .format(DN_IDENTIFIER_FORMAT)
-                .to_string(),
+            Some(identifier) => identifier.to_string(),
+            None => Local::now().format(DN_IDENTIFIER_FORMAT).to_string(),
         };
         let signature = parse_segment(self, SIGNATURE_PATTERN);
         let title = parse_segment(self, TITLE_PATTERN);
         let keywords = parse_segment(self, KEYWORDS_PATTERN);
         let extension = match parse_segment(self, EXTENSION_PATTERN) {
-            Some(ext) => ext.to_string(),
+            Some(extension) => extension.to_string(),
             None => config.default_extension.clone(),
         };
 
@@ -91,7 +89,7 @@ impl ToFilename for FileMetadata {
 
 fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
     Regex::new(pattern)
-        // WARN: Unwrap may panic.
+        // WARN: Unwrap may panic. Do we want to alert the user of an error creating this regex?
         .unwrap()
         .find(filename)
         .map(|m| m.as_str().to_owned())

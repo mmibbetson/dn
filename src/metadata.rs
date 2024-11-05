@@ -16,7 +16,7 @@ pub struct FileMetadata {
 }
 
 #[derive(Debug, Default)]
-pub struct FileMetadataBuilder {
+struct FileMetadataBuilder {
     identifier: Option<String>,
     signature: Option<String>,
     title: Option<String>,
@@ -96,9 +96,21 @@ impl FileMetadataBuilder {
     }
 }
 
+fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
+    match identifier {
+        Some(identifier) => match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
+            Ok(naive) => TimeZone::from_local_datetime(&Local, &naive)
+                .single()
+                .unwrap_or_else(Local::now),
+            Err(_) => Local::now(),
+        },
+        None => Local::now(),
+    }
+}
+
 fn derive_identifier(instance_time: &DateTime<Local>, identifier_arg: &Option<String>) -> String {
     match identifier_arg {
-        Some(id) => id.to_string(),
+        Some(identifier) => identifier.to_string(),
         None => instance_time.format(DN_IDENTIFIER_FORMAT).to_string(),
     }
 }
@@ -167,18 +179,6 @@ fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
         .filter(|&c| !SEGMENT_SEPARATORS.contains(&c))
         .filter(|&c| !illegal_characters.contains(&c))
         .collect::<String>()
-}
-
-fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
-    match identifier {
-        Some(id) => match NaiveDateTime::parse_from_str(id, DN_IDENTIFIER_FORMAT) {
-            Ok(naive) => TimeZone::from_local_datetime(&Local, &naive)
-                .single()
-                .unwrap_or_else(Local::now),
-            Err(_) => Local::now(),
-        },
-        None => Local::now(),
-    }
 }
 
 #[cfg(test)]

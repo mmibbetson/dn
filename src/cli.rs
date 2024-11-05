@@ -19,8 +19,7 @@ pub struct Cli {
     pub version: bool,
 }
 
-// TODO: Reconsider clone.
-#[derive(Subcommand, Clone)]
+#[derive(Subcommand)]
 pub enum Commands {
     /// Create a new note
     New {

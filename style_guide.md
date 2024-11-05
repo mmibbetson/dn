@@ -24,11 +24,11 @@ let input_default = "foo";
 let user_role_default = "user";
 ```
 
-When pattern matching variant constructors, prefer names of approximately 3 characters. For example:
+When pattern matching variant constructors, prefer explicit, descriptive names. For example:
 
 ```rust
 match possible_shelled_ovum {
-    Some(egg) => egg.sample(),
+    Some(raw_egg) => raw_egg.sample(),
     None => panic!(),
 }
 ```
@@ -37,12 +37,12 @@ Rather than:
 
 ```rust
 match possible_shelled_ovum {
-    Some(shelled_ovum) => shelled_ovum.sample(),
+    Some(e) => e.sample(),
     None => panic!(),
 }
 ```
 
-When using anonymous functions, prefer argument names of 1 character. Exceptions should be made when it is unclear what the argument may represent, such as in a pattern-matched tuple. For example:
+When using anonymous functions, prefer argument names of approximately 3 characters. Exceptions should be made when it is unclear what the argument may represent, such as in a pattern-matched tuple. For example:
 
 ```rust
 possible_shelled_ovum.map(|e| e.sample())
