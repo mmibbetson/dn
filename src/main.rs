@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 
+use chrono::Local;
 use clap::Parser;
 use cli::Cli;
 use config::read_config;
@@ -40,7 +41,7 @@ fn main() {
                 update_config_with_cli_args(cli.command.clone(), &config_content)
             };
 
-            let creation_time = chrono::Local::now();
+            let creation_time = Local::now();
             let metadata = FileMetadataBuilder::new(creation_time)
                 .with_signature(cli_signature)
                 .with_title(cli_title)
@@ -54,14 +55,15 @@ fn main() {
             let template = cli_template_path.map(fs::read);
 
             let path = cli_directory_path
-                .map_or(get_path(config.file.directory), PathBuf::from)
+                .map_or(PathBuf::from(config.file.directory), PathBuf::from)
                 .join(filename);
             let content = get_content(frontmatter, template);
 
             fs::write(path, content);
 
             if *cli_print {
-                print!("{}", path)
+                // WARN: Unwrap may panic.
+                print!("{}", path.to_str().unwrap())
             };
         }
         cli::Commands::Rename {

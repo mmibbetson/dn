@@ -24,6 +24,39 @@ let input_default = "foo";
 let user_role_default = "user";
 ```
 
+## Interstitial Values
+
+When binding names to expressions for clarity in deriving a final binding to be used elsewhere in the program, if the interstitial values are not needed elsewhere in the program, prefer to enclose them in an expression block. For example:
+
+```rust
+let reaper_egg = {
+    let boiled_egg = chicken
+        .lay_eggs()
+        .iter()
+        .map(Egg::boil)
+        .next()
+        .unwrap();
+    let reaper_oil = retrieve_oil(Oil::Reaper);
+
+    boiled_egg.dip(reaper_oil)
+};
+```
+
+Rather than:
+
+```rust
+let boiled_egg = chicken
+    .lay_eggs()
+    .iter()
+    .map(Egg::boil)
+    .next()
+    .unwrap();
+let reaper_oil = retrieve_oil(Oil::Reaper);
+let reaper_egg = boiled_egg.dip(reaper_oil);
+```
+
+Doing this better expresses the scope in which the interstitial values are used, and in some casesallows for clearer naming of similar values with subtly different meanings, e.g. `config_init`, `config_altered`, and `config_final`. If the first two are contained in the assignment expression, then the final can just be called `config` without losing any clarity.
+
 ## Statements & Expressions
 
 Prefer explicit side-effects when writing statements. This means using language structures that make it clearer that the code being executed is going to have some effect. For example:
@@ -69,7 +102,7 @@ fn egg_sample(shopper: Shopper) {
 Conversely, expressions should always prefer to avoid semicolons and unnecessary "statement-ification", such as being used with `return`. For example:
 
 ```rust
-let spicy_egg {
+fn get_spicy_egg() -> Egg {
     let new_egg = Egg::default();
 
     new_egg.dip(REAPER_OIL)
@@ -79,7 +112,7 @@ let spicy_egg {
 Rather than:
 
 ```rust
-let spicy_egg {
+fn get_spicy_egg() -> Egg {
     let new_egg = Egg::default();
 
     return new_egg.dip(REAPER_OIL);
