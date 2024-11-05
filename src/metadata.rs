@@ -22,15 +22,12 @@ pub struct FileMetadataBuilder {
     title: Option<String>,
     keywords: Option<String>,
     extension: Option<String>,
-    instance_time: DateTime<Local>,
+    datetime: DateTime<Local>,
 }
 
 impl FileMetadataBuilder {
-    pub fn new(instance_time: DateTime<Local>) -> Self {
-        Self {
-            instance_time,
-            ..Default::default()
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn with_identifier(mut self, value: &Option<String>) -> Self {
@@ -59,7 +56,9 @@ impl FileMetadataBuilder {
     }
 
     pub fn build(&self, config: &FileConfig) -> FileMetadata {
-        let identifier = derive_identifier(&self.instance_time, &self.identifier);
+        let datetime = derive_datetime(&self.identifier);
+
+        let identifier = derive_identifier(&self.datetime, &self.identifier);
 
         let signature = self
             .signature
@@ -82,8 +81,6 @@ impl FileMetadataBuilder {
             .as_ref()
             .and_then(|ext| parse_extension(&ext, &config.illegal_characters))
             .unwrap_or(config.default_extension.clone());
-
-        let datetime = self.instance_time;
 
         FileMetadata {
             identifier,
@@ -171,12 +168,15 @@ fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
         .collect::<String>()
 }
 
-pub fn derive_creation_time(identifier: &str) -> DateTime<Local> {
-    match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
-        Ok(naive) => TimeZone::from_local_datetime(&Local, &naive)
-            .single()
-            .unwrap_or_else(Local::now),
-        Err(_) => Local::now(),
+fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
+    match identifier {
+        Some(id) => match NaiveDateTime::parse_from_str(id, DN_IDENTIFIER_FORMAT) {
+            Ok(naive) => TimeZone::from_local_datetime(&Local, &naive)
+                .single()
+                .unwrap_or_else(Local::now),
+            Err(_) => Local::now(),
+        },
+        None => Local::now(),
     }
 }
 

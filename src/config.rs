@@ -126,7 +126,7 @@ fn default_illegal_characters() -> Vec<char> {
     ]
 }
 
-#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Copy, Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum FilenameSegment {
     Identifier,

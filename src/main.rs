@@ -1,14 +1,12 @@
 use std::fs;
 use std::path::PathBuf;
 
-use chrono::Local;
 use clap::Parser;
 use cli::Cli;
 use config::read_config;
 use config::Config;
 use directory::get_default_config_dir;
 use filename::ToFilename;
-use metadata::derive_creation_time;
 use metadata::FileMetadataBuilder;
 
 mod cli;
@@ -41,8 +39,7 @@ fn main() {
                 update_config_with_cli_args(cli.command.clone(), &config_content)
             };
 
-            let creation_time = Local::now();
-            let metadata = FileMetadataBuilder::new(creation_time)
+            let metadata = FileMetadataBuilder::new()
                 .with_signature(cli_signature)
                 .with_title(cli_title)
                 .with_keywords(cli_keywords)
@@ -51,13 +48,13 @@ fn main() {
 
             let filename = metadata.to_filename(&config.file).to_string();
             let frontmatter = cli_generate_frontmatter
-                .then(metadata.to_frontmatter(&config.frontmatter).to_string());
+                .then(|| metadata.to_frontmatter(&config.frontmatter).to_string());
             let template = cli_template_path.map(fs::read);
 
             let path = cli_directory_path
                 .map_or(PathBuf::from(config.file.directory), PathBuf::from)
                 .join(filename);
-            let content = get_content(frontmatter, template);
+            let content = concatenate_file_content(frontmatter, template);
 
             fs::write(path, content);
 
@@ -92,42 +89,43 @@ fn main() {
                 update_config_with_cli_args(cli.command.clone(), &config_content)
             };
 
-            let file_name = PathBuf::from(input)
+            let old_file_name = PathBuf::from(input)
                 .file_name()
                 .and_then(|o| o.to_str())
                 // WARN: Unwrap may panic.
                 .unwrap()
-                .to_string();
+                .to_string()
+                .to_filename(&config.file);
 
-            let mut existing_filename = file_name.to_filename(&config.file);
-            let mut parse_time = derive_creation_time(&existing_filename.identifier);
+            let mut metadata_builder = FileMetadataBuilder::new()
+                .with_identifier(&Some(old_file_name.identifier))
+                .with_signature(&old_file_name.signature)
+                .with_title(&old_file_name.title)
+                .with_keywords(&old_file_name.keywords)
+                .with_extension(&Some(old_file_name.extension));
 
             if *cli_rename_from_frontmatter {
-                // NOTE: We take the first 6 lines only because at most that is how many lines
-                // of dn frontmatter will be present (in the case of YAML and TOML with all fields)
-                let existing_frontmatter = input_content.lines().take(6).collect().to_frontmatter();
+                let existing_frontmatter = input_content.to_frontmatter();
+
                 if let Some(t) = existing_frontmatter.title {
-                    existing_filename.title = t;
-                }
-                if let Some(d) = existing_frontmatter.datetime {
-                    parse_time = d;
+                    metadata_builder = metadata_builder.with_title(t);
                 }
                 if let Some(k) = existing_frontmatter.keywords {
-                    existing_filename.keywords = k;
+                    metadata_builder = metadata_builder.with_keywords(k);
                 }
                 if let Some(i) = existing_frontmatter.identifier {
-                    existing_filename.identifier = i;
+                    metadata_builder = metadata_builder.with_identifier(i);
                 }
             };
 
             if cli_signature.is_some() {
-                existing_filename.signature = cli_signature.clone();
+                metadata_builder = metadata_builder.with_signature(cli_signature);
             };
             if cli_title.is_some() {
-                existing_filename.title = cli_title.clone();
+                metadata_builder = metadata_builder.with_title(cli_title);
             };
             if cli_keywords.is_some() {
-                existing_filename.keywords = cli_keywords.clone();
+                metadata_builder = metadata_builder.with_keywords(cli_keywords);
             };
             if cli_add_keywords.is_some() {
                 // TODO: Deserialised and sanitise then concatenated onto existing_filename.keywords
@@ -135,25 +133,20 @@ fn main() {
             if cli_remove_keywords.is_some() {
                 // TODO: Deserialise and sanitise then existing_filename.keywords.iter().filter(!k.contains)
             };
-            if let Some(e) = cli_extension {
-                existing_filename.extension = e.to_owned();
+            if cli_extension.is_some() {
+                metadata_builder = metadata_builder.with_extension(cli_extension);
             };
 
-            let metadata = FileMetadataBuilder::new(parse_time)
-                .with_identifier(&Some(existing_filename.identifier))
-                .with_signature(&existing_filename.signature)
-                .with_title(&existing_filename.title)
-                .with_keywords(&existing_filename.keywords)
-                .with_extension(&Some(existing_filename.extension))
-                // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
-                .build(&config.file);
+            // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
+            let metadata = metadata_builder.build(&config.file);
 
             let new_filename = metadata.to_filename(&config.file).to_string();
             let new_frontmatter = cli_generate_frontmatter
-                .then(metadata.to_frontmatter(config.frontmatter).to_string());
+                .then(|| metadata.to_frontmatter(config.frontmatter).to_string());
 
             // WARN: Unwrap may panic.
             let output_path = input_path.parent().unwrap().join(new_filename);
+            // TODO: concatenate_rename_content : (Option<AsRef<[u8]>>, Option<AsRef<[u8]>>) -> Option<AsRef<[u8]>>
             let output_content = concatenate_rename_content(new_frontmatter, input_content);
 
             fs::write(input_path, output_content);

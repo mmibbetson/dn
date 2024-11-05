@@ -28,36 +28,29 @@ impl ToFilename for String {
         const KEYWORDS_PATTERN: &str = r"(?P<keywords>__[^\@\=\-\.]*)";
         const EXTENSION_PATTERN: &str = r"(?P<extension>\.[^\@\=\-\_]*)";
 
-        let combined_pattern = format!(
-            "{}|{}|{}|{}|{}",
-            IDENTIFIER_PATTERN,
-            SIGNATURE_PATTERN,
-            TITLE_PATTERN,
-            KEYWORDS_PATTERN,
-            EXTENSION_PATTERN
-        );
-
-        // TODO: Iterate over captures to determine their values and order.
-
-        let identifier = match identifier_capture {
+        let identifier = match parse_segment(&self, IDENTIFIER_PATTERN) {
             Some(id) => id.to_string(),
             None => chrono::Local::now()
                 .format(DN_IDENTIFIER_FORMAT)
                 .to_string(),
         };
-
-        let extension = match extension_capture {
+        let signature = parse_segment(self, SIGNATURE_PATTERN);
+        let title = parse_segment(self, TITLE_PATTERN);
+        let keywords = parse_segment(self, KEYWORDS_PATTERN);
+        let extension = match parse_segment(self, EXTENSION_PATTERN) {
             Some(ext) => ext.to_string(),
-            None => config.default_extension,
+            None => config.default_extension.clone(),
         };
 
         Filename {
             identifier,
-            signature: todo!(),
-            title: todo!(),
-            keywords: todo!(),
+            signature,
+            title,
+            keywords,
             extension,
-            segment_order: todo!(),
+            // NOTE: We don't care about segment order when parsing as it should be determined
+            // by the configuration options.
+            ..Default::default()
         }
     }
 }
