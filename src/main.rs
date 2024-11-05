@@ -5,6 +5,7 @@ use clap::Parser;
 use cli::Cli;
 use config::read_config;
 use config::Config;
+use config::FrontmatterFormat;
 use directory::get_default_config_dir;
 use filename::ToFilename;
 use metadata::FileMetadata;
@@ -107,14 +108,14 @@ fn main() {
             if *cli_rename_from_frontmatter {
                 let existing_frontmatter = input_content.to_frontmatter();
 
-                if let Some(t) = existing_frontmatter.title {
-                    metadata_builder = metadata_builder.with_title(t);
+                if let Some(ttl) = existing_frontmatter.title {
+                    metadata_builder = metadata_builder.with_title(ttl);
                 }
-                if let Some(k) = existing_frontmatter.keywords {
-                    metadata_builder = metadata_builder.with_keywords(k);
+                if let Some(kws) = existing_frontmatter.keywords {
+                    metadata_builder = metadata_builder.with_keywords(kws);
                 }
-                if let Some(i) = existing_frontmatter.identifier {
-                    metadata_builder = metadata_builder.with_identifier(i);
+                if let Some(id) = existing_frontmatter.identifier {
+                    metadata_builder = metadata_builder.with_identifier(id);
                 }
             };
 
@@ -179,24 +180,17 @@ fn update_config_with_cli_args(args: cli::Commands, original_config: &Config) ->
             if cli_generate_frontmatter {
                 config.frontmatter.enabled = cli_generate_frontmatter;
             };
-            if let Some(d) = cli_directory_path {
-                config.file.directory = PathBuf::from(d);
+            if let Some(dir) = cli_directory_path {
+                config.file.directory = PathBuf::from(dir);
             };
-            if let Some(e) = cli_extension {
-                config.file.default_extension = e;
+            if let Some(ext) = cli_extension {
+                config.file.default_extension = ext;
             };
-            if let Some(t) = cli_template_path {
-                config.file.template_path = Some(PathBuf::from(t));
+            if let Some(tmp) = cli_template_path {
+                config.file.template_path = Some(PathBuf::from(tmp));
             };
-            if let Some(f) = cli_frontmatter_format {
-                config.frontmatter.format = match f.to_lowercase().as_str() {
-                    "text" => config::FrontmatterFormat::Text,
-                    "yaml" => config::FrontmatterFormat::YAML,
-                    "toml" => config::FrontmatterFormat::TOML,
-                    "org" => config::FrontmatterFormat::Org,
-                    // WARN: Panicking. Maybe throw anyhow error alert invalid format, or something?
-                    _ => panic!("Invalid frontmatter format provided, must be one of: text, yaml, toml, org"),
-                };
+            if let Some(fmt) = cli_frontmatter_format {
+                config.frontmatter.format = determine_frontmatter_format(&fmt);
             };
         }
         cli::Commands::Rename {
@@ -220,23 +214,27 @@ fn update_config_with_cli_args(args: cli::Commands, original_config: &Config) ->
             if cli_generate_frontmatter {
                 config.frontmatter.rewrite = cli_generate_frontmatter;
             };
-            if let Some(e) = cli_extension {
-                config.file.default_extension = e;
+            if let Some(ext) = cli_extension {
+                config.file.default_extension = ext;
             };
-            if let Some(f) = cli_frontmatter_format {
-                config.frontmatter.format = match f.to_lowercase().as_str() {
-                    "text" => config::FrontmatterFormat::Text,
-                    "yaml" => config::FrontmatterFormat::YAML,
-                    "toml" => config::FrontmatterFormat::TOML,
-                    "org" => config::FrontmatterFormat::Org,
-                    // WARN: Panicking. Maybe throw anyhow error alert invalid format, or something?
-                    _ => panic!("Invalid frontmatter format provided, must be one of: text, yaml, toml, org"),
-                };
+            if let Some(fmt) = cli_frontmatter_format {
+                config.frontmatter.format = determine_frontmatter_format(&fmt);
             };
         }
     };
 
     config
+}
+
+fn determine_frontmatter_format(format_arg: &str) -> FrontmatterFormat {
+    match format_arg.to_lowercase().as_str() {
+        "text" => FrontmatterFormat::Text,
+        "yaml" => FrontmatterFormat::YAML,
+        "toml" => FrontmatterFormat::TOML,
+        "org" => FrontmatterFormat::Org,
+        // WARN: Panicking. Maybe throw anyhow error alert invalid format, or something?
+        _ => panic!("Invalid frontmatter format provided, must be one of: text, yaml, toml, org"),
+    }
 }
 
 ///////////

@@ -65,23 +65,23 @@ impl FileMetadataBuilder {
         let signature = self
             .signature
             .as_ref()
-            .and_then(|sig| parse_signature(&sig, &config.illegal_characters));
+            .and_then(|s| parse_signature(&s, &config.illegal_characters));
 
         let title = self
             .title
             .as_ref()
-            .and_then(|ttl| parse_title(&ttl, &config.illegal_characters));
+            .and_then(|t| parse_title(&t, &config.illegal_characters));
         let title_raw = self.title.as_ref().map(String::from);
 
         let keywords = self
             .keywords
             .as_ref()
-            .and_then(|key| parse_keywords(&key, &config.illegal_characters));
+            .and_then(|k| parse_keywords(&k, &config.illegal_characters));
 
         let extension = self
             .extension
             .as_ref()
-            .and_then(|ext| parse_extension(&ext, &config.illegal_characters))
+            .and_then(|e| parse_extension(&e, &config.illegal_characters))
             .unwrap_or(config.default_extension.clone());
 
         FileMetadata {

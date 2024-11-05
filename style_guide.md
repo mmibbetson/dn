@@ -24,6 +24,44 @@ let input_default = "foo";
 let user_role_default = "user";
 ```
 
+When pattern matching variant constructors, prefer names of approximately 3 characters. For example:
+
+```rust
+match possible_shelled_ovum {
+    Some(egg) => egg.sample(),
+    None => panic!(),
+}
+```
+
+Rather than:
+
+```rust
+match possible_shelled_ovum {
+    Some(shelled_ovum) => shelled_ovum.sample(),
+    None => panic!(),
+}
+```
+
+When using anonymous functions, prefer argument names of 1 character. Exceptions should be made when it is unclear what the argument may represent, such as in a pattern-matched tuple. For example:
+
+```rust
+possible_shelled_ovum.map(|e| e.sample())
+
+meal_prep_items
+    .iter()
+    .filter(|(_, day, meal)| day != Day::Monday && meal != Meal::ReaperEgg)
+```
+
+Rather than:
+
+```rust
+possible_shelled_ovum.map(|egg| egg.sample())
+
+meal_prep_items
+    .iter()
+    .filter(|(_, d, m)| d != Day::Monday && m != Meal::ReaperEgg)
+```
+
 ## Interstitial Values
 
 When binding names to expressions for clarity in defining a final binding to be used elsewhere in the program, if the interstitial values are not needed elsewhere in the program, prefer to enclose them in an expression block. For example:
