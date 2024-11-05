@@ -1,14 +1,9 @@
 use std::fs;
 use std::path::PathBuf;
 
-use anyhow::{anyhow, Error};
 use clap::Parser;
 use cli::Cli;
-use config::read_config;
 use config::Config;
-use config::FrontmatterFormat;
-use directory::default_config_directory_from_environment;
-use directory::get_default_config_dir;
 use filename::ToFilename;
 use metadata::FileMetadata;
 
@@ -35,32 +30,30 @@ fn main() {
             cli_extension,
             cli_keywords,
         } => {
-            // TODO: Consider creating a ConfigBuilder and then allowing a more natural mutation interface.
             let config = {
-                // TODO: If this fails because the config file doesn't exist, fall back to defaults.
-                // TODO: If it fails for any other reason, crash with error message.
-                let config_path = cli_config_path
-                    .map_or(default_config_directory_from_environment(), PathBuf::from);
-                // WARN: Unwrap may panic. Do we want to alert the user of a misconfiguration?
-                let mut config_content = read_config(config_path).unwrap();
+                let config_builder = Config::builder(cli_config_path.clone());
 
-                if *cli_generate_frontmatter {
-                    config_content.frontmatter.enabled = *cli_generate_frontmatter;
-                };
-                if let Some(directory) = cli_directory_path {
-                    config_content.file.directory = PathBuf::from(directory);
-                };
-                if let Some(extension) = cli_extension {
-                    config_content.file.default_extension = extension.to_string();
-                };
-                if let Some(template) = cli_template_path {
-                    config_content.file.template_path = Some(PathBuf::from(template));
-                };
-                if let Some(format) = cli_frontmatter_format {
-                    config_content.frontmatter.format = determine_frontmatter_format(&format);
-                };
+                config_builder = cli_generate_frontmatter
+                    .then(|| config_builder.with_frontmatter_enabled(true))
+                    .unwrap_or(config_builder);
 
-                config_content
+                config_builder = cli_directory_path
+                    .map(|p| config_builder.with_file_directory(p))
+                    .unwrap_or(config_builder);
+
+                config_builder = cli_extension
+                    .map(|e| config_builder.file_default_extension(e))
+                    .unwrap_or(config_builder);
+
+                config_builder = cli_template_path
+                    .map(|p| config_builder.file_template_path(p))
+                    .unwrap_or(config_builder);
+
+                config_builder = cli_frontmatter_format
+                    .map(|f| config_builder.with_frontmatter_format(f))
+                    .unwrap_or(config_builder);
+
+                config_builder.build()
             };
 
             let metadata = FileMetadata::builder()
@@ -103,37 +96,32 @@ fn main() {
             cli_remove_keywords,
         } => {
             let input_path = PathBuf::from(input);
-            // WARN: Unwrap may panic. Do we want to alert the user of an invalid input?
-            let input_content = fs::read_to_string(input_path).unwrap();
+            let input_content = match fs::read_to_string(input_path) {
+                Ok(path) => path,
+                Err(error) => {
+                    eprintln!("Error reading input file: {}", error);
+                    std::process::exit(1);
+                }
+            };
 
             let config = {
                 let config_builder = Config::builder(cli_config_path.clone());
 
-                if *cli_regenerate_identifier {
-                    config_builder =
-                        config_builder.with_file_regenerate_identifier(cli_regenerate_identifier);
-                };
+                config_builder = cli_regenerate_identifier
+                    .then(|| config_builder.with_file_regenerate_identifier(true))
+                    .unwrap_or(config_builder);
 
-                if *cli_generate_frontmatter {
-                    config_builder =
-                        config_builder.with_frontmatter_enabled(cli_generate_frontmatter);
-                };
+                config_builder = cli_generate_frontmatter
+                    .then(|| config_builder.with_frontmatter_enabled(true))
+                    .unwrap_or(config_builder);
 
-                if let Some(extension) = cli_extension {
-                    config_builder = config_builder.file_default_extension(extension.to_string());
-                };
+                config_builder = cli_extension
+                    .map(|e| config_builder.file_default_extension(e))
+                    .unwrap_or(config_builder);
 
-                if let Some(format) = cli_frontmatter_format {
-                    let fmt = match determine_frontmatter_format(&format) {
-                        Ok(fmt) => fmt,
-                        Err(error) => {
-                            eprintln!("Error determining frontmatter format: {}", error);
-                            std::process::exit(1);
-                        }
-                    };
-
-                    config_builder = config_builder.with_frontmatter_format(fmt);
-                };
+                config_builder = cli_frontmatter_format
+                    .map(|f| config_builder.with_frontmatter_format(cli_frontmatter_format))
+                    .unwrap_or(config_builder);
 
                 config_builder.build()
             };
@@ -156,42 +144,51 @@ fn main() {
             if *cli_rename_from_frontmatter {
                 let existing_frontmatter = input_content.to_frontmatter();
 
-                if let Some(title) = existing_frontmatter.title {
-                    metadata_builder = metadata_builder.with_title(title);
-                }
+                metadata_builder = existing_frontmatter
+                    .title
+                    .map(|t| metadata_builder.with_title(t))
+                    .unwrap_or(metadata_builder);
 
-                if let Some(keywords) = existing_frontmatter.keywords {
-                    metadata_builder = metadata_builder.with_keywords(keywords);
-                }
+                metadata_builder = existing_frontmatter
+                    .keywords
+                    .map(|k| metadata_builder.with_keywords(k))
+                    .unwrap_or(metadata_builder);
 
-                if let Some(identifier) = existing_frontmatter.identifier {
-                    metadata_builder = metadata_builder.with_identifier(identifier);
-                }
+                metadata_builder = existing_frontmatter
+                    .identifier
+                    .map(|i| metadata_builder.with_identifier(i))
+                    .unwrap_or(metadata_builder);
             };
 
-            if cli_signature.is_some() {
-                metadata_builder = metadata_builder.with_signature(cli_signature);
-            };
+            metadata_builder = cli_signature
+                .map(|s| metadata_builder.with_signature(&Some(s)))
+                .unwrap_or(metadata_builder);
 
-            if cli_title.is_some() {
-                metadata_builder = metadata_builder.with_title(cli_title);
-            };
+            metadata_builder = cli_title
+                .map(|t| metadata_builder.with_title(&Some(t)))
+                .unwrap_or(metadata_builder);
 
-            if cli_keywords.is_some() {
-                metadata_builder = metadata_builder.with_keywords(cli_keywords);
-            };
+            metadata_builder = cli_keywords
+                .map(|k| metadata_builder.with_keywords(&Some(k)))
+                .unwrap_or(metadata_builder);
 
-            if cli_add_keywords.is_some() {
-                // TODO: Deserialised and sanitise then concatenated onto existing_filename.keywords
-            };
+            metadata_builder = cli_add_keywords
+                .map(|k| {
+                    // TODO: Deserialised and sanitise then concatenated onto existing_filename.keywords
+                    todo!()
+                })
+                .unwrap_or(metadata_builder);
 
-            if cli_remove_keywords.is_some() {
-                // TODO: Deserialise and sanitise then existing_filename.keywords.iter().filter(!k.contains)
-            };
+            metadata_builder = cli_remove_keywords
+                .map(|k| {
+                    // TODO: Deserialise and sanitise then existing_filename.keywords.iter().filter(!k.contains)
+                    todo!()
+                })
+                .unwrap_or(metadata_builder);
 
-            if cli_extension.is_some() {
-                metadata_builder = metadata_builder.with_extension(cli_extension);
-            };
+            metadata_builder = cli_extension
+                .map(|e| metadata_builder.with_extension(&Some(e)))
+                .unwrap_or(metadata_builder);
 
             // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
             let metadata = metadata_builder.build(&config.file);
@@ -216,22 +213,3 @@ fn main() {
         }
     }
 }
-
-fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, Error> {
-    match format_arg.to_lowercase().as_str() {
-        "text" => Ok(FrontmatterFormat::Text),
-        "yaml" => Ok(FrontmatterFormat::YAML),
-        "toml" => Ok(FrontmatterFormat::TOML),
-        "org" => Ok(FrontmatterFormat::Org),
-        _ => Err(anyhow!(
-            "Invalid frontmatter format provided, must be one of: text, yaml, toml, org"
-        )),
-    }
-}
-
-///////////
-// Tests //
-///////////
-
-#[cfg(test)]
-mod tests {}

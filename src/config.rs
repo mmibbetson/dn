@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
 use serde::{Deserialize, Serialize};
 
 use crate::directory::default_notes_directory_from_environment;
@@ -150,6 +150,18 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let config = toml::from_str(&contents)?;
 
     Ok(config)
+}
+
+fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, Error> {
+    match format_arg.to_lowercase().as_str() {
+        "text" => Ok(FrontmatterFormat::Text),
+        "yaml" => Ok(FrontmatterFormat::YAML),
+        "toml" => Ok(FrontmatterFormat::TOML),
+        "org" => Ok(FrontmatterFormat::Org),
+        _ => Err(anyhow!(
+            "Invalid frontmatter format provided, must be one of: text, yaml, toml, org"
+        )),
+    }
 }
 
 fn default_notes_directory() -> PathBuf {
