@@ -7,7 +7,7 @@ use config::read_config;
 use config::Config;
 use directory::get_default_config_dir;
 use filename::ToFilename;
-use metadata::FileMetadataBuilder;
+use metadata::FileMetadata;
 
 mod cli;
 mod config;
@@ -39,7 +39,7 @@ fn main() {
                 update_config_with_cli_args(cli.command.clone(), &config_content)
             };
 
-            let metadata = FileMetadataBuilder::new()
+            let metadata = FileMetadata::builder()
                 .with_signature(cli_signature)
                 .with_title(cli_title)
                 .with_keywords(cli_keywords)
@@ -97,7 +97,7 @@ fn main() {
                 .to_string()
                 .to_filename(&config.file);
 
-            let mut metadata_builder = FileMetadataBuilder::new()
+            let mut metadata_builder = FileMetadata::builder()
                 .with_identifier(&Some(old_file_name.identifier))
                 .with_signature(&old_file_name.signature)
                 .with_title(&old_file_name.title)

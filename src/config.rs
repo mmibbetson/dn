@@ -138,7 +138,7 @@ pub enum FilenameSegment {
 
 impl Default for FilenameSegment {
     fn default() -> Self {
-        FilenameSegment::Identifier
+        FilenameSegment::Title
     }
 }
 
@@ -167,10 +167,10 @@ impl Default for FrontmatterConfig {
     }
 }
 
-// parse toml config file
 pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let contents = fs::read_to_string(path)?;
     let config = toml::from_str(&contents)?;
+
     Ok(config)
 }
 

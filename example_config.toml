@@ -10,5 +10,5 @@ illegal_characters = ['a', '!']
 enabled = false
 rewrite = true
 format = "text" # text, yaml, toml, org
-date_time_style = "hour24" # or "hour12" or "none"
+time_style = "hour24" # or "hour12" or "none"
 order = ["title", "date", "keywords", "identifier"] # These are all optional so you can leave some out?

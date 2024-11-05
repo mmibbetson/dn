@@ -26,7 +26,7 @@ let user_role_default = "user";
 
 ## Interstitial Values
 
-When binding names to expressions for clarity in deriving a final binding to be used elsewhere in the program, if the interstitial values are not needed elsewhere in the program, prefer to enclose them in an expression block. For example:
+When binding names to expressions for clarity in defining a final binding to be used elsewhere in the program, if the interstitial values are not needed elsewhere in the program, prefer to enclose them in an expression block. For example:
 
 ```rust
 let reaper_egg = {
@@ -56,6 +56,8 @@ let reaper_egg = boiled_egg.dip(reaper_oil);
 ```
 
 Doing this better expresses the scope in which the interstitial values are used, and in some casesallows for clearer naming of similar values with subtly different meanings, e.g. `config_init`, `config_altered`, and `config_final`. If the first two are contained in the assignment expression, then the final can just be called `config` without losing any clarity.
+
+> NOTE: This is somewhat a matter of discretion - in smaller functions or expressions, this may increase visual noise for little benefit. Consider this pattern only when it will help reduce polluting the scope with unnecessary and/or confusing bindings.
 
 ## Statements & Expressions
 
@@ -121,7 +123,7 @@ fn get_spicy_egg() -> Egg {
 
 ## Control Flow
 
-Prefer match expressions over if expressions in any case where you would need an `else`. For example:
+Prefer `match` over `if` in any case where you would need an `else`. For example:
 
 ```rust
 if !person.has_sampled {

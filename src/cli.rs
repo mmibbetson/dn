@@ -24,23 +24,23 @@ pub struct Cli {
 pub enum Commands {
     /// Create a new note
     New {
-        /// Print the absolute path of the created file
+        /// Print the absolute path of the created note
         #[arg(short = 'p', long = "print")]
         cli_print: bool,
 
-        /// Generate or regenerate frontmatter
+        /// Generate frontmatter
         #[arg(short = 'G', long = "generate-frontmatter")]
         cli_generate_frontmatter: bool,
 
-        /// Directory to save the note
+        /// Directory in which the note will be created
         #[arg(short = 'd', long = "directory", value_name = "PATH")]
         cli_directory_path: Option<String>,
 
-        /// Config file location
+        /// Configuration file path
         #[arg(short = 'c', long = "config", value_name = "PATH")]
         cli_config_path: Option<String>,
 
-        /// Template file
+        /// Template file to add contents to new note
         #[arg(short = 'T', long = "template", value_name = "PATH")]
         cli_template_path: Option<String>,
 
@@ -52,7 +52,7 @@ pub enum Commands {
         )]
         cli_frontmatter_format: Option<String>,
 
-        /// Signature to use
+        /// Signature for the note
         #[arg(short = 's', long = "signature", value_name = "SIGNATURE")]
         cli_signature: Option<String>,
 
@@ -60,7 +60,7 @@ pub enum Commands {
         #[arg(short = 't', long = "title", value_name = "TITLE")]
         cli_title: Option<String>,
 
-        /// File extension
+        /// File extension for the note
         #[arg(short = 'e', long = "extension", value_name = "EXTENSION")]
         cli_extension: Option<String>,
 
@@ -71,14 +71,14 @@ pub enum Commands {
 
     /// Rename an existing note
     Rename {
-        /// Path to the input file
+        /// Path to the input file to be renamed
         input: String,
 
         /// Print the absolute path of the created file
         #[arg(short = 'p', long = "print")]
         cli_print: bool,
 
-        /// Generate identifier even if there is an existing one
+        /// Generate an identifier even if there is an existing one
         #[arg(short = 'I', long = "regenerate-identifier")]
         cli_regenerate_identifier: bool,
 
@@ -90,7 +90,7 @@ pub enum Commands {
         #[arg(short = 'G', long = "generate-frontmatter")]
         cli_generate_frontmatter: bool,
 
-        /// Config file location
+        /// Configuration file path
         #[arg(short = 'c', long = "config", value_name = "PATH")]
         cli_config_path: Option<String>,
 
@@ -102,27 +102,27 @@ pub enum Commands {
         )]
         cli_frontmatter_format: Option<String>,
 
-        /// Signature to use
+        /// New signature for the note
         #[arg(short = 's', long = "signature", value_name = "SIGNATURE")]
         cli_signature: Option<String>,
 
-        /// Title for the note
+        /// New title for the note
         #[arg(short = 't', long = "title", value_name = "TITLE")]
         cli_title: Option<String>,
 
-        /// Keywords for the note
+        /// New keywords for the note
         #[arg(short = 'k', long = "keywords", value_name = "KEYWORDS")]
         cli_keywords: Option<String>,
 
-        /// Add keywords
+        /// Add keywords to the current or new keywords
         #[arg(short = 'A', long = "add-keywords", value_name = "KEYWORDS")]
         cli_add_keywords: Option<String>,
 
-        /// Remove keywords
+        /// Remove keywords from the current or new keywords
         #[arg(short = 'R', long = "remove-keywords", value_name = "KEYWORDS")]
         cli_remove_keywords: Option<String>,
 
-        /// File extension
+        /// New file extension for the note
         #[arg(short = 'e', long = "extension", value_name = "EXTENSION")]
         cli_extension: Option<String>,
     },

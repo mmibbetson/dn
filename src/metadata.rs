@@ -25,11 +25,13 @@ pub struct FileMetadataBuilder {
     datetime: DateTime<Local>,
 }
 
-impl FileMetadataBuilder {
-    pub fn new() -> Self {
-        Self::default()
+impl FileMetadata {
+    pub fn builder() -> FileMetadataBuilder {
+        FileMetadataBuilder::default()
     }
+}
 
+impl FileMetadataBuilder {
     pub fn with_identifier(mut self, value: &Option<String>) -> Self {
         self.identifier = value.clone();
         self
@@ -109,7 +111,6 @@ fn parse_signature(signature_arg: &str, illegal_characters: &[char]) -> Option<S
         .filter(|c| !illegal_characters.contains(&c))
         .collect::<String>();
 
-    // NOTE: (!out.is_empty()).then_some(out) is equivalent; pretty cool.
     match out.is_empty() {
         true => None,
         false => Some(out),
@@ -367,8 +368,7 @@ mod tests {
     fn new_metadata_full_integration() {
         // Arrange
         let config = setup_config();
-        let time = setup_datetime();
-        let args = FileMetadataBuilder::new(time)
+        let args = FileMetadata::builder()
             .with_signature(&Some("test@signature".to_string()))
             .with_title(&Some("My Cool Title!".to_string()))
             .with_keywords(&Some("rust programming".to_string()))
