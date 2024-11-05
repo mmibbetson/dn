@@ -35,6 +35,7 @@ fn main() {
         } => {
             let config = {
                 let config_path = cli_config_path.map_or(get_default_config_dir(), PathBuf::from);
+                // WARN: Unwrap may panic. Do we want to alert the user of a misconfiguration?
                 let config_content = read_config(config_path).unwrap_or_default();
 
                 update_config_with_cli_args(cli.command.clone(), &config_content)
@@ -60,7 +61,7 @@ fn main() {
             fs::write(path, content);
 
             if *cli_print {
-                // WARN: Unwrap may panic.
+                // WARN: Unwrap may panic. Do we want to alert the user of a problem converting the output path to a string?
                 print!("{}", path.to_str().unwrap())
             };
         }
@@ -80,12 +81,13 @@ fn main() {
             cli_remove_keywords,
         } => {
             let input_path = PathBuf::from(input);
-            // WARN: Unwrap may panic.
+            // WARN: Unwrap may panic. Do we want to alert the user of an invalid input?
             let input_content = fs::read_to_string(input_path).unwrap();
 
             let config = {
                 let config_path = cli_config_path.map_or(get_default_config_dir(), PathBuf::from);
-                let config_content = read_config(config_path).unwrap_or_default();
+                // WARN: Unwrap may panic. Do we want to alert the user of a misconfiguration?
+                let config_content = read_config(config_path).unwrap();
 
                 update_config_with_cli_args(cli.command.clone(), &config_content)
             };
@@ -93,7 +95,7 @@ fn main() {
             let old_file_name = PathBuf::from(input)
                 .file_name()
                 .and_then(|o| o.to_str())
-                // WARN: Unwrap may panic.
+                // WARN: Unwrap may panic. Do we want to alert the user of a parsing error in the filename?
                 .unwrap()
                 .to_string()
                 .to_filename(&config.file);
@@ -145,7 +147,8 @@ fn main() {
             let new_frontmatter = cli_generate_frontmatter
                 .then(|| metadata.to_frontmatter(config.frontmatter).to_string());
 
-            // WARN: Unwrap may panic.
+            // WARN: Unwrap may panic. Do we want to alert a user of a problem getting the parent path?
+            // This may be impossible assuming previous path operations succeeded?
             let output_path = input_path.parent().unwrap().join(new_filename);
             // TODO: concatenate_rename_content : (Option<AsRef<[u8]>>, Option<AsRef<[u8]>>) -> Option<AsRef<[u8]>>
             let output_content = concatenate_rename_content(new_frontmatter, input_content);
@@ -154,7 +157,7 @@ fn main() {
             fs::rename(input_path, output_path);
 
             if *cli_print {
-                // WARN: Unwrap may panic.
+                // WARN: Unwrap may panic. Do we want to alert the user of a problem converting the output path to a string?
                 print!("{}", output_path.to_str().unwrap())
             };
         }
