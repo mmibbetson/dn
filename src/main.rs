@@ -33,6 +33,10 @@ fn main() {
             let config = {
                 let config_builder = Config::builder(cli_config_path.clone());
 
+                config_builder = cli_config_path
+                    .map(|p| config_builder.with_config_path(p))
+                    .unwrap_or(config_builder);
+
                 config_builder = cli_generate_frontmatter
                     .then(|| config_builder.with_frontmatter_enabled(true))
                     .unwrap_or(config_builder);
@@ -42,11 +46,11 @@ fn main() {
                     .unwrap_or(config_builder);
 
                 config_builder = cli_extension
-                    .map(|e| config_builder.file_default_extension(e))
+                    .map(|e| config_builder.with_file_default_extension(e))
                     .unwrap_or(config_builder);
 
                 config_builder = cli_template_path
-                    .map(|p| config_builder.file_template_path(p))
+                    .map(|p| config_builder.with_file_template_path(p))
                     .unwrap_or(config_builder);
 
                 config_builder = cli_frontmatter_format
@@ -116,7 +120,7 @@ fn main() {
                     .unwrap_or(config_builder);
 
                 config_builder = cli_extension
-                    .map(|e| config_builder.file_default_extension(e))
+                    .map(|e| config_builder.with_file_default_extension(e))
                     .unwrap_or(config_builder);
 
                 config_builder = cli_frontmatter_format

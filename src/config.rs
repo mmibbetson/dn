@@ -6,7 +6,7 @@ use std::{
 use anyhow::{anyhow, Error};
 use serde::{Deserialize, Serialize};
 
-use crate::directory::environment_notes_dir;
+use crate::directory::{environment_config_dir, environment_notes_dir};
 
 /// Represents the configuration state for dn as a whole.
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
@@ -15,9 +15,16 @@ pub struct Config {
     pub frontmatter: FrontmatterConfig,
 }
 
-// TODO
-///
-struct ConfigBuilder {}
+/// TODO
+struct ConfigBuilder {
+    config_path: Option<String>,
+    file_directory: Option<String>,
+    file_default_extension: Option<String>,
+    file_regenerate_identifier: bool,
+    file_template_path: Option<String>,
+    frontmatter_enabled: bool,
+    frontmatter_format: Option<String>,
+}
 
 /// The configuration values for the file name, directory, template, and general metadata.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -110,47 +117,75 @@ pub enum FrontmatterTimeFormat {
 
 impl Config {
     ///
-    pub fn builder(path: Option<String>) -> ConfigBuilder {
-        // TODO: If path is present read it into relevant values and assign, otherwise default.
-        // If the path is present but fails to parse, eprintln!() and std::process::exit(1)
-        todo!()
+    pub fn builder() -> ConfigBuilder {
+        ConfigBuilder::default()
     }
 }
 
 impl ConfigBuilder {
     ///
-    pub fn with_frontmatter_enabled(&self, arg: bool) -> ConfigBuilder {
-        todo!()
+    pub fn with_config_path(mut self, value: String) -> Self {
+        self.config_path = Some(value);
+        self
     }
 
     ///
-    pub fn with_file_directory(&self, p: String) -> ConfigBuilder {
-        todo!()
+    pub fn with_file_directory(mut self, value: String) -> Self {
+        self.file_directory = Some(value);
+        self
     }
 
     ///
-    pub fn file_default_extension(&self, e: String) -> ConfigBuilder {
-        todo!()
+    pub fn with_file_default_extension(mut self, value: String) -> Self {
+        self.file_default_extension = Some(value);
+        self
     }
 
     ///
-    pub fn file_template_path(&self, p: String) -> ConfigBuilder {
-        todo!()
+    pub fn with_file_regenerate_identifier(mut self, value: bool) -> ConfigBuilder {
+        self.file_regenerate_identifier = value;
+        self
     }
 
     ///
-    pub fn with_frontmatter_format(&self, f: String) -> ConfigBuilder {
-        todo!()
+    pub fn with_file_template_path(mut self, value: String) -> Self {
+        self.file_template_path = Some(value);
+        self
     }
 
     ///
-    pub fn with_file_regenerate_identifier(&self, arg: bool) -> ConfigBuilder {
-        todo!()
+    pub fn with_frontmatter_enabled(mut self, value: bool) -> Self {
+        self.frontmatter_enabled = value;
+        self
+    }
+
+    ///
+    pub fn with_frontmatter_format(mut self, value: String) -> Self {
+        self.frontmatter_format = Some(value);
+        self
     }
 
     ///
     pub fn build(&self) -> Config {
         todo!()
+
+        Config {
+            file: FileConfig {
+                directory: todo!(),
+                segment_order: todo!(),
+                default_extension: todo!(),
+                regenerate_identifier: todo!(),
+                template_path: todo!(),
+                illegal_characters: todo!(),
+            },
+            frontmatter: FrontmatterConfig {
+                enabled: todo!(),
+                rewrite: todo!(),
+                format: todo!(),
+                time_style: todo!(),
+                order: todo!(),
+            },
+        }
     }
 }
 
@@ -185,6 +220,20 @@ impl Default for FrontmatterConfig {
     }
 }
 
+impl Default for ConfigBuilder {
+    fn default() -> Self {
+        Self {
+            config_path: Default::default(),
+            file_directory: default_notes_directory(),
+            file_default_extension: default_file_extension(),
+            file_regenerate_identifier: false,
+            file_template_path: None,
+            frontmatter_enabled: Default::default(),
+            frontmatter_format: Default::default(),
+        }
+    }
+}
+
 /// Attempt to read the entire contents of a file and parse it into a Config struct.
 pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let contents = fs::read_to_string(path)?;
@@ -206,8 +255,7 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
 }
 
 fn default_notes_directory() -> PathBuf {
-    environment_notes_dir()
-        .unwrap_or(env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
+    environment_notes_dir().unwrap_or(env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
 }
 
 /// Returns the default value for file name segment order in FilenameConfig. For use in serde macros.
