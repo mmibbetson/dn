@@ -6,7 +6,7 @@ use std::{
 use anyhow::{anyhow, Error};
 use serde::{Deserialize, Serialize};
 
-use crate::directory::{environment_config_dir, environment_notes_dir};
+use crate::directory::environment_notes_dir;
 
 /// Represents the configuration state for dn as a whole.
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
@@ -16,12 +16,13 @@ pub struct Config {
 }
 
 /// TODO
+#[derive(Debug, Default)]
 struct ConfigBuilder {
-    config_path: Option<String>,
+    config_path: Option<PathBuf>,
     file_directory: Option<String>,
     file_default_extension: Option<String>,
     file_regenerate_identifier: bool,
-    file_template_path: Option<String>,
+    file_template_path: Option<PathBuf>,
     frontmatter_enabled: bool,
     frontmatter_format: Option<String>,
 }
@@ -72,10 +73,6 @@ pub struct FrontmatterConfig {
     #[serde(default = "r#false")]
     pub enabled: bool,
 
-    /// Whether or not to overwrite existing front matter on file rename.
-    #[serde(default = "r#true")]
-    pub rewrite: bool,
-
     /// Which format to use for generated front matter.
     #[serde(default = "default_frontmatter_format")]
     pub format: FrontmatterFormat,
@@ -116,75 +113,122 @@ pub enum FrontmatterTimeFormat {
 }
 
 impl Config {
-    ///
+    /// TODO
     pub fn builder() -> ConfigBuilder {
         ConfigBuilder::default()
     }
 }
 
 impl ConfigBuilder {
-    ///
-    pub fn with_config_path(mut self, value: String) -> Self {
+    /// TODO
+    pub fn with_config_path(mut self, value: PathBuf) -> Self {
         self.config_path = Some(value);
         self
     }
 
-    ///
+    /// TODO
     pub fn with_file_directory(mut self, value: String) -> Self {
         self.file_directory = Some(value);
         self
     }
 
-    ///
+    /// TODO
     pub fn with_file_default_extension(mut self, value: String) -> Self {
         self.file_default_extension = Some(value);
         self
     }
 
-    ///
+    /// TODO
     pub fn with_file_regenerate_identifier(mut self, value: bool) -> ConfigBuilder {
         self.file_regenerate_identifier = value;
         self
     }
 
-    ///
-    pub fn with_file_template_path(mut self, value: String) -> Self {
+    /// TODO
+    pub fn with_file_template_path(mut self, value: PathBuf) -> Self {
         self.file_template_path = Some(value);
         self
     }
 
-    ///
+    /// TODO
     pub fn with_frontmatter_enabled(mut self, value: bool) -> Self {
         self.frontmatter_enabled = value;
         self
     }
 
-    ///
+    /// TODO
     pub fn with_frontmatter_format(mut self, value: String) -> Self {
         self.frontmatter_format = Some(value);
         self
     }
 
-    ///
+    /// TODO
     pub fn build(&self) -> Config {
-        todo!()
+        let base_config = match &self.config_path {
+            Some(path) => match read_config(path) {
+                Ok(config) => config,
+                Err(error) => {
+                    eprintln!("Error reading configuration: {}", error);
+                    std::process::exit(1);
+                }
+            },
+            None => Config::default(),
+        };
+
+        let directory = self
+            .file_directory
+            .as_ref()
+            .map(PathBuf::from)
+            .unwrap_or(base_config.file.directory);
+
+        let default_extension = self
+            .file_default_extension
+            .as_ref()
+            .unwrap_or(&base_config.file.default_extension)
+            .to_string();
+
+        let regenerate_identifier = self
+            .file_regenerate_identifier
+            .then(|| true)
+            .unwrap_or(base_config.file.regenerate_identifier);
+
+        let template_path = self
+            .file_template_path
+            .as_ref()
+            .or(base_config.file.template_path.as_ref())
+            .cloned();
+
+        let enabled = self
+            .frontmatter_enabled
+            .then(|| true)
+            .unwrap_or(base_config.frontmatter.enabled);
+
+        let format = self
+            .frontmatter_format
+            .clone()
+            .map(|f| match determine_frontmatter_format(&f) {
+                Ok(format) => format,
+                Err(error) => {
+                    eprintln!("Error determining frontmatter format: {}", error);
+                    std::process::exit(1);
+                }
+            })
+            .unwrap_or(base_config.frontmatter.format);
 
         Config {
             file: FileConfig {
-                directory: todo!(),
-                segment_order: todo!(),
-                default_extension: todo!(),
-                regenerate_identifier: todo!(),
-                template_path: todo!(),
-                illegal_characters: todo!(),
+                directory,
+                default_extension,
+                regenerate_identifier,
+                template_path,
+                ..base_config.file
             },
             frontmatter: FrontmatterConfig {
-                enabled: todo!(),
-                rewrite: todo!(),
-                format: todo!(),
-                time_style: todo!(),
-                order: todo!(),
+                enabled,
+                format,
+                ..base_config.frontmatter
             },
+            ..base_config
         }
     }
 }
@@ -212,7 +256,6 @@ impl Default for FrontmatterConfig {
     fn default() -> Self {
         Self {
             enabled: Default::default(),
-            rewrite: Default::default(),
             format: default_frontmatter_format(),
             time_style: default_frontmatter_time_format(),
             order: Default::default(),
@@ -220,28 +263,15 @@ impl Default for FrontmatterConfig {
     }
 }
 
-impl Default for ConfigBuilder {
-    fn default() -> Self {
-        Self {
-            config_path: Default::default(),
-            file_directory: default_notes_directory(),
-            file_default_extension: default_file_extension(),
-            file_regenerate_identifier: false,
-            file_template_path: None,
-            frontmatter_enabled: Default::default(),
-            frontmatter_format: Default::default(),
-        }
-    }
-}
-
-/// Attempt to read the entire contents of a file and parse it into a Config struct.
-pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
+/// Attempt to read the entire contents of a file and parse it into a `Config`.
+fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let contents = fs::read_to_string(path)?;
     let config = toml::from_str(&contents)?;
 
     Ok(config)
 }
 
+/// Attempt to parse a string slice into a `FrontmatterFormat`.
 fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, Error> {
     match format_arg.to_lowercase().as_str() {
         "text" => Ok(FrontmatterFormat::Text),
@@ -254,6 +284,14 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
     }
 }
 
+/// Returns the default notes directory for dn. For use in serde macros.
+///
+/// ## Value
+///
+/// It's value is a PathBuf from the first of these paths:
+/// - $HOME/Documents/notes
+/// - $USERPROFILE/Documents/notes
+/// - .
 fn default_notes_directory() -> PathBuf {
     environment_notes_dir().unwrap_or(env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
 }

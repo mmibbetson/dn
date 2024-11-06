@@ -31,10 +31,10 @@ fn main() {
             cli_keywords,
         } => {
             let config = {
-                let config_builder = Config::builder(cli_config_path.clone());
+                let config_builder = Config::builder();
 
                 config_builder = cli_config_path
-                    .map(|p| config_builder.with_config_path(p))
+                    .map(|p| config_builder.with_config_path(p.into()))
                     .unwrap_or(config_builder);
 
                 config_builder = cli_generate_frontmatter
@@ -50,7 +50,7 @@ fn main() {
                     .unwrap_or(config_builder);
 
                 config_builder = cli_template_path
-                    .map(|p| config_builder.with_file_template_path(p))
+                    .map(|p| config_builder.with_file_template_path(p.into()))
                     .unwrap_or(config_builder);
 
                 config_builder = cli_frontmatter_format
@@ -109,7 +109,11 @@ fn main() {
             };
 
             let config = {
-                let config_builder = Config::builder(cli_config_path.clone());
+                let config_builder = Config::builder();
+
+                config_builder = cli_config_path
+                    .map(|p| config_builder.with_config_path(p.into()))
+                    .unwrap_or(config_builder);
 
                 config_builder = cli_regenerate_identifier
                     .then(|| config_builder.with_file_regenerate_identifier(true))
@@ -177,17 +181,11 @@ fn main() {
                 .unwrap_or(metadata_builder);
 
             metadata_builder = cli_add_keywords
-                .map(|k| {
-                    // TODO: Deserialised and sanitise then concatenated onto existing_filename.keywords
-                    todo!()
-                })
+                .map(|k| metadata_builder.with_added_keywords(&Some(k)))
                 .unwrap_or(metadata_builder);
 
             metadata_builder = cli_remove_keywords
-                .map(|k| {
-                    // TODO: Deserialise and sanitise then existing_filename.keywords.iter().filter(!k.contains)
-                    todo!()
-                })
+                .map(|k| metadata_builder.with_removed_keywords(&Some(k)))
                 .unwrap_or(metadata_builder);
 
             metadata_builder = cli_extension

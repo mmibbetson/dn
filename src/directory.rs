@@ -1,9 +1,11 @@
-use std::{env, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 
 use anyhow::Error;
 
-/// Get the default notes directory in a platform-agnostic way.
-/// Tries to get `$HOME` (Unix-like systems) or `$USERPROFILE` (Windows).
+/// Get the default notes directory `Documents/notes/` in a platform-agnostic way.
+///
+/// Tries to get relative to `$HOME` (Unix-like systems) or `$USERPROFILE` (Windows).
+/// If one case succeeds but the `Documents/notes/` directory is not present, it will be created.
 /// If both cases fail, falls back to current directory.
 pub fn environment_notes_dir() -> Result<PathBuf, Error> {
     let home_dir = env::var("HOME").or_else(|_| env::var("USERPROFILE"))?;
@@ -13,11 +15,17 @@ pub fn environment_notes_dir() -> Result<PathBuf, Error> {
         path => path,
     };
 
-    Ok(path.join("dn"))
+    let path = path.join("notes");
+
+    path.try_exists()?.then(|| fs::create_dir_all(&path));
+
+    Ok(path)
 }
 
-/// Get the default config directory in a platform-agnostic way.
-/// Tries to get `$XDG_CONFIG_HOME` (Unix-like systems) or `$USERPROFILE\AppData\Roaming` (Windows)
+/// Get the default config directory `dn/` in a platform-agnostic way.
+///
+/// Tries to get relative to `$XDG_CONFIG_HOME` (Unix-like systems) or `$USERPROFILE\AppData\Roaming` (Windows)
+/// If one case succeeds but the `dn/` directory is not present, it will be created.
 /// If both cases fail, falls back to current directory.
 pub fn environment_config_dir() -> Result<PathBuf, Error> {
     let config_dir = env::var("XDG_CONFIG_HOME")
@@ -27,12 +35,9 @@ pub fn environment_config_dir() -> Result<PathBuf, Error> {
                 .map(|profile| PathBuf::from(profile).join("AppData").join("Roaming"))
         })?;
 
-    Ok(config_dir.join("dn"))
+    let path = config_dir.join("dn");
+
+    path.try_exists()?.then(|| fs::create_dir_all(&path));
+
+    Ok(path)
 }
-
-///////////
-// Tests //
-///////////
-
-#[cfg(test)]
-mod tests {}

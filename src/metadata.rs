@@ -1,11 +1,13 @@
+use std::collections::HashSet;
+
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 
 use crate::{config::FileConfig, format::DN_IDENTIFIER_FORMAT};
 
-///
+/// TODO
 const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
 
-///
+/// TODO
 #[derive(Debug, Default, Clone)]
 pub struct FileMetadata {
     pub identifier: String,
@@ -17,56 +19,70 @@ pub struct FileMetadata {
     pub datetime: DateTime<Local>,
 }
 
-///
+/// TODO
 #[derive(Debug, Default)]
 struct FileMetadataBuilder {
     identifier: Option<String>,
     signature: Option<String>,
     title: Option<String>,
     keywords: Option<String>,
+    added_keywords: Option<String>,
+    removed_keywords: Option<String>,
     extension: Option<String>,
     datetime: DateTime<Local>,
 }
 
 impl FileMetadata {
-    ///
+    /// TODO
     pub fn builder() -> FileMetadataBuilder {
         FileMetadataBuilder::default()
     }
 }
 
 impl FileMetadataBuilder {
-    ///
+    /// TODO
     pub fn with_identifier(mut self, value: &Option<String>) -> Self {
         self.identifier = value.clone();
         self
     }
 
-    ///
+    /// TODO
     pub fn with_signature(mut self, value: &Option<String>) -> Self {
         self.signature = value.clone();
         self
     }
 
-    ///
+    /// TODO
     pub fn with_title(mut self, value: &Option<String>) -> Self {
         self.title = value.clone();
         self
     }
 
-    ///
+    /// TODO
     pub fn with_keywords(mut self, value: &Option<String>) -> Self {
         self.keywords = value.clone();
         self
     }
 
-    ///
+    /// TODO
+    pub fn with_added_keywords(mut self, value: &Option<String>) -> Self {
+        self.added_keywords = value.clone();
+        self
+    }
+
+    /// TODO
+    pub fn with_removed_keywords(mut self, value: &Option<String>) -> Self {
+        self.removed_keywords = value.clone();
+        self
+    }
+
+    /// TODO
     pub fn with_extension(mut self, value: &Option<String>) -> Self {
         self.extension = value.clone();
         self
     }
 
-    ///
+    /// TODO
     pub fn build(&self, config: &FileConfig) -> FileMetadata {
         let datetime = derive_datetime(&self.identifier);
 
@@ -83,10 +99,38 @@ impl FileMetadataBuilder {
             .and_then(|t| parse_title(&t, &config.illegal_characters));
         let title_raw = self.title.as_ref().map(String::from);
 
-        let keywords = self
-            .keywords
-            .as_ref()
-            .and_then(|k| parse_keywords(&k, &config.illegal_characters));
+        let keywords = {
+            let base_keywords = self
+                .keywords
+                .as_ref()
+                .and_then(|k| parse_keywords(&k, &config.illegal_characters))
+                .unwrap_or_default();
+
+            let added_keywords = self
+                .added_keywords
+                .as_ref()
+                .and_then(|k| parse_keywords(&k, &config.illegal_characters))
+                .unwrap_or_default();
+
+            let removed_keywords = self
+                .removed_keywords
+                .as_ref()
+                .and_then(|k| parse_keywords(&k, &config.illegal_characters))
+                .unwrap_or_default();
+
+            match base_keywords.is_empty() && added_keywords.is_empty() {
+                true => None,
+                false => Some(
+                    base_keywords
+                        .into_iter()
+                        .chain(added_keywords)
+                        .collect::<HashSet<_>>()
+                        .into_iter()
+                        .filter(|k| !removed_keywords.contains(k))
+                        .collect::<Vec<_>>(),
+                ),
+            }
+        };
 
         let extension = self
             .extension
@@ -106,6 +150,7 @@ impl FileMetadataBuilder {
     }
 }
 
+/// TODO
 fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
     match identifier {
         Some(identifier) => match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
@@ -118,6 +163,7 @@ fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
     }
 }
 
+/// TODO
 fn derive_identifier(instance_time: &DateTime<Local>, identifier_arg: &Option<String>) -> String {
     match identifier_arg {
         Some(identifier) => identifier.to_string(),
@@ -125,6 +171,7 @@ fn derive_identifier(instance_time: &DateTime<Local>, identifier_arg: &Option<St
     }
 }
 
+/// TODO
 fn parse_signature(signature_arg: &str, illegal_characters: &[char]) -> Option<String> {
     let out = signature_arg
         .to_lowercase()
@@ -139,6 +186,7 @@ fn parse_signature(signature_arg: &str, illegal_characters: &[char]) -> Option<S
     }
 }
 
+/// TODO
 fn parse_title(title_arg: &str, illegal_characters: &[char]) -> Option<String> {
     let out = title_arg
         .to_lowercase()
@@ -154,6 +202,7 @@ fn parse_title(title_arg: &str, illegal_characters: &[char]) -> Option<String> {
     }
 }
 
+/// TODO
 fn parse_keywords(keywords_arg: &str, illegal_characters: &[char]) -> Option<Vec<String>> {
     let out = keywords_arg
         .to_lowercase()
@@ -168,6 +217,7 @@ fn parse_keywords(keywords_arg: &str, illegal_characters: &[char]) -> Option<Vec
     }
 }
 
+/// TODO
 fn parse_extension(extension_arg: &str, illegal_characters: &[char]) -> Option<String> {
     let out = extension_arg
         .to_lowercase()
@@ -183,6 +233,7 @@ fn parse_extension(extension_arg: &str, illegal_characters: &[char]) -> Option<S
     }
 }
 
+/// TODO
 fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
     dirty
         .chars()

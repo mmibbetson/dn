@@ -7,7 +7,7 @@ use crate::{
     metadata::FileMetadata,
 };
 
-///
+/// TODO
 #[derive(Debug, Default, Clone)]
 pub struct Filename {
     pub identifier: String,
@@ -18,7 +18,7 @@ pub struct Filename {
     pub segment_order: [FilenameSegment; 5],
 }
 
-///
+/// TODO
 pub trait ToFilename {
     fn to_filename(&self, config: &FileConfig) -> Filename;
 }
@@ -89,6 +89,7 @@ impl ToFilename for FileMetadata {
     }
 }
 
+/// TODO
 fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
     Regex::new(pattern)
         // WARN: Unwrap may panic. Do we want to alert the user of an error creating this regex?
@@ -97,6 +98,7 @@ fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
         .map(|m| m.as_str().to_owned())
 }
 
+/// TODO
 fn prefix_segment(value: String, segment: &FilenameSegment) -> String {
     let prefix = match segment {
         FilenameSegment::Identifier => "@@",
