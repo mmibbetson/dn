@@ -65,6 +65,7 @@ fn main() {
                 .with_title(cli_title)
                 .with_keywords(cli_keywords)
                 .with_extension(cli_extension)
+                // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
                 .build(&config.file);
 
             let filename = metadata.to_filename(&config.file).to_string();
@@ -73,7 +74,7 @@ fn main() {
             let template = cli_template_path.map(fs::read);
 
             let path = cli_directory_path
-                .map_or(PathBuf::from(config.file.directory), PathBuf::from)
+                .map_or(config.file.directory, PathBuf::from)
                 .join(filename);
             let content = concatenate_file_content(frontmatter, template);
 
@@ -142,7 +143,7 @@ fn main() {
                 .to_string()
                 .to_filename(&config.file);
 
-            let mut metadata_builder = FileMetadata::builder()
+            let metadata_builder = FileMetadata::builder()
                 .with_identifier(&Some(old_file_name.identifier))
                 .with_signature(&old_file_name.signature)
                 .with_title(&old_file_name.title)

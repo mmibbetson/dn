@@ -15,7 +15,7 @@ pub struct Config {
     pub frontmatter: FrontmatterConfig,
 }
 
-/// TODO
+/// A `mut self` builder that allows progressively updating an input state for a new `Config`.
 #[derive(Debug, Default)]
 struct ConfigBuilder {
     config_path: Option<PathBuf>,
@@ -42,7 +42,7 @@ pub struct FileConfig {
     #[serde(default = "default_file_extension")]
     pub default_extension: String,
 
-    /// Whether to replace an existing identifier if present on a renamed note.
+    /// Whether or not to replace an existing identifier if present on a renamed note.
     #[serde(default = "r#false")]
     pub regenerate_identifier: bool,
 
@@ -113,56 +113,63 @@ pub enum FrontmatterTimeFormat {
 }
 
 impl Config {
-    /// TODO
+    /// Creates a new builder initialised with default values.
     pub fn builder() -> ConfigBuilder {
         ConfigBuilder::default()
     }
 }
 
 impl ConfigBuilder {
-    /// TODO
+    /// Adds a path to a configuration file to the builder.
     pub fn with_config_path(mut self, value: PathBuf) -> Self {
         self.config_path = Some(value);
         self
     }
 
-    /// TODO
+    /// Adds the output directory for the file to the builder.
     pub fn with_file_directory(mut self, value: String) -> Self {
         self.file_directory = Some(value);
         self
     }
 
-    /// TODO
+    /// Adds the default file extension for the file to the builder.
     pub fn with_file_default_extension(mut self, value: String) -> Self {
         self.file_default_extension = Some(value);
         self
     }
 
-    /// TODO
+    /// Sets whether or not to regenerate an identifier when renaming a file on the builder.
     pub fn with_file_regenerate_identifier(mut self, value: bool) -> ConfigBuilder {
         self.file_regenerate_identifier = value;
         self
     }
 
-    /// TODO
+    /// Adds the input path for a template file to the builder.
     pub fn with_file_template_path(mut self, value: PathBuf) -> Self {
         self.file_template_path = Some(value);
         self
     }
 
-    /// TODO
+    /// Sets whether or not to generate and/or replace frontmatter for a file on the builder.
     pub fn with_frontmatter_enabled(mut self, value: bool) -> Self {
         self.frontmatter_enabled = value;
         self
     }
 
-    /// TODO
+    /// Sets which format to use for the frontmatter to the builder.
     pub fn with_frontmatter_format(mut self, value: String) -> Self {
         self.frontmatter_format = Some(value);
         self
     }
 
-    /// TODO
+    /// Builds the final `Config` state, falling back to the base configuration file 
+    /// values where no builder value has been specified.
+    /// 
+    /// Prioritises as follows: `builder method > config file > type default`.
+    /// 
+    /// ## Errors
+    /// 
+    /// Exits the process if unable to read the configuration file.
     pub fn build(&self) -> Config {
         let base_config = match &self.config_path {
             Some(path) => match read_config(path) {
@@ -289,9 +296,9 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
 /// ## Value
 ///
 /// It's value is a PathBuf from the first of these paths:
-/// - $HOME/Documents/notes
-/// - $USERPROFILE/Documents/notes
-/// - .
+/// - `$HOME/Documents/notes`
+/// - `$USERPROFILE/Documents/notes`
+/// - `.`
 fn default_notes_directory() -> PathBuf {
     environment_notes_dir().unwrap_or(env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
 }
@@ -403,3 +410,10 @@ fn r#false() -> bool {
 fn none<T>() -> Option<T> {
     None
 }
+
+///////////
+// Tests //
+///////////
+
+#[cfg(test)]
+mod tests {}

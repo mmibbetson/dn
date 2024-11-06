@@ -187,4 +187,4 @@ We try to keep dependencies minimal. Ideally, this will become a [cold-blooded](
 
 ## License
 
-dn is licensed under the [GPLv3 License](), available in this repository in the `LICENSE` file.
+dn is licensed under the [GPLv3 License](https://www.gnu.org/licenses/gpl-3.0.en.html), available in this repository in the `LICENSE` file.
