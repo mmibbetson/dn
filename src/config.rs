@@ -1,14 +1,13 @@
 //! TODO
 
 use std::{
-    env, fs,
-    path::{Path, PathBuf},
+    collections::HashSet, env, fs, iter, path::{Path, PathBuf}
 };
 
 use anyhow::{anyhow, Error};
 use serde::{Deserialize, Serialize};
 
-use crate::directory::environment_notes_dir;
+use crate::{directory::environment_notes_dir, metadata::SEGMENT_SEPARATORS};
 
 /// Represents the configuration state for dn as a whole.
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
@@ -208,6 +207,17 @@ impl ConfigBuilder {
             .or(base_config.file.template_path.as_ref())
             .cloned();
 
+        // NOTE: It is essential that @=-_. are ALWAYS in the illegal characters,
+        // even when overwritten by users.
+        let illegal_characters = base_config
+            .file
+            .illegal_characters
+            .into_iter()
+            .chain(SEGMENT_SEPARATORS)
+            .collect::<HashSet<_>>()
+            .into_iter()
+            .collect::<Vec<_>>();
+
         let enabled = self
             .frontmatter_enabled
             .then(|| true)
@@ -230,6 +240,7 @@ impl ConfigBuilder {
                 directory,
                 default_extension,
                 regenerate_identifier,
+                illegal_characters,
                 template_path,
                 ..base_config.file
             },
@@ -394,7 +405,6 @@ fn default_frontmatter_segment_order() -> Vec<FrontmatterSegment> {
 /// ]
 /// ```
 fn default_illegal_characters() -> Vec<char> {
-    // TODO: It essential that @=-_. are ALWAYS in the illegal characters, even when overwritten by users.
     vec![
         '[', ']', '{', '}', '(', ')', '!', '#', '$', '%', '^', '&', '*', '+', '\'', '\\', '"', '?',
         ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*', ' ', '@', '=', '-', '_', '.',
