@@ -6,10 +6,11 @@ use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 
 use crate::{config::FileConfig, format::DN_IDENTIFIER_FORMAT};
 
-/// TODO
-const SEGMENT_SEPARATORS: [char; 4] = ['=', '-', '_', '.'];
+/// The unique separator characters for each segment of a dn file name.
+pub const SEGMENT_SEPARATORS: [char; 5] = ['@', '=', '-', '_', '.'];
 
-/// TODO
+/// Represents the deserialised metadata associated with a note that can be encoded
+/// in its title and/or frontmatter.
 #[derive(Debug, Default, Clone)]
 pub struct FileMetadata {
     pub identifier: String,
@@ -21,7 +22,7 @@ pub struct FileMetadata {
     pub datetime: DateTime<Local>,
 }
 
-/// TODO
+/// A `mut self` builder that allows progressively updating an input state for a new `FileMetadata`.
 #[derive(Debug, Default)]
 struct FileMetadataBuilder {
     identifier: Option<String>,
@@ -35,60 +36,68 @@ struct FileMetadataBuilder {
 }
 
 impl FileMetadata {
-    /// TODO
+    /// Creates a new builder initialised with default values.
     pub fn builder() -> FileMetadataBuilder {
         FileMetadataBuilder::default()
     }
 }
 
 impl FileMetadataBuilder {
-    /// TODO
+    /// Maybe adds an identifier to the builder which will override the default.
     pub fn with_identifier(mut self, value: &Option<String>) -> Self {
         self.identifier = value.clone();
         self
     }
 
-    /// TODO
+    /// Maybe adds a signature to the builder.
     pub fn with_signature(mut self, value: &Option<String>) -> Self {
         self.signature = value.clone();
         self
     }
 
-    /// TODO
+    /// Maybe adds a title to the builder.
     pub fn with_title(mut self, value: &Option<String>) -> Self {
         self.title = value.clone();
         self
     }
 
-    /// TODO
+    /// Maybe adds keywords to the builder.
     pub fn with_keywords(mut self, value: &Option<String>) -> Self {
         self.keywords = value.clone();
         self
     }
 
-    /// TODO
+    /// Maybe adds additional keywords to be joined with existing keywords to the builder.
     pub fn with_added_keywords(mut self, value: &Option<String>) -> Self {
         self.added_keywords = value.clone();
         self
     }
 
-    /// TODO
+    /// Maybe adds additional keywords to be removed from existing and added keywords to the
+    /// builder.
     pub fn with_removed_keywords(mut self, value: &Option<String>) -> Self {
         self.removed_keywords = value.clone();
         self
     }
 
-    /// TODO
+    /// Maybe adds a file extension to the builder which will override the default.
     pub fn with_extension(mut self, value: &Option<String>) -> Self {
         self.extension = value.clone();
         self
     }
 
-    /// TODO
+    /// Builds the final `FileMetadata` state, falling back to the default builder values where
+    /// values have not been otherwise provided.
+    ///
+    /// Parses and sanitises the various segment arguments into their correct format
+    /// for use in dn before constructing the `FileMetadata`.
     pub fn build(&self, config: &FileConfig) -> FileMetadata {
         let datetime = derive_datetime(&self.identifier);
 
-        let identifier = derive_identifier(&self.datetime, &self.identifier);
+        let identifier = self
+            .identifier
+            .clone()
+            .unwrap_or_else(|| self.datetime.format(DN_IDENTIFIER_FORMAT).to_string());
 
         let signature = self
             .signature
@@ -99,6 +108,7 @@ impl FileMetadataBuilder {
             .title
             .as_ref()
             .and_then(|t| parse_title(&t, &config.illegal_characters));
+
         let title_raw = self.title.as_ref().map(String::from);
 
         let keywords = {
@@ -152,7 +162,8 @@ impl FileMetadataBuilder {
     }
 }
 
-/// TODO
+/// Derives a local datetime from an optional dn identifier. If the identifier is
+/// not successfully parsed into a datetime, then falls back to `Local::now()`.
 fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
     match identifier {
         Some(identifier) => match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
@@ -165,15 +176,7 @@ fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
     }
 }
 
-/// TODO
-fn derive_identifier(instance_time: &DateTime<Local>, identifier_arg: &Option<String>) -> String {
-    match identifier_arg {
-        Some(identifier) => identifier.to_string(),
-        None => instance_time.format(DN_IDENTIFIER_FORMAT).to_string(),
-    }
-}
-
-/// TODO
+/// Parses the signature argument to a valid dn signature.
 fn parse_signature(signature_arg: &str, illegal_characters: &[char]) -> Option<String> {
     let out = signature_arg
         .to_lowercase()
@@ -188,7 +191,7 @@ fn parse_signature(signature_arg: &str, illegal_characters: &[char]) -> Option<S
     }
 }
 
-/// TODO
+/// Parses the title argument to a valid dn title.
 fn parse_title(title_arg: &str, illegal_characters: &[char]) -> Option<String> {
     let out = title_arg
         .to_lowercase()
@@ -204,7 +207,7 @@ fn parse_title(title_arg: &str, illegal_characters: &[char]) -> Option<String> {
     }
 }
 
-/// TODO
+/// Parses the keywords argument to a valid dn keywords vector.
 fn parse_keywords(keywords_arg: &str, illegal_characters: &[char]) -> Option<Vec<String>> {
     let out = keywords_arg
         .to_lowercase()
@@ -219,7 +222,7 @@ fn parse_keywords(keywords_arg: &str, illegal_characters: &[char]) -> Option<Vec
     }
 }
 
-/// TODO
+/// Parses the extension argument to a valid dn extension.
 fn parse_extension(extension_arg: &str, illegal_characters: &[char]) -> Option<String> {
     let out = extension_arg
         .to_lowercase()
@@ -235,7 +238,7 @@ fn parse_extension(extension_arg: &str, illegal_characters: &[char]) -> Option<S
     }
 }
 
-/// TODO
+/// Removes segment separators and illegal characters from a dirty string.
 fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
     dirty
         .chars()
@@ -260,41 +263,6 @@ mod tests {
     fn setup_datetime() -> DateTime<Local> {
         // WARN: Unwrap may panic.
         Local.with_ymd_and_hms(2024, 1, 1, 12, 0, 0).unwrap()
-    }
-
-    #[test]
-    fn derive_identifier_with_no_identifier_arg() {
-        // Arrange
-        let time = setup_datetime();
-        let expected = "20240101T120000";
-
-        // Act
-        let result = derive_identifier(&time, &None);
-
-        // Assert
-        assert_eq!(
-            result, expected,
-            "Expected: {:?}\nReceived: {:?}",
-            expected, result
-        );
-    }
-
-    #[test]
-    fn derive_identifier_with_existing_identifier_arg() {
-        // Arrange
-        let time = setup_datetime();
-        let identifier = Some("20241212T121212".to_string());
-        let expected = "20241212T121212";
-
-        // Act
-        let result = derive_identifier(&time, &identifier);
-
-        // Assert
-        assert_eq!(
-            result, expected,
-            "Expected: {:?}\nReceived: {:?}",
-            expected, result
-        );
     }
 
     #[test]
@@ -444,7 +412,7 @@ mod tests {
             title_raw: Some("My Cool Title!".to_string()),
             keywords: Some(vec!["rust".to_string(), "programming".to_string()]),
             extension: "rs".to_string(),
-            datetime: time,
+            ..Default::default()
         };
 
         // Act
