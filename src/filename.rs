@@ -41,7 +41,8 @@ pub trait ToFilename {
 
 impl Display for Filename {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let ordered = self.segment_order
+        let ordered = self
+            .segment_order
             .clone()
             .map(|seg| match seg {
                 FilenameSegment::Identifier => self.identifier.clone(),
