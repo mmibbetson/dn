@@ -10,3 +10,12 @@ clap = { version = "4.5.20", features = ["derive"] }
 regex = "1.11.1"
 serde = { version = "1.0.214", features = ["derive"] }
 toml = "0.8.19"
+
+[lints.rust]
+unsafe = "deny"
+
+[lints.clippy]
+all = "deny"
+pedantic = "warn"
+restriction = "warn"
+cargo = "warn"
