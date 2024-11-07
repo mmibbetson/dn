@@ -1,3 +1,7 @@
+//! TODO
+
+use std::fmt::Display;
+
 use chrono::Local;
 use regex::Regex;
 
@@ -7,7 +11,8 @@ use crate::{
     metadata::FileMetadata,
 };
 
-/// TODO
+/// Represents the possible segments of a dn file name, as well as the order in which
+/// they should be concatenated.
 #[derive(Debug, Default, Clone)]
 pub struct Filename {
     pub identifier: String,
@@ -18,14 +23,25 @@ pub struct Filename {
     pub segment_order: [FilenameSegment; 5],
 }
 
-/// TODO
+/// A trait for converting a value to a `Filename`.
+///
+/// Does not perform sanitisation on the data before creating the `Filename`.
+/// Intended to be used between the file name written to the file system and the
+/// `FileMetadata` struct.
+///
+/// When converting from `FileMetada` to `Filename`, the content will be
+/// sanitised. When converting from `String` to `Filename`, the resulting struct
+/// should be converted into a `FileMetadata` via the `FileMetadataBuilder` to
+/// ensure the validity of the content. From there it can be converted into a
+/// `Filename` again or any other type covertible from `FileMetadata`.
 pub trait ToFilename {
+    /// Converts the given value to a `Filename`.
     fn to_filename(&self, config: &FileConfig) -> Filename;
 }
 
-impl ToString for Filename {
-    fn to_string(&self) -> String {
-        self.segment_order
+impl Display for Filename {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let ordered = self.segment_order
             .clone()
             .map(|seg| match seg {
                 FilenameSegment::Identifier => self.identifier.clone(),
@@ -34,7 +50,9 @@ impl ToString for Filename {
                 FilenameSegment::Keywords => self.keywords.clone().unwrap_or_default(),
                 FilenameSegment::Extension => self.extension.clone(),
             })
-            .concat()
+            .concat();
+
+        write!(f, "{}", ordered)
     }
 }
 
@@ -57,6 +75,8 @@ impl ToFilename for String {
             Some(extension) => extension.to_string(),
             None => config.default_extension.clone(),
         };
+
+        // TODO: If only extension is present, treat eveything else as title.
 
         Filename {
             identifier,
@@ -89,7 +109,10 @@ impl ToFilename for FileMetadata {
     }
 }
 
-/// TODO
+/// Attempts to parse a segment from a filename based on a regular expression and
+/// return it as an `Option<String>`
+///
+/// **WARN**: Currently may panic on unwrap if the regex fails to be constructed.
 fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
     Regex::new(pattern)
         // WARN: Unwrap may panic. Do we want to alert the user of an error creating this regex?
@@ -98,7 +121,7 @@ fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
         .map(|m| m.as_str().to_owned())
 }
 
-/// TODO
+/// Applies a prefix corresponding to the FilenameSegment variant to an input string.
 fn prefix_segment(value: String, segment: &FilenameSegment) -> String {
     let prefix = match segment {
         FilenameSegment::Identifier => "@@",

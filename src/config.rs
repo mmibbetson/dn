@@ -1,3 +1,5 @@
+//! TODO
+
 use std::{
     env, fs,
     path::{Path, PathBuf},
@@ -162,14 +164,15 @@ impl ConfigBuilder {
         self
     }
 
-    /// Builds the final `Config` state, falling back to the base configuration file 
+    /// Builds the final `Config` state, falling back to the base configuration file
     /// values where no builder value has been specified.
-    /// 
+    ///
     /// Prioritises as follows: `builder method > config file > type default`.
-    /// 
+    ///
     /// ## Errors
-    /// 
-    /// Exits the process if unable to read the configuration file.
+    ///
+    /// **Exits the process** if unable to read the configuration file or determine the front matter
+    /// format.
     pub fn build(&self) -> Config {
         let base_config = match &self.config_path {
             Some(path) => match read_config(path) {

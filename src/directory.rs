@@ -1,3 +1,5 @@
+//! This module currently is not very testable, inherently.
+
 use std::{env, fs, path::PathBuf};
 
 use anyhow::Error;
