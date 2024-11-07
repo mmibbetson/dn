@@ -65,19 +65,25 @@ impl ToFilename for String {
         const KEYWORDS_PATTERN: &str = r"(__[^\@\=\-\.]*)";
         const EXTENSION_PATTERN: &str = r"(\.[^\@\=\-\_]*)";
 
-        let identifier = match parse_segment(&self, IDENTIFIER_PATTERN) {
-            Some(identifier) => identifier.to_string(),
-            None => Local::now().format(DN_IDENTIFIER_FORMAT).to_string(),
-        };
-        let signature = parse_segment(self, SIGNATURE_PATTERN);
-        let title = parse_segment(self, TITLE_PATTERN);
-        let keywords = parse_segment(self, KEYWORDS_PATTERN);
-        let extension = match parse_segment(self, EXTENSION_PATTERN) {
-            Some(extension) => extension.to_string(),
-            None => config.default_extension.clone(),
+        let (identifier, has_identifier) = match parse_segment(self, IDENTIFIER_PATTERN) {
+            Some(identifier) => (identifier, true),
+            None => (Local::now().format(DN_IDENTIFIER_FORMAT).to_string(), false),
         };
 
-        // TODO: If only extension is present, treat eveything else as title.
+        let signature = parse_segment(self, SIGNATURE_PATTERN);
+
+        let title = match has_identifier {
+            true => parse_segment(self, TITLE_PATTERN),
+            false => self
+                .chars()
+                .take_while(|&c| c != '.')
+                .collect::<String>()
+                .into(),
+        };
+
+        let keywords = parse_segment(self, KEYWORDS_PATTERN);
+        let extension = parse_segment(self, EXTENSION_PATTERN)
+            .unwrap_or_else(|| config.default_extension.clone());
 
         Filename {
             identifier,
@@ -85,8 +91,6 @@ impl ToFilename for String {
             title,
             keywords,
             extension,
-            // NOTE: We don't care about segment order when parsing as it should be determined
-            // by the configuration options.
             ..Default::default()
         }
     }

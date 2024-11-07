@@ -138,7 +138,7 @@ impl FileMetadataBuilder {
             .extension
             .as_ref()
             .and_then(|e| parse_extension(&e, &config.illegal_characters))
-            .unwrap_or(config.default_extension.clone());
+            .unwrap_or_else(|| config.default_extension.clone());
 
         FileMetadata {
             identifier,

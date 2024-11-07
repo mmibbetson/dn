@@ -303,7 +303,8 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
 /// - `$USERPROFILE/Documents/notes`
 /// - `.`
 fn default_notes_directory() -> PathBuf {
-    environment_notes_dir().unwrap_or(env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
+    environment_notes_dir()
+        .unwrap_or_else(|_| env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
 }
 
 /// Returns the default value for file name segment order in FilenameConfig. For use in serde macros.
@@ -393,6 +394,7 @@ fn default_frontmatter_segment_order() -> Vec<FrontmatterSegment> {
 /// ]
 /// ```
 fn default_illegal_characters() -> Vec<char> {
+    // TODO: It essential that @=-_. are ALWAYS in the illegal characters, even when overwritten by users.
     vec![
         '[', ']', '{', '}', '(', ')', '!', '#', '$', '%', '^', '&', '*', '+', '\'', '\\', '"', '?',
         ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*', ' ', '@', '=', '-', '_', '.',
