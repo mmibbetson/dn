@@ -1,7 +1,9 @@
 //! TODO
 
 use std::{
-    collections::HashSet, env, fs, iter, path::{Path, PathBuf}
+    collections::HashSet,
+    env, fs,
+    path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, Error};
@@ -10,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use crate::{directory::environment_notes_dir, metadata::SEGMENT_SEPARATORS};
 
 /// Represents the configuration state for dn as a whole.
-#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Config {
     pub file: FileConfig,
     pub frontmatter: FrontmatterConfig,
@@ -19,7 +21,7 @@ pub struct Config {
 /// A `mut self` builder that allows progressively updating an input state for a new `Config`.
 #[derive(Debug, Default)]
 struct ConfigBuilder {
-    config_path: Option<PathBuf>,
+    base_config: Option<Config>,
     file_directory: Option<String>,
     file_default_extension: Option<String>,
     file_regenerate_identifier: bool,
@@ -29,7 +31,7 @@ struct ConfigBuilder {
 }
 
 /// The configuration values for the file name, directory, template, and general metadata.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FileConfig {
     /// The directory in which notes will be created.
     #[serde(default = "default_notes_directory")]
@@ -53,7 +55,7 @@ pub struct FileConfig {
 
     /// Characters to be sanitised out of the file metadata.
     #[serde(default = "default_illegal_characters")]
-    pub illegal_characters: Vec<char>,
+    pub illegal_characters: HashSet<char>,
 }
 
 /// The segments which comprise a dn file name.
@@ -68,7 +70,7 @@ pub enum FilenameSegment {
 }
 
 /// The configuration values for the front matter.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FrontmatterConfig {
     /// Whether or not to generate front matter on file creation.
     #[serde(default = "r#false")]
@@ -88,7 +90,7 @@ pub struct FrontmatterConfig {
 }
 
 /// The possible valid formats for front matter.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FrontmatterFormat {
     Text,
     YAML,
@@ -97,7 +99,7 @@ pub enum FrontmatterFormat {
 }
 
 /// The valid front matter segments which dn concerns itself with.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FrontmatterSegment {
     Title,
     Date,
@@ -106,7 +108,7 @@ pub enum FrontmatterSegment {
 }
 
 /// The valid time formats for front matter datetimes.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FrontmatterTimeFormat {
     Hour24,
     Hour12,
@@ -122,8 +124,8 @@ impl Config {
 
 impl ConfigBuilder {
     /// Adds a path to a configuration file to the builder.
-    pub fn with_config_path(mut self, value: PathBuf) -> Self {
-        self.config_path = Some(value);
+    pub fn with_base_config(mut self, value: Config) -> Self {
+        self.base_config = Some(value);
         self
     }
 
@@ -170,19 +172,13 @@ impl ConfigBuilder {
     ///
     /// ## Errors
     ///
-    /// **Exits the process** if unable to read the configuration file or determine the front matter
+    /// Returns an `anyhow::Error` if unable to determine the front matter
     /// format.
-    pub fn build(&self) -> Config {
-        let base_config = match &self.config_path {
-            Some(path) => match read_config(path) {
-                Ok(config) => config,
-                Err(error) => {
-                    eprintln!("Error reading configuration: {}", error);
-                    std::process::exit(1);
-                }
-            },
-            None => Config::default(),
-        };
+    pub fn build(&self) -> Result<Config, Error> {
+        let base_config = self
+            .base_config
+            .clone()
+            .unwrap_or_else(|| Config::default());
 
         let directory = self
             .file_directory
@@ -214,28 +210,26 @@ impl ConfigBuilder {
             .illegal_characters
             .into_iter()
             .chain(SEGMENT_SEPARATORS)
-            .collect::<HashSet<_>>()
-            .into_iter()
-            .collect::<Vec<_>>();
+            .collect::<HashSet<_>>();
 
         let enabled = self
             .frontmatter_enabled
             .then(|| true)
             .unwrap_or(base_config.frontmatter.enabled);
 
-        let format = self
-            .frontmatter_format
-            .clone()
-            .map(|f| match determine_frontmatter_format(&f) {
-                Ok(format) => format,
-                Err(error) => {
-                    eprintln!("Error determining frontmatter format: {}", error);
-                    std::process::exit(1);
-                }
-            })
-            .unwrap_or(base_config.frontmatter.format);
+        let format = {
+            let format = self
+                .frontmatter_format
+                .clone()
+                .map(|f| determine_frontmatter_format(&f));
 
-        Config {
+            match format {
+                Some(result) => result?,
+                None => base_config.frontmatter.format,
+            }
+        };
+
+        Ok(Config {
             file: FileConfig {
                 directory,
                 default_extension,
@@ -250,7 +244,7 @@ impl ConfigBuilder {
                 ..base_config.frontmatter
             },
             ..base_config
-        }
+        })
     }
 }
 
@@ -285,7 +279,7 @@ impl Default for FrontmatterConfig {
 }
 
 /// Attempt to read the entire contents of a file and parse it into a `Config`.
-fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
+pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let contents = fs::read_to_string(path)?;
     let config = toml::from_str(&contents)?;
 
@@ -300,7 +294,7 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
         "toml" => Ok(FrontmatterFormat::TOML),
         "org" => Ok(FrontmatterFormat::Org),
         _ => Err(anyhow!(
-            "Invalid frontmatter format provided, must be one of: text, yaml, toml, org"
+            "Invalid frontmatter format provided, must be one of: text, yaml, toml, org.\nGot: {:#?}", format_arg
         )),
     }
 }
@@ -315,7 +309,8 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
 /// - `.`
 fn default_notes_directory() -> PathBuf {
     environment_notes_dir()
-        .unwrap_or_else(|_| env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
+        .or_else(|_| env::current_dir())
+        .unwrap_or_else(|_| PathBuf::from("."))
 }
 
 /// Returns the default value for file name segment order in FilenameConfig. For use in serde macros.
@@ -404,11 +399,11 @@ fn default_frontmatter_segment_order() -> Vec<FrontmatterSegment> {
 ///     ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*', ' ', '@', '=', '-', '_', '.',
 /// ]
 /// ```
-fn default_illegal_characters() -> Vec<char> {
-    vec![
+fn default_illegal_characters() -> HashSet<char> {
+    HashSet::from([
         '[', ']', '{', '}', '(', ')', '!', '#', '$', '%', '^', '&', '*', '+', '\'', '\\', '"', '?',
         ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*', ' ', '@', '=', '-', '_', '.',
-    ]
+    ])
 }
 
 /// Returns `true`. For use in serde macros.
@@ -431,4 +426,152 @@ fn none<T>() -> Option<T> {
 ///////////
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use std::collections::HashSet;
+
+    use crate::config::{
+        Config, FileConfig, FrontmatterConfig, FrontmatterFormat, FrontmatterSegment,
+    };
+
+    #[test]
+    fn builder_builds_defaults_if_unconfigured() {
+        // Arrange
+        let input = Config::builder();
+        let expected = Config::default();
+
+        // Act
+        let result = input.build().unwrap();
+
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn builder_builds_base_config_defaults_if_provided() {
+        // Arrange
+        let base_config = Config {
+            file: FileConfig {
+                default_extension: "dj".to_owned(),
+                regenerate_identifier: true,
+                illegal_characters: HashSet::from(['a', '2', '@']),
+                ..FileConfig::default()
+            },
+            frontmatter: FrontmatterConfig {
+                enabled: true,
+                format: FrontmatterFormat::TOML,
+                ..FrontmatterConfig::default()
+            },
+        };
+        let input = Config::builder().with_base_config(base_config.clone());
+        let expected_illegal_characters = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
+        let expected = Config {
+            file: FileConfig {
+                illegal_characters: expected_illegal_characters,
+                ..base_config.file
+            },
+            ..base_config
+        };
+
+        // Act
+        let result = input.build().unwrap();
+
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn builder_builds_with_supplied_values() {
+        // Arrange
+        let default_extension = "dj".to_string();
+        let directory = ".".to_string();
+        let regenerate_identifier = true;
+        let template_path = "./template.txt".to_string();
+        let enabled = true;
+        let format = "org".into();
+
+        let input = Config::builder()
+            .with_file_default_extension(default_extension.clone())
+            .with_file_directory(directory.clone())
+            .with_file_regenerate_identifier(regenerate_identifier)
+            .with_file_template_path(template_path.clone().into())
+            .with_frontmatter_enabled(enabled)
+            .with_frontmatter_format(format);
+
+        let expected = Config {
+            file: FileConfig {
+                directory: directory.into(),
+                default_extension,
+                regenerate_identifier,
+                template_path: Some(template_path.into()),
+                ..Default::default()
+            },
+            frontmatter: FrontmatterConfig {
+                enabled,
+                format: FrontmatterFormat::Org,
+                ..Default::default()
+            },
+        };
+
+        // Act
+        let result = input.build().unwrap();
+
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            input, expected, result:
+        );
+    }
+
+    #[test]
+    fn built_config_illegal_characters_always_contains_path_separators() {
+        // Arrange
+        let base_config = Config {
+            file: FileConfig {
+                illegal_characters: HashSet::from(['a', '2', '@']),
+                ..FileConfig::default()
+            },
+            ..Config::default()
+        };
+        let input = Config::builder().with_base_config(base_config.clone());
+        let expected = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
+
+        // Act
+        let result = input.build().unwrap().file.illegal_characters;
+
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn build_config_fails_with_invalid_frontmatter_format() {
+        // Arrange
+        let format = "scaml";
+        let input = Config::builder().with_frontmatter_format(format.to_owned());
+
+        // Act
+        let result = input.build();
+
+        // Assert
+        assert!(
+            result
+                .as_ref()
+                .is_err_and(|e| e.to_string().contains("Invalid frontmatter format")),
+            "Input: {:#?}\nExpected an error.\nReceived: {:#?}",
+            input,
+            result,
+        );
+    }
+}

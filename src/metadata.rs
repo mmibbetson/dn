@@ -1,6 +1,6 @@
 //! TODO
 
-use std::collections::HashSet;
+use std::collections::{hash_set, HashSet};
 
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 
@@ -17,7 +17,7 @@ pub struct FileMetadata {
     pub signature: Option<String>,
     pub title: Option<String>,
     pub title_raw: Option<String>,
-    pub keywords: Option<Vec<String>>,
+    pub keywords: Option<HashSet<String>>,
     pub extension: String,
     pub datetime: DateTime<Local>,
 }
@@ -43,44 +43,44 @@ impl FileMetadata {
 }
 
 impl FileMetadataBuilder {
-    /// Maybe adds an identifier to the builder which will override the default.
+    /// Optionally adds an identifier to the builder which will override the default.
     pub fn with_identifier(mut self, value: &Option<String>) -> Self {
         self.identifier = value.clone();
         self
     }
 
-    /// Maybe adds a signature to the builder.
+    /// Optionally adds a signature to the builder.
     pub fn with_signature(mut self, value: &Option<String>) -> Self {
         self.signature = value.clone();
         self
     }
 
-    /// Maybe adds a title to the builder.
+    /// Optionally adds a title to the builder.
     pub fn with_title(mut self, value: &Option<String>) -> Self {
         self.title = value.clone();
         self
     }
 
-    /// Maybe adds keywords to the builder.
+    /// Optionally adds keywords to the builder.
     pub fn with_keywords(mut self, value: &Option<String>) -> Self {
         self.keywords = value.clone();
         self
     }
 
-    /// Maybe adds additional keywords to be joined with existing keywords to the builder.
+    /// Optionally adds additional keywords to be joined with existing keywords to the builder.
     pub fn with_added_keywords(mut self, value: &Option<String>) -> Self {
         self.added_keywords = value.clone();
         self
     }
 
-    /// Maybe adds additional keywords to be removed from existing and added keywords to the
+    /// Optionally adds additional keywords to be removed from existing and added keywords to the
     /// builder.
     pub fn with_removed_keywords(mut self, value: &Option<String>) -> Self {
         self.removed_keywords = value.clone();
         self
     }
 
-    /// Maybe adds a file extension to the builder which will override the default.
+    /// Optionally adds a file extension to the builder which will override the default.
     pub fn with_extension(mut self, value: &Option<String>) -> Self {
         self.extension = value.clone();
         self
@@ -136,10 +136,8 @@ impl FileMetadataBuilder {
                     base_keywords
                         .into_iter()
                         .chain(added_keywords)
-                        .collect::<HashSet<_>>()
-                        .into_iter()
                         .filter(|k| !removed_keywords.contains(k))
-                        .collect::<Vec<_>>(),
+                        .collect(),
                 ),
             }
         };
@@ -177,7 +175,7 @@ fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
 }
 
 /// Parses the signature argument to a valid dn signature.
-fn parse_signature(signature_arg: &str, illegal_characters: &[char]) -> Option<String> {
+fn parse_signature(signature_arg: &str, illegal_characters: &HashSet<char>) -> Option<String> {
     let out = signature_arg
         .to_lowercase()
         .chars()
@@ -192,7 +190,7 @@ fn parse_signature(signature_arg: &str, illegal_characters: &[char]) -> Option<S
 }
 
 /// Parses the title argument to a valid dn title.
-fn parse_title(title_arg: &str, illegal_characters: &[char]) -> Option<String> {
+fn parse_title(title_arg: &str, illegal_characters: &HashSet<char>) -> Option<String> {
     let out = title_arg
         .to_lowercase()
         .split(['-', ' '])
@@ -208,7 +206,7 @@ fn parse_title(title_arg: &str, illegal_characters: &[char]) -> Option<String> {
 }
 
 /// Parses the keywords argument to a valid dn keywords vector.
-fn parse_keywords(keywords_arg: &str, illegal_characters: &[char]) -> Option<Vec<String>> {
+fn parse_keywords(keywords_arg: &str, illegal_characters: &HashSet<char>) -> Option<Vec<String>> {
     let out = keywords_arg
         .to_lowercase()
         .split(['_', ' '])
@@ -223,7 +221,7 @@ fn parse_keywords(keywords_arg: &str, illegal_characters: &[char]) -> Option<Vec
 }
 
 /// Parses the extension argument to a valid dn extension.
-fn parse_extension(extension_arg: &str, illegal_characters: &[char]) -> Option<String> {
+fn parse_extension(extension_arg: &str, illegal_characters: &HashSet<char>) -> Option<String> {
     let out = extension_arg
         .to_lowercase()
         .split(['.', ' '])
@@ -239,7 +237,7 @@ fn parse_extension(extension_arg: &str, illegal_characters: &[char]) -> Option<S
 }
 
 /// Removes segment separators and illegal characters from a dirty string.
-fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
+fn sanitise(dirty: &str, illegal_characters: &HashSet<char>) -> String {
     dirty
         .chars()
         .filter(|&c| !SEGMENT_SEPARATORS.contains(&c))
@@ -249,12 +247,14 @@ fn sanitise(dirty: &str, illegal_characters: &[char]) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::hash::Hash;
+
     use super::*;
     use chrono::TimeZone;
 
     fn setup_config() -> FileConfig {
         FileConfig {
-            illegal_characters: vec!['#', '@', '!'],
+            illegal_characters: HashSet::from(['#', '@', '!']),
             default_extension: String::from("md"),
             ..Default::default()
         }
@@ -263,6 +263,16 @@ mod tests {
     fn setup_datetime() -> DateTime<Local> {
         // WARN: Unwrap may panic.
         Local.with_ymd_and_hms(2024, 1, 1, 12, 0, 0).unwrap()
+    }
+
+    #[test]
+    fn derive_datetime_with_identifier_parser_successfully() {
+        todo!()
+    }
+
+    #[test]
+    fn derive_datetime_without_identifier_returns_local_now() {
+        todo!()
     }
 
     #[test]
@@ -277,8 +287,8 @@ mod tests {
 
         // Assert
         assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected: {:?}\nReceived: {:?}",
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -295,8 +305,8 @@ mod tests {
 
         // Assert
         assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected: {:?}\nReceived: {:?}",
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -313,8 +323,8 @@ mod tests {
 
         // Assert
         assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected: {:?}\nReceived: {:?}",
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -331,8 +341,8 @@ mod tests {
 
         // Assert
         assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected: {:?}\nReceived: {:?}",
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -353,8 +363,8 @@ mod tests {
 
         // Assert
         assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected keywords: {:?}\nReceived: {:?}",
+            expected, result,
+            "Input: {:#?}\nExpected keywords: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -371,8 +381,8 @@ mod tests {
 
         // Assert
         assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected extension: {:?}\nReceived: {:?}",
+            expected, result,
+            "Input: {:#?}\nExpected extension: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -389,8 +399,8 @@ mod tests {
 
         // Assert
         assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected extension: {:?}\nReceived: {:?}",
+            expected, result,
+            "Input: {:#?}\nExpected extension: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -400,6 +410,7 @@ mod tests {
         // Arrange
         let config = setup_config();
         let args = FileMetadata::builder()
+            .with_identifier(&Some("20240101T120000".to_string()))
             .with_signature(&Some("test@signature".to_string()))
             .with_title(&Some("My Cool Title!".to_string()))
             .with_keywords(&Some("rust programming".to_string()))
@@ -410,8 +421,12 @@ mod tests {
             signature: Some("testsignature".to_string()),
             title: Some("my-cool-title".to_string()),
             title_raw: Some("My Cool Title!".to_string()),
-            keywords: Some(vec!["rust".to_string(), "programming".to_string()]),
+            keywords: Some(HashSet::from([
+                "rust".to_string(),
+                "programming".to_string(),
+            ])),
             extension: "rs".to_string(),
+            datetime: setup_datetime(),
             ..Default::default()
         };
 
@@ -420,38 +435,38 @@ mod tests {
 
         // Assert
         assert_eq!(
-            result.identifier, expected.identifier,
-            "Identifier mismatch:\nExpected: {:?}\nReceived: {:?}",
+            expected.identifier, result.identifier,
+            "Identifier mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.identifier, result.identifier
         );
         assert_eq!(
-            result.signature, expected.signature,
-            "Signature mismatch:\nExpected: {:?}\nReceived: {:?}",
+            expected.signature, result.signature,
+            "Signature mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.signature, result.signature
         );
         assert_eq!(
-            result.title, expected.title,
-            "Title mismatch:\nExpected: {:?}\nReceived: {:?}",
+            expected.title, result.title,
+            "Title mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.title, result.title
         );
         assert_eq!(
-            result.title_raw, expected.title_raw,
-            "Title raw mismatch:\nExpected: {:?}\nReceived: {:?}",
+            expected.title_raw, result.title_raw,
+            "Title raw mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.title_raw, result.title_raw
         );
         assert_eq!(
-            result.keywords, expected.keywords,
-            "Keywords mismatch:\nExpected: {:?}\nReceived: {:?}",
+            expected.keywords, result.keywords,
+            "Keywords mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.keywords, result.keywords
         );
         assert_eq!(
-            result.extension, expected.extension,
-            "Extension mismatch:\nExpected: {:?}\nReceived: {:?}",
+            expected.extension, result.extension,
+            "Extension mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.extension, result.extension
         );
         assert_eq!(
-            result.datetime, expected.datetime,
-            "Datetime mismatch:\nExpected: {:?}\nReceived: {:?}",
+            expected.datetime, result.datetime,
+            "Datetime mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.datetime, result.datetime
         );
     }
@@ -468,8 +483,8 @@ mod tests {
 
         // Assert
         assert_eq!(
-            result, expected,
-            "Input: {:?}\nExpected sanitized string: {:?}\nReceived: {:?}",
+            expected, result,
+            "Input: {:#?}\nExpected sanitized string: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }

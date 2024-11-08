@@ -99,15 +99,32 @@ impl ToFilename for String {
 impl ToFilename for FileMetadata {
     fn to_filename(&self, config: &FileConfig) -> Filename {
         let identifier = match config.segment_order[0] {
-            FilenameSegment::Identifier => &self.identifier,
-            _ => &prefix_segment(self.identifier.clone(), &FilenameSegment::Identifier),
+            FilenameSegment::Identifier => self.identifier.clone(),
+            _ => prefix_segment(&self.identifier, &FilenameSegment::Identifier),
         };
 
+        let signature = self
+            .signature
+            .clone()
+            .map(|s| prefix_segment(&s, &FilenameSegment::Signature));
+
+        let title = self
+            .title
+            .clone()
+            .map(|t| prefix_segment(&t, &FilenameSegment::Title));
+
+        let keywords = self.keywords.clone().map(|w| {
+            prefix_segment(
+                &w.into_iter().collect::<Vec<_>>().join("_"),
+                &FilenameSegment::Keywords,
+            )
+        });
+
         Filename {
-            identifier: identifier.clone(),
-            signature: self.signature.clone(),
-            title: self.title.clone(),
-            keywords: self.keywords.clone().map(|words| words.concat()),
+            identifier,
+            title,
+            signature,
+            keywords,
             extension: self.extension.clone(),
             segment_order: config.segment_order.clone(),
         }
@@ -127,7 +144,7 @@ fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
 }
 
 /// Applies a prefix corresponding to the FilenameSegment variant to an input string.
-fn prefix_segment(value: String, segment: &FilenameSegment) -> String {
+fn prefix_segment(value: &str, segment: &FilenameSegment) -> String {
     let prefix = match segment {
         FilenameSegment::Identifier => "@@",
         FilenameSegment::Signature => "==",
