@@ -1,6 +1,6 @@
 //! TODO
 
-use std::collections::{hash_set, HashSet};
+use std::collections::HashSet;
 
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 
@@ -245,10 +245,12 @@ fn sanitise(dirty: &str, illegal_characters: &HashSet<char>) -> String {
         .collect::<String>()
 }
 
+///////////
+// Tests //
+///////////
+
 #[cfg(test)]
 mod tests {
-    use std::hash::Hash;
-
     use super::*;
     use chrono::TimeZone;
 
@@ -266,13 +268,40 @@ mod tests {
     }
 
     #[test]
-    fn derive_datetime_with_identifier_parser_successfully() {
-        todo!()
+    fn derive_datetime_with_identifier() {
+        // Arrange
+        let input = Some("20241212T121212".to_string());
+        let expected = Local.with_ymd_and_hms(2024, 12, 12, 12, 12, 12).unwrap();
+
+        // Act
+        let result = derive_datetime(&input);
+
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {:#?}\nExpected datetime: {:#?}\nReceived: {:#?}",
+            input, expected, result
+        );
     }
 
     #[test]
-    fn derive_datetime_without_identifier_returns_local_now() {
-        todo!()
+    fn derive_datetime_without_identifier() {
+        // Arrange
+        let input = None;
+        let before_call = Local::now();
+
+        // Act
+        let result = derive_datetime(&input);
+        let after_call = Local::now();
+
+        // Assert
+        assert!(
+            result >= before_call && result <= after_call,
+            "Input: Local::now()\nExpected datetime between: {:#?} and {:#?}\nReceived: {:#?}",
+            before_call,
+            after_call,
+            result
+        );
     }
 
     #[test]
@@ -288,7 +317,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            "Input: {:#?}\nExpected signature: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -306,7 +335,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            "Input: {:#?}\nExpected signature: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -324,7 +353,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            "Input: {:#?}\nExpected signature: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -333,8 +362,8 @@ mod tests {
     fn parse_title_with_multiple_parts() {
         // Arrange
         let config = setup_config();
-        let input = "My-Cool Title";
-        let expected = Some("my-cool-title".to_string());
+        let input = "My-teST Title";
+        let expected = Some("my-test-title".to_string());
 
         // Act
         let result = parse_title(input, &config.illegal_characters);
@@ -342,7 +371,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            "Input: {:#?}\nExpected title: {:#?}\nReceived: {:#?}",
             input, expected, result
         );
     }
@@ -351,10 +380,10 @@ mod tests {
     fn parse_keywords_with_multiple_parts() {
         // Arrange
         let config = setup_config();
-        let input = "_rust_programming test";
+        let input = "_dn_tags test";
         let expected = Some(vec![
-            "rust".to_string(),
-            "programming".to_string(),
+            "dn".to_string(),
+            "tags".to_string(),
             "test".to_string(),
         ]);
 
@@ -412,20 +441,22 @@ mod tests {
         let args = FileMetadata::builder()
             .with_identifier(&Some("20240101T120000".to_string()))
             .with_signature(&Some("test@signature".to_string()))
-            .with_title(&Some("My Cool Title!".to_string()))
-            .with_keywords(&Some("rust programming".to_string()))
-            .with_extension(&Some("RS".to_string()));
+            .with_title(&Some("My T3ST Title!".to_string()))
+            .with_keywords(&Some("dn testing".to_string()))
+            .with_added_keywords(&Some("dn_testing_changes".to_string()))
+            .with_removed_keywords(&Some("dn".to_string()))
+            .with_extension(&Some("DJ".to_string()));
 
         let expected = FileMetadata {
             identifier: "20240101T120000".to_string(),
             signature: Some("testsignature".to_string()),
-            title: Some("my-cool-title".to_string()),
-            title_raw: Some("My Cool Title!".to_string()),
+            title: Some("my-t3st-title".to_string()),
+            title_raw: Some("My T3ST Title!".to_string()),
             keywords: Some(HashSet::from([
-                "rust".to_string(),
-                "programming".to_string(),
+                "testing".to_string(),
+                "changes".to_string(),
             ])),
-            extension: "rs".to_string(),
+            extension: "dj".to_string(),
             datetime: setup_datetime(),
             ..Default::default()
         };

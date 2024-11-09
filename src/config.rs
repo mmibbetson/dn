@@ -394,10 +394,10 @@ fn default_frontmatter_segment_order() -> Vec<FrontmatterSegment> {
 /// ## Value
 ///
 /// ```rust
-/// vec![
+/// HashSet::from([
 ///     '[', ']', '{', '}', '(', ')', '!', '#', '$', '%', '^', '&', '*', '+', '\'', '\\', '"', '?',
 ///     ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*', ' ', '@', '=', '-', '_', '.',
-/// ]
+/// ])
 /// ```
 fn default_illegal_characters() -> HashSet<char> {
     HashSet::from([
@@ -430,7 +430,7 @@ mod tests {
     use std::collections::HashSet;
 
     use crate::config::{
-        Config, FileConfig, FrontmatterConfig, FrontmatterFormat, FrontmatterSegment,
+        Config, FileConfig, FrontmatterConfig, FrontmatterFormat,
     };
 
     #[test]
@@ -527,7 +527,7 @@ mod tests {
         assert_eq!(
             expected, result,
             "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            input, expected, result:
+            input, expected, result,
         );
     }
 
