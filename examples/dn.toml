@@ -1,16 +1,61 @@
 [file]
 directory = "~/Documents/dn"
-segment_order = ["identifier", "signature", "title", "keywords", "extension"] # These are not optional, you must specify each segment.
+segment_order = [
+    "identifier",
+    "signature",
+    "title",
+    "keywords",
+    "extension",
+] # These are not optional, you must specify each segment.
 default_extension = "txt"
 regenerate_identifier = false
 illegal_characters = [
-    "[", "]", "{", "}", "(", ")", "!", "#", "$", "%", "^", "&", "*", "+", "'", "\\", "\"", "?",
-    ",", "|", ";", ":", "~", "`", "‘", "’", "“", "”", "/", "*", " ", "@", "=", "-", "_", "."
+    "[",
+    "]",
+    "{",
+    "}",
+    "(",
+    ")",
+    "!",
+    "#",
+    "$",
+    "%",
+    "^",
+    "&",
+    "*",
+    "+",
+    "'",
+    "\\",
+    "\"",
+    "?",
+    ",",
+    "|",
+    ";",
+    ":",
+    "~",
+    "`",
+    "‘",
+    "’",
+    "“",
+    "”",
+    "/",
+    "*",
+    " ",
+    "@",
+    "=",
+    "-",
+    "_",
+    ".",
 ]
-# template_path = ""
+# template_path = "" # If you want to by default reuse a template for a diary workflow, for example.
 
 [frontmatter]
 enabled = false
 format = "text" # text, yaml, toml, org
 time_style = "hour24" # or "hour12" or "none"
-order = ["title", "date", "keywords", "identifier"] # These are all optional so you can leave some out?
+order = [
+    "title",
+    "date",
+    "keywords",
+    "identifier",
+] # These are all optional so you can leave some or all out

@@ -71,6 +71,7 @@ fn main() {
                     .unwrap_or(config_builder);
 
                 config_builder.build().unwrap_or_else(|e| {
+                    // ERROR
                     eprintln!("Error buildig configuration: {:#?}", e);
                     std::process::exit(1);
                 })
@@ -248,8 +249,8 @@ fn main() {
             let output_path = input_path.parent().unwrap().join(new_filename);
             let output_content = concatenate_rename_content(new_frontmatter, input_content);
 
-            fs::write(input_path, output_content);
             fs::rename(input_path, output_path);
+            fs::write(output_path, output_content);
 
             if *cli_print {
                 print!(
