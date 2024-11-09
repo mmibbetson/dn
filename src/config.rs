@@ -61,9 +61,11 @@ pub struct FileConfig {
 /// The segments which comprise a dn file name.
 #[derive(PartialEq, Copy, Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[derive(Default)]
 pub enum FilenameSegment {
     Identifier,
     Signature,
+    #[default]
     Title,
     Keywords,
     Extension,
@@ -93,8 +95,8 @@ pub struct FrontmatterConfig {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FrontmatterFormat {
     Text,
-    YAML,
-    TOML,
+    Yaml,
+    Toml,
     Org,
 }
 
@@ -175,10 +177,7 @@ impl ConfigBuilder {
     /// Returns an `anyhow::Error` if unable to determine the front matter
     /// format.
     pub fn build(&self) -> Result<Config, Error> {
-        let base_config = self
-            .base_config
-            .clone()
-            .unwrap_or_else(|| Config::default());
+        let base_config = self.base_config.clone().unwrap_or_default();
 
         let directory = self
             .file_directory
@@ -192,10 +191,11 @@ impl ConfigBuilder {
             .unwrap_or(&base_config.file.default_extension)
             .to_string();
 
-        let regenerate_identifier = self
-            .file_regenerate_identifier
-            .then(|| true)
-            .unwrap_or(base_config.file.regenerate_identifier);
+        let regenerate_identifier = if self.file_regenerate_identifier {
+            true
+        } else {
+            base_config.file.regenerate_identifier
+        };
 
         let template_path = self
             .file_template_path
@@ -212,10 +212,11 @@ impl ConfigBuilder {
             .chain(SEGMENT_SEPARATORS)
             .collect::<HashSet<_>>();
 
-        let enabled = self
-            .frontmatter_enabled
-            .then(|| true)
-            .unwrap_or(base_config.frontmatter.enabled);
+        let enabled = if self.frontmatter_enabled {
+            true
+        } else {
+            base_config.frontmatter.enabled
+        };
 
         let format = {
             let format = self
@@ -234,8 +235,8 @@ impl ConfigBuilder {
                 directory,
                 default_extension,
                 regenerate_identifier,
-                illegal_characters,
                 template_path,
+                illegal_characters,
                 ..base_config.file
             },
             frontmatter: FrontmatterConfig {
@@ -243,7 +244,6 @@ impl ConfigBuilder {
                 format,
                 ..base_config.frontmatter
             },
-            ..base_config
         })
     }
 }
@@ -261,19 +261,13 @@ impl Default for FileConfig {
     }
 }
 
-impl Default for FilenameSegment {
-    fn default() -> Self {
-        FilenameSegment::Title
-    }
-}
-
 impl Default for FrontmatterConfig {
     fn default() -> Self {
         Self {
             enabled: Default::default(),
             format: default_frontmatter_format(),
             time_style: default_frontmatter_time_format(),
-            order: Default::default(),
+            order: Vec::default(),
         }
     }
 }
@@ -290,8 +284,8 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
 fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, Error> {
     match format_arg.to_lowercase().as_str() {
         "text" => Ok(FrontmatterFormat::Text),
-        "yaml" => Ok(FrontmatterFormat::YAML),
-        "toml" => Ok(FrontmatterFormat::TOML),
+        "yaml" => Ok(FrontmatterFormat::Yaml),
+        "toml" => Ok(FrontmatterFormat::Toml),
         "org" => Ok(FrontmatterFormat::Org),
         _ => Err(anyhow!(
             "Invalid frontmatter format provided, must be one of: text, yaml, toml, org.\nGot: {:#?}", format_arg
@@ -303,7 +297,7 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
 ///
 /// ## Value
 ///
-/// It's value is a PathBuf from the first of these paths:
+/// It's value is a `PathBuf` from the first of these paths:
 /// - `$HOME/Documents/notes`
 /// - `$USERPROFILE/Documents/notes`
 /// - `.`
@@ -313,7 +307,7 @@ fn default_notes_directory() -> PathBuf {
         .unwrap_or_else(|_| PathBuf::from("."))
 }
 
-/// Returns the default value for file name segment order in FilenameConfig. For use in serde macros.
+/// Returns the default value for file name segment order in `FilenameConfig`. For use in serde macros.
 ///
 /// ## Value
 ///
@@ -336,7 +330,7 @@ fn default_segment_order() -> [FilenameSegment; 5] {
     ]
 }
 
-/// Returns the default value for front matter segment order in FrontmatterConfig. For use in serde macros.
+/// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
 ///
 /// ## Value
 ///
@@ -347,7 +341,7 @@ fn default_file_extension() -> String {
     "txt".to_owned()
 }
 
-/// Returns the default value for front matter segment order in FrontmatterConfig. For use in serde macros.
+/// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
 ///
 /// ## Value
 ///
@@ -358,7 +352,7 @@ fn default_frontmatter_format() -> FrontmatterFormat {
     FrontmatterFormat::Text
 }
 
-/// Returns the default value for front matter segment order in FrontmatterConfig. For use in serde macros.
+/// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
 ///
 /// ## Value
 ///
@@ -369,7 +363,7 @@ fn default_frontmatter_time_format() -> FrontmatterTimeFormat {
     FrontmatterTimeFormat::Hour24
 }
 
-/// Returns the default value for front matter segment order in FrontmatterConfig. For use in serde macros.
+/// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
 ///
 /// ## Value
 ///
@@ -389,7 +383,7 @@ fn default_frontmatter_segment_order() -> Vec<FrontmatterSegment> {
         FrontmatterSegment::Identifier,
     ]
 }
-/// Returns the default value for illegal characters in FileConfig. For use in serde macros.
+/// Returns the default value for illegal characters in `FileConfig`. For use in serde macros.
 ///
 /// ## Value
 ///
@@ -429,9 +423,7 @@ fn none<T>() -> Option<T> {
 mod tests {
     use std::collections::HashSet;
 
-    use crate::config::{
-        Config, FileConfig, FrontmatterConfig, FrontmatterFormat,
-    };
+    use crate::config::{Config, FileConfig, FrontmatterConfig, FrontmatterFormat};
 
     #[test]
     fn builder_builds_defaults_if_unconfigured() {
@@ -445,8 +437,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -462,7 +453,7 @@ mod tests {
             },
             frontmatter: FrontmatterConfig {
                 enabled: true,
-                format: FrontmatterFormat::TOML,
+                format: FrontmatterFormat::Toml,
                 ..FrontmatterConfig::default()
             },
         };
@@ -482,8 +473,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -526,8 +516,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            input, expected, result,
+            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}",
         );
     }
 
@@ -550,8 +539,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -569,9 +557,7 @@ mod tests {
             result
                 .as_ref()
                 .is_err_and(|e| e.to_string().contains("Invalid frontmatter format")),
-            "Input: {:#?}\nExpected an error.\nReceived: {:#?}",
-            input,
-            result,
+            "Input: {input:#?}\nExpected an error.\nReceived: {result:#?}",
         );
     }
 }

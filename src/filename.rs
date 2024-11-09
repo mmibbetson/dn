@@ -43,7 +43,6 @@ impl Display for Filename {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let ordered = self
             .segment_order
-            .clone()
             .map(|seg| match seg {
                 FilenameSegment::Identifier => self.identifier.clone(),
                 FilenameSegment::Signature => self.signature.clone().unwrap_or_default(),
@@ -53,7 +52,7 @@ impl Display for Filename {
             })
             .concat();
 
-        write!(f, "{}", ordered)
+        write!(f, "{ordered}")
     }
 }
 
@@ -65,25 +64,21 @@ impl ToFilename for String {
         const KEYWORDS_PATTERN: &str = r"(__[^\@\=\-\.]*)";
         const EXTENSION_PATTERN: &str = r"(\.[^\@\=\-\_]*)";
 
-        let (identifier, signature, title, keywords) = match parse_segment(self, IDENTIFIER_PATTERN)
-        {
-            Some(identifier) => {
-                let signature = parse_segment(self, SIGNATURE_PATTERN);
-                let title = parse_segment(self, TITLE_PATTERN);
-                let keywords = parse_segment(self, KEYWORDS_PATTERN);
+        let (identifier, signature, title, keywords) = if let Some(identifier) = parse_segment(self, IDENTIFIER_PATTERN) {
+            let signature = parse_segment(self, SIGNATURE_PATTERN);
+            let title = parse_segment(self, TITLE_PATTERN);
+            let keywords = parse_segment(self, KEYWORDS_PATTERN);
 
-                (identifier, signature, title, keywords)
-            }
-            None => {
-                let identifier = Local::now().format(DN_IDENTIFIER_FORMAT).to_string();
-                let title = self
-                    .chars()
-                    .take_while(|&c| c != '.')
-                    .collect::<String>()
-                    .into();
+            (identifier, signature, title, keywords)
+        } else {
+            let identifier = Local::now().format(DN_IDENTIFIER_FORMAT).to_string();
+            let title = self
+                .chars()
+                .take_while(|&c| c != '.')
+                .collect::<String>()
+                .into();
 
-                (identifier, None, title, None)
-            }
+            (identifier, None, title, None)
         };
 
         let extension = parse_segment(self, EXTENSION_PATTERN)
@@ -104,23 +99,23 @@ impl ToFilename for FileMetadata {
     fn to_filename(&self, config: &FileConfig) -> Filename {
         let identifier = match config.segment_order[0] {
             FilenameSegment::Identifier => self.identifier.clone(),
-            _ => prefix_segment(&self.identifier, &FilenameSegment::Identifier),
+            _ => prefix_segment(&self.identifier, FilenameSegment::Identifier),
         };
 
         let signature = self
             .signature
             .clone()
-            .map(|s| prefix_segment(&s, &FilenameSegment::Signature));
+            .map(|s| prefix_segment(&s, FilenameSegment::Signature));
 
         let title = self
             .title
             .clone()
-            .map(|t| prefix_segment(&t, &FilenameSegment::Title));
+            .map(|t| prefix_segment(&t, FilenameSegment::Title));
 
         let keywords = self.keywords.clone().map(|w| {
             prefix_segment(
                 &w.into_iter().collect::<Vec<_>>().join("_"),
-                &FilenameSegment::Keywords,
+                FilenameSegment::Keywords,
             )
         });
 
@@ -130,7 +125,7 @@ impl ToFilename for FileMetadata {
             signature,
             keywords,
             extension: self.extension.clone(),
-            segment_order: config.segment_order.clone(),
+            segment_order: config.segment_order,
         }
     }
 }
@@ -147,8 +142,8 @@ fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
         .map(|m| m.as_str().to_owned())
 }
 
-/// Applies a prefix corresponding to the FilenameSegment variant to an input string.
-fn prefix_segment(value: &str, segment: &FilenameSegment) -> String {
+/// Applies a prefix corresponding to the `FilenameSegment` variant to an input string.
+fn prefix_segment(value: &str, segment: FilenameSegment) -> String {
     let prefix = match segment {
         FilenameSegment::Identifier => "@@",
         FilenameSegment::Signature => "==",
@@ -157,7 +152,7 @@ fn prefix_segment(value: &str, segment: &FilenameSegment) -> String {
         FilenameSegment::Extension => ".",
     };
 
-    format!("{}{}", prefix, value)
+    format!("{prefix}{value}")
 }
 
 ///////////
@@ -191,8 +186,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -217,8 +211,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -240,7 +233,7 @@ mod tests {
             title: Some("--test-title".to_string()),
             keywords: Some("__key1_key2".to_string()),
             extension: ".txt".to_string(),
-            segment_order: config.segment_order.clone(),
+            segment_order: config.segment_order,
         };
 
         let expected_keywords = HashSet::from(["key1", "key2"]);
@@ -251,7 +244,7 @@ mod tests {
             .keywords
             .as_ref()
             .unwrap()
-            .split("_")
+            .split('_')
             .filter(|&w| !w.is_empty())
             .collect::<HashSet<_>>();
 
@@ -312,8 +305,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected: {}\nReceived: {}",
-            filename, expected, result
+            "Input: {filename:#?}\nExpected: {expected}\nReceived: {result}"
         );
     }
 
@@ -339,8 +331,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {}\nPattern: {}\nExpected: {:#?}\nReceived: {:#?}",
-                filename, pattern, expected, result
+                "Input: {filename}\nPattern: {pattern}\nExpected: {expected:#?}\nReceived: {result:#?}"
             );
         }
     }
@@ -359,13 +350,12 @@ mod tests {
 
         for (segment, expected) in test_cases {
             // Act
-            let result = prefix_segment(input, &segment);
+            let result = prefix_segment(input, segment);
 
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {}\nSegment: {:#?}\nExpected: {}\nReceived: {}",
-                input, segment, expected, result
+                "Input: {input}\nSegment: {segment:#?}\nExpected: {expected}\nReceived: {result}"
             );
         }
     }

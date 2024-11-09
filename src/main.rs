@@ -1,14 +1,7 @@
 //! TODO
 
-use std::fs;
-use std::path::PathBuf;
-
 use clap::Parser;
 use cli::Cli;
-use config::{read_config, Config};
-use content::concatenate_file_content;
-use filename::ToFilename;
-use metadata::FileMetadata;
 
 mod cli;
 mod config;

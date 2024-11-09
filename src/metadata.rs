@@ -45,44 +45,44 @@ impl FileMetadata {
 impl FileMetadataBuilder {
     /// Optionally adds an identifier to the builder which will override the default.
     pub fn with_identifier(mut self, value: &Option<String>) -> Self {
-        self.identifier = value.clone();
+        self.identifier.clone_from(value);
         self
     }
 
     /// Optionally adds a signature to the builder.
     pub fn with_signature(mut self, value: &Option<String>) -> Self {
-        self.signature = value.clone();
+        self.signature.clone_from(value);
         self
     }
 
     /// Optionally adds a title to the builder.
     pub fn with_title(mut self, value: &Option<String>) -> Self {
-        self.title = value.clone();
+        self.title.clone_from(value);
         self
     }
 
     /// Optionally adds keywords to the builder.
     pub fn with_keywords(mut self, value: &Option<String>) -> Self {
-        self.keywords = value.clone();
+        self.keywords.clone_from(value);
         self
     }
 
     /// Optionally adds additional keywords to be joined with existing keywords to the builder.
     pub fn with_added_keywords(mut self, value: &Option<String>) -> Self {
-        self.added_keywords = value.clone();
+        self.added_keywords.clone_from(value);
         self
     }
 
     /// Optionally adds additional keywords to be removed from existing and added keywords to the
     /// builder.
     pub fn with_removed_keywords(mut self, value: &Option<String>) -> Self {
-        self.removed_keywords = value.clone();
+        self.removed_keywords.clone_from(value);
         self
     }
 
     /// Optionally adds a file extension to the builder which will override the default.
     pub fn with_extension(mut self, value: &Option<String>) -> Self {
-        self.extension = value.clone();
+        self.extension.clone_from(value);
         self
     }
 
@@ -102,12 +102,12 @@ impl FileMetadataBuilder {
         let signature = self
             .signature
             .as_ref()
-            .and_then(|s| parse_signature(&s, &config.illegal_characters));
+            .and_then(|s| parse_signature(s, &config.illegal_characters));
 
         let title = self
             .title
             .as_ref()
-            .and_then(|t| parse_title(&t, &config.illegal_characters));
+            .and_then(|t| parse_title(t, &config.illegal_characters));
 
         let title_raw = self.title.as_ref().map(String::from);
 
@@ -115,37 +115,38 @@ impl FileMetadataBuilder {
             let base_keywords = self
                 .keywords
                 .as_ref()
-                .and_then(|k| parse_keywords(&k, &config.illegal_characters))
+                .and_then(|k| parse_keywords(k, &config.illegal_characters))
                 .unwrap_or_default();
 
             let added_keywords = self
                 .added_keywords
                 .as_ref()
-                .and_then(|k| parse_keywords(&k, &config.illegal_characters))
+                .and_then(|k| parse_keywords(k, &config.illegal_characters))
                 .unwrap_or_default();
 
             let removed_keywords = self
                 .removed_keywords
                 .as_ref()
-                .and_then(|k| parse_keywords(&k, &config.illegal_characters))
+                .and_then(|k| parse_keywords(k, &config.illegal_characters))
                 .unwrap_or_default();
 
-            match base_keywords.is_empty() && added_keywords.is_empty() {
-                true => None,
-                false => Some(
+            if base_keywords.is_empty() && added_keywords.is_empty() {
+                None
+            } else {
+                Some(
                     base_keywords
                         .into_iter()
                         .chain(added_keywords)
                         .filter(|k| !removed_keywords.contains(k))
                         .collect(),
-                ),
+                )
             }
         };
 
         let extension = self
             .extension
             .as_ref()
-            .and_then(|e| parse_extension(&e, &config.illegal_characters))
+            .and_then(|e| parse_extension(e, &config.illegal_characters))
             .unwrap_or_else(|| config.default_extension.clone());
 
         FileMetadata {
@@ -179,13 +180,14 @@ fn parse_signature(signature_arg: &str, illegal_characters: &HashSet<char>) -> O
     let out = signature_arg
         .to_lowercase()
         .chars()
-        .filter(|c| !SEGMENT_SEPARATORS.contains(&c))
-        .filter(|c| !illegal_characters.contains(&c))
+        .filter(|c| !SEGMENT_SEPARATORS.contains(c))
+        .filter(|c| !illegal_characters.contains(c))
         .collect::<String>();
 
-    match out.is_empty() {
-        true => None,
-        false => Some(out),
+    if out.is_empty() {
+        None
+    } else {
+        Some(out)
     }
 }
 
@@ -199,9 +201,10 @@ fn parse_title(title_arg: &str, illegal_characters: &HashSet<char>) -> Option<St
         .collect::<Vec<_>>()
         .join("-");
 
-    match out.is_empty() {
-        true => None,
-        false => Some(out),
+    if out.is_empty() {
+        None
+    } else {
+        Some(out)
     }
 }
 
@@ -214,9 +217,10 @@ fn parse_keywords(keywords_arg: &str, illegal_characters: &HashSet<char>) -> Opt
         .filter(|w| !w.is_empty())
         .collect::<Vec<_>>();
 
-    match out.is_empty() {
-        true => None,
-        false => Some(out),
+    if out.is_empty() {
+        None
+    } else {
+        Some(out)
     }
 }
 
@@ -230,9 +234,10 @@ fn parse_extension(extension_arg: &str, illegal_characters: &HashSet<char>) -> O
         .collect::<Vec<_>>()
         .join(".");
 
-    match out.is_empty() {
-        true => None,
-        false => Some(out),
+    if out.is_empty() {
+        None
+    } else {
+        Some(out)
     }
 }
 
@@ -279,8 +284,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected datetime: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -297,10 +301,7 @@ mod tests {
         // Assert
         assert!(
             result >= before_call && result <= after_call,
-            "Input: Local::now()\nExpected datetime between: {:#?} and {:#?}\nReceived: {:#?}",
-            before_call,
-            after_call,
-            result
+            "Input: Local::now()\nExpected datetime between: {before_call:#?} and {after_call:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -317,8 +318,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected signature: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -335,8 +335,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected signature: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -353,8 +352,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected signature: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -371,8 +369,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected title: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected title: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -393,8 +390,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected keywords: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected keywords: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -411,8 +407,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected extension: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected extension: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -429,8 +424,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected extension: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected extension: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -515,8 +509,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {:#?}\nExpected sanitized string: {:#?}\nReceived: {:#?}",
-            input, expected, result
+            "Input: {input:#?}\nExpected sanitized string: {expected:#?}\nReceived: {result:#?}"
         );
     }
 }
