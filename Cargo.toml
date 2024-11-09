@@ -17,5 +17,4 @@ unsafe = "deny"
 [lints.clippy]
 all = "deny"
 pedantic = "warn"
-restriction = "warn"
 cargo = "warn"
