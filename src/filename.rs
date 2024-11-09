@@ -13,7 +13,7 @@ use crate::{
 
 /// Represents the possible segments of a dn file name, as well as the order in which
 /// they should be concatenated.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, PartialEq, Default, Clone)]
 pub struct Filename {
     pub identifier: String,
     pub signature: Option<String>,
@@ -65,23 +65,27 @@ impl ToFilename for String {
         const KEYWORDS_PATTERN: &str = r"(__[^\@\=\-\.]*)";
         const EXTENSION_PATTERN: &str = r"(\.[^\@\=\-\_]*)";
 
-        let (identifier, has_identifier) = match parse_segment(self, IDENTIFIER_PATTERN) {
-            Some(identifier) => (identifier, true),
-            None => (Local::now().format(DN_IDENTIFIER_FORMAT).to_string(), false),
+        let (identifier, signature, title, keywords) = match parse_segment(self, IDENTIFIER_PATTERN)
+        {
+            Some(identifier) => {
+                let signature = parse_segment(self, SIGNATURE_PATTERN);
+                let title = parse_segment(self, TITLE_PATTERN);
+                let keywords = parse_segment(self, KEYWORDS_PATTERN);
+
+                (identifier, signature, title, keywords)
+            }
+            None => {
+                let identifier = Local::now().format(DN_IDENTIFIER_FORMAT).to_string();
+                let title = self
+                    .chars()
+                    .take_while(|&c| c != '.')
+                    .collect::<String>()
+                    .into();
+
+                (identifier, None, title, None)
+            }
         };
 
-        let signature = parse_segment(self, SIGNATURE_PATTERN);
-
-        let title = match has_identifier {
-            true => parse_segment(self, TITLE_PATTERN),
-            false => self
-                .chars()
-                .take_while(|&c| c != '.')
-                .collect::<String>()
-                .into(),
-        };
-
-        let keywords = parse_segment(self, KEYWORDS_PATTERN);
         let extension = parse_segment(self, EXTENSION_PATTERN)
             .unwrap_or_else(|| config.default_extension.clone());
 
@@ -161,4 +165,208 @@ fn prefix_segment(value: &str, segment: &FilenameSegment) -> String {
 ///////////
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use std::collections::HashSet;
+
+    use super::*;
+    use chrono::Local;
+
+    #[test]
+    fn string_to_filename_with_all_segments() {
+        // Arrange
+        let input = "20240101T120000==signature--title__keywords.txt".to_string();
+        let config = FileConfig::default();
+        let expected = Filename {
+            identifier: "20240101T120000".to_string(),
+            signature: Some("==signature".to_string()),
+            title: Some("--title".to_string()),
+            keywords: Some("__keywords".to_string()),
+            extension: ".txt".to_string(),
+            segment_order: Default::default(),
+        };
+
+        // Act
+        let result = input.to_filename(&config);
+
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn string_to_filename_non_dn_format() {
+        // Arrange
+        let input = "@@I am a nau==ghty __STR1NG!.txt".to_string();
+        let config = FileConfig::default();
+        let now = Local::now();
+        let expected = Filename {
+            identifier: now.format(DN_IDENTIFIER_FORMAT).to_string(),
+            signature: None,
+            title: Some("@@I am a nau==ghty __STR1NG!".to_string()),
+            keywords: None,
+            extension: ".txt".to_string(),
+            segment_order: Default::default(),
+        };
+
+        // Act
+        let result = input.to_filename(&config);
+
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            input, expected, result
+        );
+    }
+
+    #[test]
+    fn metadata_to_filename_full() {
+        // Arrange
+        let config = FileConfig::default();
+        let metadata = FileMetadata {
+            identifier: "20240101T120000".to_string(),
+            signature: Some("test-sig".to_string()),
+            title: Some("test-title".to_string()),
+            keywords: Some(HashSet::from(["key1".to_string(), "key2".to_string()])),
+            extension: ".txt".to_string(),
+            ..Default::default()
+        };
+        let expected = Filename {
+            identifier: "20240101T120000".to_string(),
+            signature: Some("==test-sig".to_string()),
+            title: Some("--test-title".to_string()),
+            keywords: Some("__key1_key2".to_string()),
+            extension: ".txt".to_string(),
+            segment_order: config.segment_order.clone(),
+        };
+
+        let expected_keywords = HashSet::from(["key1", "key2"]);
+
+        // Act
+        let result = metadata.to_filename(&config);
+        let result_keywords = result
+            .keywords
+            .as_ref()
+            .unwrap()
+            .split("_")
+            .filter(|&w| !w.is_empty())
+            .collect::<HashSet<_>>();
+
+        // Assert
+        assert_eq!(
+            expected.identifier, result.identifier,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            metadata.identifier, expected.identifier, result.identifier
+        );
+
+        assert_eq!(
+            expected.signature, result.signature,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            metadata.signature, expected.signature, result.signature
+        );
+
+        assert_eq!(
+            expected.title, result.title,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            metadata.title, expected.title, result.title
+        );
+
+        assert_eq!(
+            expected_keywords, result_keywords,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            metadata.keywords, expected.keywords, result.keywords
+        );
+
+        assert_eq!(
+            expected.extension, result.extension,
+            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            metadata.extension, expected.extension, result.extension
+        );
+    }
+
+    #[test]
+    fn filename_display_format() {
+        // Arrange
+        let filename = Filename {
+            identifier: "20240101T120000".to_string(),
+            signature: Some("==signature".to_string()),
+            title: Some("--title".to_string()),
+            keywords: Some("__keywords".to_string()),
+            extension: ".txt".to_string(),
+            segment_order: [
+                FilenameSegment::Identifier,
+                FilenameSegment::Signature,
+                FilenameSegment::Title,
+                FilenameSegment::Keywords,
+                FilenameSegment::Extension,
+            ],
+        };
+        let expected = "20240101T120000==signature--title__keywords.txt";
+
+        // Act
+        let result = filename.to_string();
+
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {:#?}\nExpected: {}\nReceived: {}",
+            filename, expected, result
+        );
+    }
+
+    #[test]
+    fn parse_segment_extracts_correct_parts() {
+        // Arrange
+        let filename = "20240101T120000==signature--title__keywords.txt";
+        let test_cases = [
+            (
+                r"(\b[0-9]{8}T[0-9]{6}\b)",
+                Some("20240101T120000".to_string()),
+            ),
+            (r"(==[^\@\-\_\.]*)", Some("==signature".to_string())),
+            (r"(--[^\@\=\_\.]*)", Some("--title".to_string())),
+            (r"(__[^\@\=\-\.]*)", Some("__keywords".to_string())),
+            (r"(\.[^\@\=\-\_]*)", Some(".txt".to_string())),
+        ];
+
+        for (pattern, expected) in test_cases {
+            // Act
+            let result = parse_segment(filename, pattern);
+
+            // Assert
+            assert_eq!(
+                expected, result,
+                "Input: {}\nPattern: {}\nExpected: {:#?}\nReceived: {:#?}",
+                filename, pattern, expected, result
+            );
+        }
+    }
+
+    #[test]
+    fn prefix_segment_adds_correct_prefix() {
+        // Arrange
+        let test_cases = [
+            (FilenameSegment::Identifier, "@@test"),
+            (FilenameSegment::Signature, "==test"),
+            (FilenameSegment::Title, "--test"),
+            (FilenameSegment::Keywords, "__test"),
+            (FilenameSegment::Extension, ".test"),
+        ];
+        let input = "test";
+
+        for (segment, expected) in test_cases {
+            // Act
+            let result = prefix_segment(input, &segment);
+
+            // Assert
+            assert_eq!(
+                expected, result,
+                "Input: {}\nSegment: {:#?}\nExpected: {}\nReceived: {}",
+                input, segment, expected, result
+            );
+        }
+    }
+}
