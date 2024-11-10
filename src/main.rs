@@ -129,20 +129,6 @@ fn main() {
             cli_add_keywords,
             cli_remove_keywords,
         } => {
-            let input_path = PathBuf::from(input);
-            // TODO: When renaming, we must parse the file contents and separate the frontmatter section
-            // and the content section. the content section becomes the content equivalent to the template in
-            // a new note. I would like a way to consistently tell if a file has frontmatter and tell
-            // what line it ends or to separate the sections.
-            let input_content = match fs::read_to_string(input_path) {
-                Ok(path) => path,
-                Err(error) => {
-                    // ERROR
-                    eprintln!("Error reading input file: {error:#?}");
-                    std::process::exit(1);
-                }
-            };
-
             let config = {
                 let config_builder = Config::builder();
 
@@ -180,6 +166,20 @@ fn main() {
                     eprintln!("Error buildig configuration: {e:#?}");
                     std::process::exit(1);
                 })
+            };
+
+            let input_path = PathBuf::from(input);
+            // TODO: When renaming, we must parse the file contents and separate the frontmatter section
+            // and the content section. the content section becomes the content equivalent to the template in
+            // a new note. I would like a way to consistently tell if a file has frontmatter and tell
+            // what line it ends or to separate the sections.
+            let input_content = match fs::read_to_string(input_path) {
+                Ok(path) => path,
+                Err(error) => {
+                    // ERROR
+                    eprintln!("Error reading input file: {error:#?}");
+                    std::process::exit(1);
+                }
             };
 
             let old_file_name = PathBuf::from(input)
