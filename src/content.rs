@@ -1,6 +1,7 @@
 //! TODO
 
-/// TODO
+/// Concatenates frontmatter and content portions of file content, frontmatter-first. Any portion
+/// the value of which is equal to `None` will be ignored.
 pub fn concatenate_file_content(
     frontmatter: Option<impl AsRef<[u8]>>,
     content: Option<impl AsRef<[u8]>>,
@@ -28,64 +29,68 @@ mod tests {
     #[test]
     fn concatenate_with_frontmatter_no_template() {
         // Arrange
-        let input = todo!();
-        let expected = todo!();
+        let input = (Some("hello\n---\n\n"), None::<&str>);
+        let (frontmatter, content) = input;
+        let expected = Vec::from("hello\n---\n\n");
 
         // Act
-        let result = todo!();
+        let result = concatenate_file_content(frontmatter, content);
 
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}",
+            "Input: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
         );
     }
 
     #[test]
     fn concatenate_with_template_no_frontmatter() {
         // Arrange
-        let input = todo!();
-        let expected = todo!();
+        let input = (None::<&str>, Some("world!"));
+        let (frontmatter, content) = input;
+        let expected = Vec::from("world!");
 
         // Act
-        let result = todo!();
+        let result = concatenate_file_content(frontmatter, content);
 
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}",
+            "Input: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
         );
     }
 
     #[test]
     fn concatenate_with_frontmatter_and_template() {
         // Arrange
-        let input = todo!();
-        let expected = todo!();
+        let input = (Some("hello\n---\n\n"), Some("world!"));
+        let (frontmatter, content) = input;
+        let expected = Vec::from("hello\n---\n\nworld!");
 
         // Act
-        let result = todo!();
+        let result = concatenate_file_content(frontmatter, content);
 
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}",
+            "Input: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
         );
     }
 
     #[test]
     fn concatenate_with_neither_frontmatter_nor_template() {
         // Arrange
-        let input = todo!();
-        let expected = todo!();
+        let input = (None::<&str>, None::<&str>);
+        let (frontmatter, content) = input;
+        let expected = Vec::from("");
 
         // Act
-        let result = todo!();
+        let result = concatenate_file_content(frontmatter, content);
 
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}",
+            "Input: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
         );
     }
 }
