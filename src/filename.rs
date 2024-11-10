@@ -64,22 +64,23 @@ impl ToFilename for String {
         const KEYWORDS_PATTERN: &str = r"(__[^\@\=\-\.]*)";
         const EXTENSION_PATTERN: &str = r"(\.[^\@\=\-\_]*)";
 
-        let (identifier, signature, title, keywords) = if let Some(identifier) = parse_segment(self, IDENTIFIER_PATTERN) {
-            let signature = parse_segment(self, SIGNATURE_PATTERN);
-            let title = parse_segment(self, TITLE_PATTERN);
-            let keywords = parse_segment(self, KEYWORDS_PATTERN);
+        let (identifier, signature, title, keywords) =
+            if let Some(identifier) = parse_segment(self, IDENTIFIER_PATTERN) {
+                let signature = parse_segment(self, SIGNATURE_PATTERN);
+                let title = parse_segment(self, TITLE_PATTERN);
+                let keywords = parse_segment(self, KEYWORDS_PATTERN);
 
-            (identifier, signature, title, keywords)
-        } else {
-            let identifier = Local::now().format(DN_IDENTIFIER_FORMAT).to_string();
-            let title = self
-                .chars()
-                .take_while(|&c| c != '.')
-                .collect::<String>()
-                .into();
+                (identifier, signature, title, keywords)
+            } else {
+                let identifier = Local::now().format(DN_IDENTIFIER_FORMAT).to_string();
+                let title = self
+                    .chars()
+                    .take_while(|&c| c != '.')
+                    .collect::<String>()
+                    .into();
 
-            (identifier, None, title, None)
-        };
+                (identifier, None, title, None)
+            };
 
         let extension = parse_segment(self, EXTENSION_PATTERN)
             .unwrap_or_else(|| config.default_extension.clone());

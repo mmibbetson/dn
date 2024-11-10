@@ -1,10 +1,6 @@
 //! TODO
 
 /// TODO
-// TODO: this can be used abstractly as-is
-// In main, when renaming, we parse the file contents and separate the frontmatter section
-// and the content section. the content section becomes the content equivalent to the template in
-// a new note.
 pub fn concatenate_file_content(
     frontmatter: Option<impl AsRef<[u8]>>,
     content: Option<impl AsRef<[u8]>>,
@@ -24,76 +20,72 @@ pub fn concatenate_file_content(
 // Tests //
 ///////////
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use chrono::TimeZone;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::TimeZone;
 
-//     #[test]
-//     fn concatenate_with_frontmatter_no_template() {
-//         // Arrange
-//         let input = todo!();
-//         let expected = todo!();
+    #[test]
+    fn concatenate_with_frontmatter_no_template() {
+        // Arrange
+        let input = todo!();
+        let expected = todo!();
 
-//         // Act
-//         let result = todo!();
+        // Act
+        let result = todo!();
 
-//         // Assert
-//         assert_eq!(
-//             expected, result,
-//             "Input: {:#?}\nExpected datetime: {:#?}\nReceived: {:#?}",
-//             input, expected, result
-//         );
-//     }
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}",
+        );
+    }
 
-//     #[test]
-//     fn concatenate_with_template_no_frontmatter() {
-//         // Arrange
-//         let input = todo!();
-//         let expected = todo!();
+    #[test]
+    fn concatenate_with_template_no_frontmatter() {
+        // Arrange
+        let input = todo!();
+        let expected = todo!();
 
-//         // Act
-//         let result = todo!();
+        // Act
+        let result = todo!();
 
-//         // Assert
-//         assert_eq!(
-//             expected, result,
-//             "Input: {:#?}\nExpected datetime: {:#?}\nReceived: {:#?}",
-//             input, expected, result
-//         );
-//     }
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}",
+        );
+    }
 
-//     #[test]
-//     fn concatenate_with_frontmatter_and_template() {
-//         // Arrange
-//         let input = todo!();
-//         let expected = todo!();
+    #[test]
+    fn concatenate_with_frontmatter_and_template() {
+        // Arrange
+        let input = todo!();
+        let expected = todo!();
 
-//         // Act
-//         let result = todo!();
+        // Act
+        let result = todo!();
 
-//         // Assert
-//         assert_eq!(
-//             expected, result,
-//             "Input: {:#?}\nExpected datetime: {:#?}\nReceived: {:#?}",
-//             input, expected, result
-//         );
-//     }
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}",
+        );
+    }
 
-//     #[test]
-//     fn concatenate_with_neither_frontmatter_nor_template() {
-//         // Arrange
-//         let input = todo!();
-//         let expected = todo!();
+    #[test]
+    fn concatenate_with_neither_frontmatter_nor_template() {
+        // Arrange
+        let input = todo!();
+        let expected = todo!();
 
-//         // Act
-//         let result = todo!();
+        // Act
+        let result = todo!();
 
-//         // Assert
-//         assert_eq!(
-//             expected, result,
-//             "Input: {:#?}\nExpected datetime: {:#?}\nReceived: {:#?}",
-//             input, expected, result
-//         );
-//     }
-// }
+        // Assert
+        assert_eq!(
+            expected, result,
+            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}",
+        );
+    }
+}

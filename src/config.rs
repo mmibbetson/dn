@@ -288,7 +288,7 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
         "toml" => Ok(FrontmatterFormat::Toml),
         "org" => Ok(FrontmatterFormat::Org),
         _ => Err(anyhow!(
-            "Invalid frontmatter format provided, must be one of: text, yaml, toml, org.\nGot: {:#?}", format_arg
+            "Invalid frontmatter format provided, must be one of: text, yaml, toml, org.\nGot: {format_arg:#?}"
         )),
     }
 }
