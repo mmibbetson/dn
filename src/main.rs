@@ -252,7 +252,7 @@ fn main() {
             // WARN: Unwrap may panic. Do we want to alert a user of a problem getting the parent path?
             // This may be impossible assuming previous path operations succeeded?
             let output_path = input_path.parent().unwrap().join(new_filename);
-            let output_content = concatenate_file_content(new_frontmatter, input_content);
+            let output_content = concatenate_file_content(new_frontmatter, Some(input_content));
 
             fs::rename(input_path, output_path);
             fs::write(output_path, output_content);

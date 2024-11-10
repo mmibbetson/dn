@@ -162,7 +162,7 @@ impl FileMetadataBuilder {
 }
 
 /// Derives a local datetime from an optional dn identifier. If the identifier is
-/// not successfully parsed into a datetime, then falls back to `Local::now()`.
+/// not successfully parsed into a `DateTime<Local>`, then falls back to `Local::now()`.
 fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
     match identifier {
         Some(identifier) => match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {

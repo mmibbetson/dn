@@ -83,8 +83,8 @@ pub struct FrontmatterConfig {
     pub format: FrontmatterFormat,
 
     /// Which time style to be used in the date segment of generated front matter.
-    #[serde(default = "default_frontmatter_time_format")]
-    pub time_style: FrontmatterTimeFormat,
+    #[serde(default = "none")]
+    pub time_style: Option<String>,
 
     /// The order in which generated front matter segments appear.
     #[serde(default = "default_frontmatter_segment_order")]
@@ -266,7 +266,7 @@ impl Default for FrontmatterConfig {
         Self {
             enabled: Default::default(),
             format: default_frontmatter_format(),
-            time_style: default_frontmatter_time_format(),
+            time_style: none::<String>(),
             order: Vec::default(),
         }
     }
@@ -350,17 +350,6 @@ fn default_file_extension() -> String {
 /// ```
 fn default_frontmatter_format() -> FrontmatterFormat {
     FrontmatterFormat::Text
-}
-
-/// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
-///
-/// ## Value
-///
-/// ```rust
-/// FrontmatterTimeFormat::Hour24
-/// ```
-fn default_frontmatter_time_format() -> FrontmatterTimeFormat {
-    FrontmatterTimeFormat::Hour24
 }
 
 /// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
