@@ -261,15 +261,16 @@ mod tests {
     }
 
     mod frontmatter_validity {
+        use crate::format::is_valid_frontmatter_format;
 
         #[test]
         fn determines_valid_text_frontmatter() {
             // Arrange
-            let input = todo!();
-            let expected = todo!();
+            let input = "title:foo\nidentifier : 20241212T121212\n---------------------------";
+            let expected = true;
 
             // Act
-            let result = todo!();
+            let result = is_valid_frontmatter_format(&input);
 
             // Assert
             assert_eq!(
@@ -281,11 +282,11 @@ mod tests {
         #[test]
         fn determines_valid_yaml_frontmatter() {
             // Arrange
-            let input = todo!();
-            let expected = todo!();
+            let input = "---\ndate: 2024-12-12@12:12:12+02:00\n---";
+            let expected = true;
 
             // Act
-            let result = todo!();
+            let result = is_valid_frontmatter_format(&input);
 
             // Assert
             assert_eq!(
@@ -297,11 +298,11 @@ mod tests {
         #[test]
         fn determines_valid_toml_frontmatter() {
             // Arrange
-            let input = todo!();
-            let expected = todo!();
+            let input = "+++\ndate: 2024-12-12@12:12:12+02:00\n+++";
+            let expected = true;
 
             // Act
-            let result = todo!();
+            let result = is_valid_frontmatter_format(&input);
 
             // Assert
             assert_eq!(
@@ -313,11 +314,11 @@ mod tests {
         #[test]
         fn determines_valid_org_frontmatter() {
             // Arrange
-            let input = todo!();
-            let expected = todo!();
+            let input = "#+title: Test Title!\n#+date: [2024-12-12@12:12:12+02:00]";
+            let expected = true;
 
             // Act
-            let result = todo!();
+            let result = is_valid_frontmatter_format(&input);
 
             // Assert
             assert_eq!(
@@ -327,13 +328,13 @@ mod tests {
         }
 
         #[test]
-        fn determines_invalid_frontmatter() {
+        fn determines_invalid_frontmatter_format() {
             // Arrange
-            let input = todo!();
-            let expected = todo!();
+            let input = "+++\n#+title: Test Title!\nidentifier = \"TestId\"\n#+date: [2024-12-12@12:12:12+02:00]\n---";
+            let expected = false;
 
             // Act
-            let result = todo!();
+            let result = is_valid_frontmatter_format(&input);
 
             // Assert
             assert_eq!(
