@@ -378,11 +378,7 @@ mod tests {
         // Arrange
         let config = setup_config();
         let input = "_dn_tags test";
-        let expected = Some(vec![
-            "dn".to_owned(),
-            "tags".to_owned(),
-            "test".to_owned(),
-        ]);
+        let expected = Some(vec!["dn".to_owned(), "tags".to_owned(), "test".to_owned()]);
 
         // Act
         let result = parse_keywords(input, &config.illegal_characters);
@@ -446,10 +442,7 @@ mod tests {
             signature: Some("testsignature".to_owned()),
             title: Some("my-t3st-title".to_owned()),
             title_raw: Some("My T3ST Title!".to_owned()),
-            keywords: Some(HashSet::from([
-                "testing".to_owned(),
-                "changes".to_owned(),
-            ])),
+            keywords: Some(HashSet::from(["testing".to_owned(), "changes".to_owned()])),
             extension: "dj".to_owned(),
             datetime: setup_datetime(),
             ..Default::default()

@@ -25,7 +25,6 @@ pub fn concatenate_file_content<T: AsRef<[u8]>>(
 mod tests {
     use super::*;
 
-
     #[test]
     fn concatenate_with_frontmatter_no_template() {
         // Arrange

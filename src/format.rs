@@ -17,9 +17,8 @@ static REGEX_FRONTMATTER_TEXT_RULE: Lazy<Regex> = Lazy::new(|| {
 /// ## Warning
 ///
 /// May also improperly match some `Org` and `Yaml` titles if present.
-static REGEX_FRONTMATTER_TEXT_TITLE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?m)^title\s*:\s*(.+)$").expect("Invalid text title regex pattern")
-});
+static REGEX_FRONTMATTER_TEXT_TITLE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?m)^title\s*:\s*(.+)$").expect("Invalid text title regex pattern"));
 
 /// Multiline-pattern regex to match the date line of `Text` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
@@ -117,15 +116,13 @@ static REGEX_FRONTMATTER_ORG_TITLE: Lazy<Regex> = Lazy::new(|| {
 
 /// Multiline-pattern regex to match the date line of `Org` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
-static REGEX_FRONTMATTER_ORG_DATETIME: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?m)^#\+date\s*:\s+(.+)$").expect("Invalid Org date regex pattern")
-});
+static REGEX_FRONTMATTER_ORG_DATETIME: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?m)^#\+date\s*:\s+(.+)$").expect("Invalid Org date regex pattern"));
 
 /// Multiline-pattern regex to match the filetags line of `Org` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
 static REGEX_FRONTMATTER_ORG_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?m)^#\+filetags\s*:\s+((?::\S+)+:)$")
-        .expect("Invalid Org keywords regex pattern")
+    Regex::new(r"(?m)^#\+filetags\s*:\s+((?::\S+)+:)$").expect("Invalid Org keywords regex pattern")
 });
 
 /// Multiline-pattern regex to match the identifier line of `Org` front matter.
