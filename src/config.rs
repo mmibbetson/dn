@@ -59,9 +59,8 @@ pub struct FileConfig {
 }
 
 /// The segments which comprise a dn file name.
-#[derive(PartialEq, Copy, Clone, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Copy, Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-#[derive(Default)]
 pub enum FilenameSegment {
     Identifier,
     Signature,
@@ -426,7 +425,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -462,7 +461,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -505,7 +504,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}",
+            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}",
         );
     }
 
@@ -528,7 +527,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -546,7 +545,7 @@ mod tests {
             result
                 .as_ref()
                 .is_err_and(|e| e.to_string().contains("Invalid frontmatter format")),
-            "Input: {input:#?}\nExpected an error.\nReceived: {result:#?}",
+            "\nInput: {input:#?}\nExpected an error.\nReceived: {result:#?}",
         );
     }
 }

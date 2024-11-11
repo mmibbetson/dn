@@ -11,6 +11,12 @@ use crate::{
     metadata::FileMetadata,
 };
 
+const PATTERN_SEGMENT_IDENTIFIER: &str = r"(\b[0-9]{8}T[0-9]{6}\b)";
+const PATTERN_SEGMENT_SIGNATURE: &str = r"(==[^\@\-\_\.]*)";
+const PATTERN_SEGMENT_TITLE: &str = r"(--[^\@\=\_\.]*)";
+const PATTERN_SEGMENT_KEYWORDS: &str = r"(__[^\@\=\-\.]*)";
+const PATTERN_SEGMENT_EXTENSION: &str = r"(\.[^\@\=\-\_]*)";
+
 /// Represents the possible segments of a dn file name, as well as the order in which
 /// they should be concatenated.
 #[derive(Debug, PartialEq, Default, Clone)]
@@ -58,17 +64,11 @@ impl Display for Filename {
 
 impl ToFilename for String {
     fn to_filename(&self, config: &FileConfig) -> Filename {
-        const IDENTIFIER_PATTERN: &str = r"(\b[0-9]{8}T[0-9]{6}\b)";
-        const SIGNATURE_PATTERN: &str = r"(==[^\@\-\_\.]*)";
-        const TITLE_PATTERN: &str = r"(--[^\@\=\_\.]*)";
-        const KEYWORDS_PATTERN: &str = r"(__[^\@\=\-\.]*)";
-        const EXTENSION_PATTERN: &str = r"(\.[^\@\=\-\_]*)";
-
         let (identifier, signature, title, keywords) =
-            if let Some(identifier) = parse_segment(self, IDENTIFIER_PATTERN) {
-                let signature = parse_segment(self, SIGNATURE_PATTERN);
-                let title = parse_segment(self, TITLE_PATTERN);
-                let keywords = parse_segment(self, KEYWORDS_PATTERN);
+            if let Some(identifier) = parse_segment(self, PATTERN_SEGMENT_IDENTIFIER) {
+                let signature = parse_segment(self, PATTERN_SEGMENT_SIGNATURE);
+                let title = parse_segment(self, PATTERN_SEGMENT_TITLE);
+                let keywords = parse_segment(self, PATTERN_SEGMENT_KEYWORDS);
 
                 (identifier, signature, title, keywords)
             } else {
@@ -82,7 +82,7 @@ impl ToFilename for String {
                 (identifier, None, title, None)
             };
 
-        let extension = parse_segment(self, EXTENSION_PATTERN)
+        let extension = parse_segment(self, PATTERN_SEGMENT_EXTENSION)
             .unwrap_or_else(|| config.default_extension.clone());
 
         Filename {
@@ -187,7 +187,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -212,7 +212,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -252,31 +252,31 @@ mod tests {
         // Assert
         assert_eq!(
             expected.identifier, result.identifier,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
             metadata.identifier, expected.identifier, result.identifier
         );
 
         assert_eq!(
             expected.signature, result.signature,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
             metadata.signature, expected.signature, result.signature
         );
 
         assert_eq!(
             expected.title, result.title,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
             metadata.title, expected.title, result.title
         );
 
         assert_eq!(
             expected_keywords, result_keywords,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
             metadata.keywords, expected.keywords, result.keywords
         );
 
         assert_eq!(
             expected.extension, result.extension,
-            "Input: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
             metadata.extension, expected.extension, result.extension
         );
     }
@@ -306,7 +306,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {filename:#?}\nExpected: {expected}\nReceived: {result}"
+            "\nInput: {filename:#?}\nExpected: {expected}\nReceived: {result}"
         );
     }
 
@@ -316,13 +316,13 @@ mod tests {
         let filename = "20240101T120000==signature--title__keywords.txt";
         let test_cases = [
             (
-                r"(\b[0-9]{8}T[0-9]{6}\b)",
+                PATTERN_SEGMENT_IDENTIFIER,
                 Some("20240101T120000".to_string()),
             ),
-            (r"(==[^\@\-\_\.]*)", Some("==signature".to_string())),
-            (r"(--[^\@\=\_\.]*)", Some("--title".to_string())),
-            (r"(__[^\@\=\-\.]*)", Some("__keywords".to_string())),
-            (r"(\.[^\@\=\-\_]*)", Some(".txt".to_string())),
+            (PATTERN_SEGMENT_SIGNATURE, Some("==signature".to_string())),
+            (PATTERN_SEGMENT_TITLE, Some("--title".to_string())),
+            (PATTERN_SEGMENT_KEYWORDS, Some("__keywords".to_string())),
+            (PATTERN_SEGMENT_EXTENSION, Some(".txt".to_string())),
         ];
 
         for (pattern, expected) in test_cases {
@@ -332,7 +332,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {filename}\nPattern: {pattern}\nExpected: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {filename}\nPattern: {pattern}\nExpected: {expected:#?}\nReceived: {result:#?}"
             );
         }
     }
@@ -356,7 +356,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input}\nSegment: {segment:#?}\nExpected: {expected}\nReceived: {result}"
+                "\nInput: {input}\nSegment: {segment:#?}\nExpected: {expected}\nReceived: {result}"
             );
         }
     }

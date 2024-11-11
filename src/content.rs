@@ -39,7 +39,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
+            "\nInput: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
         );
     }
 
@@ -56,7 +56,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
+            "\nInput: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
         );
     }
 
@@ -73,7 +73,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
+            "\nInput: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
         );
     }
 
@@ -90,7 +90,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
+            "\nInput: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
         );
     }
 }

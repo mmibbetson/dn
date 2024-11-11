@@ -97,24 +97,18 @@ const PATTERN_ORG_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^#\+identifier\s*:\s+(\d
 /// format. In the event that this fails, it will return its argument in the second
 /// position of the return tuple, cast as an `Option<String>`.
 pub fn separate_existing_content(content: &str) -> (Option<String>, Option<String>) {
-    let split = content
+    content
         .split_once("\n\n")
-        .or_else(|| content.split_once("\r\n\r\n"));
+        .or_else(|| content.split_once("\r\n\r\n"))
+        .map_or(
+            (None, (!content.is_empty()).then(|| content.to_string())),
+            |(prefix, suffix)| {
+                let frontmatter = is_valid_frontmatter_format(prefix).then(|| prefix.to_string());
+                let content = (!suffix.is_empty()).then(|| suffix.to_string());
 
-    match split {
-        Some((prefix, suffix)) => {
-            let frontmatter = if is_valid_frontmatter_format(prefix) {
-                Some(prefix.to_string())
-            } else {
-                None
-            };
-
-            let content = Some(suffix.to_string());
-
-            (frontmatter, content)
-        }
-        None => (None, Some(content.to_string())),
-    }
+                (frontmatter, content)
+            },
+        )
 }
 
 /// Checks that a `&str` conforms to one of the valid dn front matter formats -
@@ -143,67 +137,75 @@ mod tests {
     use super::*;
 
     mod content_partitioning {
+        use crate::format::separate_existing_content;
+
         #[test]
         fn separates_frontmatter_only() {
             // Arrange
-            let input = todo!();
-            let expected = todo!();
+            let input = "---\nidentifier: \"20241212T121212\"\n---\n\n";
+            let expected = (Some("---\nidentifier: \"20241212T121212\"\n---".to_string()), None);
 
             // Act
-            let result = todo!();
+            let result = separate_existing_content(input);
 
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected frontmatter and content: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected frontmatter and content: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
         #[test]
-        fn separates_content() {
+        fn separates_content_only() {
             // Arrange
-            let input = todo!();
-            let expected = todo!();
+            let input = "# Example Markdown\n\nFirst paragraph here.\n";
+            let expected = (
+                None,
+                Some("# Example Markdown\n\nFirst paragraph here.\n".to_string()),
+            );
 
             // Act
-            let result = todo!();
+            let result = separate_existing_content(input);
 
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected frontmatter and content: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected frontmatter and content: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
         #[test]
         fn separates_both_frontmatter_and_content() {
             // Arrange
-            let input = todo!();
-            let expected = todo!();
+            let input = "---\ntitle: \"This is a Test!\"\n---\n\n# Example Markdown\n\nFirst paragraph here.\n";
+            let expected = (
+                Some("---\ntitle: \"This is a Test!\"\n---".to_string()),
+                Some("# Example Markdown\n\nFirst paragraph here.\n".to_string()),
+            );
 
             // Act
-            let result = todo!();
+            let result = separate_existing_content(input);
 
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected frontmatter and content: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected frontmatter and content: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
         #[test]
-        fn separates_neither_frontmatter_nor_content() {
+        fn separates_empty_content() {
             // Arrange
-            let input = todo!();
-            let expected = todo!();
+            let input = "";
+            let expected = (None, Some("".to_string()));
 
             // Act
-            let result = todo!();
+            let result = separate_existing_content(input);
 
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected frontmatter and content: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected frontmatter and content: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -219,7 +221,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -235,7 +237,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -251,7 +253,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -267,7 +269,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
             );
         }
     }
@@ -299,7 +301,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -316,7 +318,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -333,7 +335,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -350,7 +352,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
     }
@@ -381,7 +383,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -398,7 +400,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -415,7 +417,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -432,7 +434,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
     }
@@ -461,7 +463,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -478,7 +480,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -495,7 +497,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -512,7 +514,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
     }
@@ -533,7 +535,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -550,7 +552,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -567,7 +569,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
 
@@ -584,7 +586,7 @@ mod tests {
             // Assert
             assert_eq!(
                 expected, result,
-                "Input: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
+                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
             );
         }
     }

@@ -284,7 +284,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -301,7 +301,7 @@ mod tests {
         // Assert
         assert!(
             result >= before_call && result <= after_call,
-            "Input: Local::now()\nExpected datetime between: {before_call:#?} and {after_call:#?}\nReceived: {result:#?}"
+            "\nInput: Local::now()\nExpected datetime between: {before_call:#?} and {after_call:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -318,7 +318,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -335,7 +335,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -352,7 +352,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -369,7 +369,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected title: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected title: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -390,7 +390,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected keywords: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected keywords: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -407,7 +407,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected extension: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected extension: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -424,7 +424,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected extension: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected extension: {expected:#?}\nReceived: {result:#?}"
         );
     }
 
@@ -461,37 +461,37 @@ mod tests {
         // Assert
         assert_eq!(
             expected.identifier, result.identifier,
-            "Identifier mismatch:\nExpected: {:#?}\nReceived: {:#?}",
+            "\nIdentifier mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.identifier, result.identifier
         );
         assert_eq!(
             expected.signature, result.signature,
-            "Signature mismatch:\nExpected: {:#?}\nReceived: {:#?}",
+            "\nSignature mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.signature, result.signature
         );
         assert_eq!(
             expected.title, result.title,
-            "Title mismatch:\nExpected: {:#?}\nReceived: {:#?}",
+            "\nTitle mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.title, result.title
         );
         assert_eq!(
             expected.title_raw, result.title_raw,
-            "Title raw mismatch:\nExpected: {:#?}\nReceived: {:#?}",
+            "\nTitle raw mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.title_raw, result.title_raw
         );
         assert_eq!(
             expected.keywords, result.keywords,
-            "Keywords mismatch:\nExpected: {:#?}\nReceived: {:#?}",
+            "\nKeywords mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.keywords, result.keywords
         );
         assert_eq!(
             expected.extension, result.extension,
-            "Extension mismatch:\nExpected: {:#?}\nReceived: {:#?}",
+            "\nExtension mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.extension, result.extension
         );
         assert_eq!(
             expected.datetime, result.datetime,
-            "Datetime mismatch:\nExpected: {:#?}\nReceived: {:#?}",
+            "\nDatetime mismatch:\nExpected: {:#?}\nReceived: {:#?}",
             expected.datetime, result.datetime
         );
     }
@@ -509,7 +509,7 @@ mod tests {
         // Assert
         assert_eq!(
             expected, result,
-            "Input: {input:#?}\nExpected sanitized string: {expected:#?}\nReceived: {result:#?}"
+            "\nInput: {input:#?}\nExpected sanitized string: {expected:#?}\nReceived: {result:#?}"
         );
     }
 }
