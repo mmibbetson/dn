@@ -1,114 +1,163 @@
+use once_cell::sync::Lazy;
+use regex::Regex;
+
 /// Format string for use with `chrono`'s `format` function.
 /// Represents the structure of a dn `Identifier`.
 pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
 
-/// Multiline pattern to match the closing horizontal rule of `Text` front matter,
+/// Multiline pattern regex to match the closing horizontal rule of `Text` front matter,
 /// which should be exactly 27 '-' characters.
-const PATTERN_TEXT_FRONTMATTER_RULE: &str = r#"(?m)^---------------------------$"#;
+static REGEX_FRONTMATTER_TEXT_RULE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^---------------------------$"#).expect("Invalid text rule regex pattern")
+});
 
-/// Multiline pattern to match the title line of `Text` front matter.
+/// Multiline pattern regex to match the title line of `Text` front matter.
 /// Contains a single capture group to extract the `Title` value.
 ///
 /// ## Warning
 ///
 /// May also improperly match some `Org` and `Yaml` titles if present.
-const PATTERN_TEXT_FRONTMATTER_TITLE: &str = r#"(?m)^title\s*:\s*(.+)$"#;
+static REGEX_FRONTMATTER_TEXT_TITLE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^title\s*:\s*(.+)$"#).expect("Invalid text title regex pattern")
+});
 
-/// Multiline pattern to match the date line of `Text` front matter.
+/// Multiline pattern regex to match the date line of `Text` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
 ///
 /// ## Warning
 ///
 /// May also improperly match some `Org` and `Yaml` dates if present.
-const PATTERN_TEXT_FRONTMATTER_DATETIME: &str = r#"(?m)^date\s*:\s*(.+)$"#;
+static REGEX_FRONTMATTER_TEXT_DATETIME: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"(?m)^date\s*:\s*(.+)$"#).expect("Invalid text date regex pattern"));
 
-/// Multiline pattern to match the tags line of `Text` front matter.
+/// Multiline pattern regex to match the tags line of `Text` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
 ///
 /// ## Warning
 ///
 /// May also improperly match some `Org` keywords if present.
-const PATTERN_TEXT_FRONTMATTER_KEYWORDS: &str = r#"(?m)^tags\s*:\s*((?:\S+\s+)*\S+)$"#;
+static REGEX_FRONTMATTER_TEXT_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^tags\s*:\s*((?:\S+\s+)*\S+)$"#).expect("Invalid text keywords regex pattern")
+});
 
-/// Multiline pattern to match the identifier line of `Text` front matter.
+/// Multiline pattern regex to match the identifier line of `Text` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
-const PATTERN_TEXT_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^identifier\s*:\s*(\d{8}T\d{6})$"#;
+static REGEX_FRONTMATTER_TEXT_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^identifier\s*:\s*(\d{8}T\d{6})$"#)
+        .expect("Invalid text identifier regex pattern")
+});
 
-/// Multiline pattern to match the opening and closing markers of `Yaml` front matter.
-const PATTERN_YAML_FRONTMATTER_CONTAINER: &str = r#"(?m)^---$"#;
+/// Multiline pattern regex to match the opening and closing markers of `Yaml` front matter.
+static REGEX_FRONTMATTER_YAML_CONTAINER: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"(?m)^---$"#).expect("Invalid YAML container regex pattern"));
 
-/// Multiline pattern to match the title line of `Yaml` front matter.
+/// Multiline pattern regex to match the title line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Title` value.
-const PATTERN_YAML_FRONTMATTER_TITLE: &str = r#"(?m)^title\s*:\s+(".+")$"#;
+static REGEX_FRONTMATTER_YAML_TITLE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^title\s*:\s+(".+")$"#).expect("Invalid YAML title regex pattern")
+});
 
-/// Multiline pattern to match the date line of `Yaml` front matter.
+/// Multiline pattern regex to match the date line of `Yaml` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
 ///
 /// ## Warning
 ///
 /// May also improperly match some `Text` and `Org` dates if present.
-const PATTERN_YAML_FRONTMATTER_DATE: &str = r#"(?m)^date\s*:\s+(.+)$"#;
+static REGEX_FRONTMATTER_YAML_DATETIME: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"(?m)^date\s*:\s+(.+)$"#).expect("Invalid YAML date regex pattern"));
 
-/// Multiline pattern to match the tags line of `Yaml` front matter.
+/// Multiline pattern regex to match the tags line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
-const PATTERN_YAML_FRONTMATTER_KEYWORDS: &str = r#"(?m)^tags\s*:\s+(\[(?:".+",\s+).*".+"\])$"#;
+static REGEX_FRONTMATTER_YAML_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^tags\s*:\s+(\[(?:".+",\s+).*".+"\])$"#)
+        .expect("Invalid YAML keywords regex pattern")
+});
 
-/// Multiline pattern to match the identifier line of `Yaml` front matter.
+/// Multiline pattern regex to match the identifier line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
-const PATTERN_YAML_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^identifier\s*:\s+("\d{8}T\d{6}")$"#;
+static REGEX_FRONTMATTER_YAML_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^identifier\s*:\s+("\d{8}T\d{6}")$"#)
+        .expect("Invalid YAML identifier regex pattern")
+});
 
-/// Multiline pattern to match the opening and closing markers of `Toml` frontmatter.
-const PATTERN_TOML_FRONTMATTER_CONTAINER: &str = r#"(?m)^\+\+\+$"#;
+/// Multiline pattern regex to match the opening and closing markers of `Toml` frontmatter.
+static REGEX_FRONTMATTER_TOML_CONTAINER: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"(?m)^\+\+\+$"#).expect("Invalid TOML container regex pattern"));
 
-/// Multiline pattern to match the title line of `Toml` front matter.
+/// Multiline pattern regex to match the title line of `Toml` front matter.
 /// Contains a single capture group to extract the `Title` value.
-const PATTERN_TOML_FRONTMATTER_TITLE: &str = r#"(?m)^title\s*=\s*(".+")$"#;
+static REGEX_FRONTMATTER_TOML_TITLE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^title\s*=\s*(".+")$"#).expect("Invalid TOML title regex pattern")
+});
 
-/// Multiline pattern to match the date line of `Toml` front matter.
+/// Multiline pattern regex to match the date line of `Toml` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
-const PATTERN_TOML_FRONTMATTER_DATE: &str = r#"(?m)^date\s*=\s*(.+)$"#;
+static REGEX_FRONTMATTER_TOML_DATETIME: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"(?m)^date\s*=\s*(.+)$"#).expect("Invalid TOML date regex pattern"));
 
-/// Multiline pattern to match the tags line of `Toml` front matter.
+/// Multiline pattern regex to match the tags line of `Toml` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
-const PATTERN_TOML_FRONTMATTER_KEYWORDS: &str = r#"(?m)^tags\s*=\s*(\[(?:".+",\s+).*".+"\])$"#;
+static REGEX_FRONTMATTER_TOML_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^tags\s*=\s*(\[(?:".+",\s+).*".+"\])$"#)
+        .expect("Invalid TOML keywords regex pattern")
+});
 
-/// Multiline pattern to match the identifier line of `Toml` front matter.
+/// Multiline pattern regex to match the identifier line of `Toml` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
-const PATTERN_TOML_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^identifier\s*=\s*("\d{8}T\d{6}")$"#;
+static REGEX_FRONTMATTER_TOML_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^identifier\s*=\s*("\d{8}T\d{6}")$"#)
+        .expect("Invalid TOML identifier regex pattern")
+});
 
-/// Multiline pattern to match the title line of `Org` front matter.
+/// Multiline pattern regex to match the title line of `Org` front matter.
 /// Contains a single capture group to extract the `Title` value.
-const PATTERN_ORG_FRONTMATTER_TITLE: &str = r#"(?m)^#\+title\s*:\s+(.+)$"#;
+static REGEX_FRONTMATTER_ORG_TITLE: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^#\+title\s*:\s+(.+)$"#).expect("Invalid Org title regex pattern")
+});
 
-/// Multiline pattern to match the date line of `Org` front matter.
+/// Multiline pattern regex to match the date line of `Org` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
-const PATTERN_ORG_FRONTMATTER_DATETIME: &str = r#"(?m)^#\+date\s*:\s+(.+)$"#;
+static REGEX_FRONTMATTER_ORG_DATETIME: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^#\+date\s*:\s+(.+)$"#).expect("Invalid Org date regex pattern")
+});
 
-/// Multiline pattern to match the filetags line of `Org` front matter.
+/// Multiline pattern regex to match the filetags line of `Org` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
-const PATTERN_ORG_FRONTMATTER_KEYWORDS: &str = r#"(?m)^#\+filetags\s*:\s+((?::\S+)+:)$"#;
+static REGEX_FRONTMATTER_ORG_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^#\+filetags\s*:\s+((?::\S+)+:)$"#)
+        .expect("Invalid Org keywords regex pattern")
+});
 
-/// Multiline pattern to match the identifier line of `Org` front matter.
+/// Multiline pattern regex to match the identifier line of `Org` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
-const PATTERN_ORG_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^#\+identifier\s*:\s+(\d{8}T\d{6})$"#;
+static REGEX_FRONTMATTER_ORG_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?m)^#\+identifier\s*:\s+(\d{8}T\d{6})$"#)
+        .expect("Invalid Org identifier regex pattern")
+});
 
 /// Attempts to partition a `&str` into a front matter prefix and a content suffix.
 /// Does so by separating at the first blank line and checking for valid frontmatter
 /// format. In the event that this fails, it will return its argument in the second
 /// position of the return tuple, cast as an `Option<String>`.
 pub fn separate_existing_content(content: &str) -> (Option<String>, Option<String>) {
-    content
-        .split_once("\n\n")
-        .or_else(|| content.split_once("\r\n\r\n"))
-        .map_or(
-            (None, (!content.is_empty()).then(|| content.to_string())),
-            |(prefix, suffix)| {
-                let frontmatter = is_valid_frontmatter_format(prefix).then(|| prefix.to_string());
-                let content = (!suffix.is_empty()).then(|| suffix.to_string());
-
-                (frontmatter, content)
-            },
-        )
+    if content.is_empty() {
+        (None, None)
+    } else {
+        content
+            .split_once("\n\n")
+            .or_else(|| content.split_once("\r\n\r\n"))
+            .map(|(prefix, suffix)| {
+                if is_valid_frontmatter_format(prefix) {
+                    (
+                        Some(prefix.to_string()),
+                        (!suffix.is_empty()).then(|| suffix.to_string()),
+                    )
+                } else {
+                    (None, Some(content.to_string()))
+                }
+            })
+            .unwrap_or_else(|| (None, Some(content.to_string())))
+    }
 }
 
 /// Checks that a `&str` conforms to one of the valid dn front matter formats -
@@ -120,11 +169,11 @@ fn is_valid_frontmatter_format(content: &str) -> bool {
     let first = lines.first();
     let last = lines.last();
 
-    let is_text = last == Some(&PATTERN_TEXT_FRONTMATTER_RULE);
-    let is_yaml = first == Some(&PATTERN_YAML_FRONTMATTER_CONTAINER)
-        && last == Some(&PATTERN_YAML_FRONTMATTER_CONTAINER);
-    let is_toml = first == Some(&PATTERN_TOML_FRONTMATTER_CONTAINER)
-        && last == Some(&PATTERN_TOML_FRONTMATTER_CONTAINER);
+    let is_text = last.map_or(false, |l| REGEX_FRONTMATTER_TEXT_RULE.is_match(l));
+    let is_yaml = first.map_or(false, |l| REGEX_FRONTMATTER_YAML_CONTAINER.is_match(l))
+        && last.map_or(false, |l| REGEX_FRONTMATTER_YAML_CONTAINER.is_match(l));
+    let is_toml = first.map_or(false, |l| REGEX_FRONTMATTER_TOML_CONTAINER.is_match(l))
+        && last.map_or(false, |l| REGEX_FRONTMATTER_TOML_CONTAINER.is_match(l));
     let is_org = !lines.is_empty() && lines.iter().all(|l| l.starts_with(ORG_SEGMENT_PREFIX));
 
     is_text || is_yaml || is_toml || is_org
@@ -132,8 +181,6 @@ fn is_valid_frontmatter_format(content: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use regex::Regex;
-
     use super::*;
 
     mod content_partitioning {
@@ -143,7 +190,10 @@ mod tests {
         fn separates_frontmatter_only() {
             // Arrange
             let input = "---\nidentifier: \"20241212T121212\"\n---\n\n";
-            let expected = (Some("---\nidentifier: \"20241212T121212\"\n---".to_string()), None);
+            let expected = (
+                Some("---\nidentifier: \"20241212T121212\"\n---".to_string()),
+                None,
+            );
 
             // Act
             let result = separate_existing_content(input);
@@ -177,9 +227,9 @@ mod tests {
         #[test]
         fn separates_both_frontmatter_and_content() {
             // Arrange
-            let input = "---\ntitle: \"This is a Test!\"\n---\n\n# Example Markdown\n\nFirst paragraph here.\n";
+            let input = "+++\ntitle =  \"This is a Test!\"\n+++\n\n# Example Markdown\n\nFirst paragraph here.\n";
             let expected = (
-                Some("---\ntitle: \"This is a Test!\"\n---".to_string()),
+                Some("+++\ntitle =  \"This is a Test!\"\n+++".to_string()),
                 Some("# Example Markdown\n\nFirst paragraph here.\n".to_string()),
             );
 
@@ -194,10 +244,10 @@ mod tests {
         }
 
         #[test]
-        fn separates_empty_content() {
+        fn separates_empty_content_into_none() {
             // Arrange
             let input = "";
-            let expected = (None, Some("".to_string()));
+            let expected = (None, None);
 
             // Act
             let result = separate_existing_content(input);
@@ -208,6 +258,9 @@ mod tests {
                 "\nInput: {input:#?}\nExpected frontmatter and content: {expected:#?}\nReceived: {result:#?}"
             );
         }
+    }
+
+    mod frontmatter_validity {
 
         #[test]
         fn determines_valid_text_frontmatter() {
@@ -258,6 +311,22 @@ mod tests {
         }
 
         #[test]
+        fn determines_valid_org_frontmatter() {
+            // Arrange
+            let input = todo!();
+            let expected = todo!();
+
+            // Act
+            let result = todo!();
+
+            // Assert
+            assert_eq!(
+                expected, result,
+                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+            );
+        }
+
+        #[test]
         fn determines_invalid_frontmatter() {
             // Arrange
             let input = todo!();
@@ -275,28 +344,30 @@ mod tests {
     }
 
     mod text_frontmatter {
-        use regex::Regex;
-
         use super::*;
 
         #[test]
         fn rule_parses_correctly() {
-            let re = Regex::new(PATTERN_TEXT_FRONTMATTER_RULE).unwrap();
-            assert!(re.is_match("---------------------------\n")); // 27 dashes
-            assert!(re.is_match("---------------------------")); // 27 dashes
-            assert!(!re.is_match("--------------------------\n")); // 26 dashes
-            assert!(!re.is_match("----------------------------\n")); // 28 dashes
+            assert!(REGEX_FRONTMATTER_TEXT_RULE.is_match("---------------------------\n")); // 27 dashes
+            assert!(REGEX_FRONTMATTER_TEXT_RULE.is_match("---------------------------")); // 27 dashes
+            assert!(!REGEX_FRONTMATTER_TEXT_RULE.is_match("--------------------------\n")); // 26 dashes
+            assert!(!REGEX_FRONTMATTER_TEXT_RULE.is_match("----------------------------\n"));
+            // 28 dashes
         }
 
         #[test]
         fn title_parses_correctly() {
             // Arrange
-            let re = Regex::new(PATTERN_TEXT_FRONTMATTER_TITLE).unwrap();
             let input = "title:my-Test : A N3w title\n";
             let expected = "my-Test : A N3w title";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_TEXT_TITLE
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -308,12 +379,16 @@ mod tests {
         #[test]
         fn date_parses_correctly() {
             // Arrange
-            let re = Regex::new(PATTERN_TEXT_FRONTMATTER_DATETIME).unwrap();
             let input = "date  :  2024-12-12 @ 12:12:12\n";
             let expected = "2024-12-12 @ 12:12:12";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_TEXT_DATETIME
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -325,12 +400,16 @@ mod tests {
         #[test]
         fn keywords_parse_correcly() {
             // Arrange
-            let re = Regex::new(PATTERN_TEXT_FRONTMATTER_KEYWORDS).unwrap();
             let input = "tags:   foo    bar baz  boom\n";
             let expected = "foo    bar baz  boom";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_TEXT_KEYWORDS
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -342,12 +421,16 @@ mod tests {
         #[test]
         fn identifier_parses_correctly() {
             // Arrange
-            let re = Regex::new(PATTERN_TEXT_FRONTMATTER_IDENTIFIER).unwrap();
             let input = "identifier: 20241212T121212\n";
             let expected = "20241212T121212";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_TEXT_IDENTIFIER
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -358,27 +441,28 @@ mod tests {
     }
 
     mod yaml_frontmatter {
-        use regex::Regex;
-
         use super::*;
 
         #[test]
         fn test_container() {
-            let re = Regex::new(PATTERN_YAML_FRONTMATTER_CONTAINER).unwrap();
-            assert!(re.is_match("---"));
-            assert!(!re.is_match("--"));
-            assert!(!re.is_match("----"));
+            assert!(REGEX_FRONTMATTER_YAML_CONTAINER.is_match("---"));
+            assert!(!REGEX_FRONTMATTER_YAML_CONTAINER.is_match("--"));
+            assert!(!REGEX_FRONTMATTER_YAML_CONTAINER.is_match("----"));
         }
 
         #[test]
         fn test_title() {
             // Arrange
-            let re = Regex::new(PATTERN_YAML_FRONTMATTER_TITLE).unwrap();
             let input = "title:   \"my-Test -  A N3w title\"\n";
             let expected = "\"my-Test -  A N3w title\"";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_YAML_TITLE
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -390,12 +474,16 @@ mod tests {
         #[test]
         fn test_date() {
             // Arrange
-            let re = Regex::new(PATTERN_YAML_FRONTMATTER_DATE).unwrap();
             let input = "date :  2024-12-12T12:12:12\n";
             let expected = "2024-12-12T12:12:12";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_YAML_DATETIME
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -407,12 +495,16 @@ mod tests {
         #[test]
         fn test_keywords() {
             // Arrange
-            let re = Regex::new(PATTERN_YAML_FRONTMATTER_KEYWORDS).unwrap();
             let input = "tags:   [\"foo\",    \"bar\", \"baz\",  \"boom\"]\n";
             let expected = "[\"foo\",    \"bar\", \"baz\",  \"boom\"]";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_YAML_KEYWORDS
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -424,12 +516,16 @@ mod tests {
         #[test]
         fn test_identifier() {
             // Arrange
-            let re = Regex::new(PATTERN_YAML_FRONTMATTER_IDENTIFIER).unwrap();
             let input = "identifier: \"20241212T121212\"\n";
             let expected = "\"20241212T121212\"";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_YAML_IDENTIFIER
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -444,21 +540,24 @@ mod tests {
 
         #[test]
         fn test_container() {
-            let re = Regex::new(PATTERN_TOML_FRONTMATTER_CONTAINER).unwrap();
-            assert!(re.is_match("+++"));
-            assert!(!re.is_match("++"));
-            assert!(!re.is_match("++++"));
+            assert!(REGEX_FRONTMATTER_TOML_CONTAINER.is_match("+++"));
+            assert!(!REGEX_FRONTMATTER_TOML_CONTAINER.is_match("++"));
+            assert!(!REGEX_FRONTMATTER_TOML_CONTAINER.is_match("++++"));
         }
 
         #[test]
         fn test_title() {
             // Arrange
-            let re = Regex::new(PATTERN_TOML_FRONTMATTER_TITLE).unwrap();
             let input = "title=\"my-Test : A N3w title\"\n";
             let expected = "\"my-Test : A N3w title\"";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_TOML_TITLE
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -470,12 +569,16 @@ mod tests {
         #[test]
         fn test_date() {
             // Arrange
-            let re = Regex::new(PATTERN_TOML_FRONTMATTER_DATE).unwrap();
             let input = "date  = 2024-12-12_12:12:12\n";
             let expected = "2024-12-12_12:12:12";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_TOML_DATETIME
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -487,12 +590,16 @@ mod tests {
         #[test]
         fn test_keywords() {
             // Arrange
-            let re = Regex::new(PATTERN_TOML_FRONTMATTER_KEYWORDS).unwrap();
             let input = "tags =   [\"foo\",    \"bar\", \"baz\",  \"boom\"]\n";
             let expected = "[\"foo\",    \"bar\", \"baz\",  \"boom\"]";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_TOML_KEYWORDS
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -504,12 +611,16 @@ mod tests {
         #[test]
         fn test_identifier() {
             // Arrange
-            let re = Regex::new(PATTERN_TOML_FRONTMATTER_IDENTIFIER).unwrap();
             let input = "identifier =\"20241212T121212\"\n";
             let expected = "\"20241212T121212\"";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_TOML_IDENTIFIER
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -525,12 +636,16 @@ mod tests {
         #[test]
         fn test_title() {
             // Arrange
-            let re = Regex::new(PATTERN_ORG_FRONTMATTER_TITLE).unwrap();
             let input = "#+title:   my-Test_ A N3w title\n";
             let expected = "my-Test_ A N3w title";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_ORG_TITLE
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -542,12 +657,16 @@ mod tests {
         #[test]
         fn test_date() {
             // Arrange
-            let re = Regex::new(PATTERN_ORG_FRONTMATTER_DATETIME).unwrap();
             let input = "#+date:  [2024-12-12 Thu 12:12]\n";
             let expected = "[2024-12-12 Thu 12:12]";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_ORG_DATETIME
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -559,12 +678,16 @@ mod tests {
         #[test]
         fn test_keywords() {
             // Arrange
-            let re = Regex::new(PATTERN_ORG_FRONTMATTER_KEYWORDS).unwrap();
             let input = "#+filetags:   :foo:bar:baz:boom:\n";
             let expected = ":foo:bar:baz:boom:";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_ORG_KEYWORDS
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
@@ -576,12 +699,16 @@ mod tests {
         #[test]
         fn test_identifier() {
             // Arrange
-            let re = Regex::new(PATTERN_ORG_FRONTMATTER_IDENTIFIER).unwrap();
             let input = "#+identifier:   20241212T121212\n";
             let expected = "20241212T121212";
 
             // Act
-            let result = re.captures(input).unwrap().get(1).unwrap().as_str();
+            let result = REGEX_FRONTMATTER_ORG_IDENTIFIER
+                .captures(input)
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str();
 
             // Assert
             assert_eq!(
