@@ -3,6 +3,7 @@
 use std::fmt::Display;
 
 use chrono::Local;
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::{
@@ -11,11 +12,26 @@ use crate::{
     metadata::FileMetadata,
 };
 
-const PATTERN_SEGMENT_IDENTIFIER: &str = r"(\b[0-9]{8}T[0-9]{6}\b)";
-const PATTERN_SEGMENT_SIGNATURE: &str = r"(==[^\@\-\_\.]*)";
-const PATTERN_SEGMENT_TITLE: &str = r"(--[^\@\=\_\.]*)";
-const PATTERN_SEGMENT_KEYWORDS: &str = r"(__[^\@\=\-\.]*)";
-const PATTERN_SEGMENT_EXTENSION: &str = r"(\.[^\@\=\-\_]*)";
+/// Regex to match the `Identifier` segment of a file name.
+static REGEX_SEGMENT_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(\b[0-9]{8}T[0-9]{6}\b)").expect("Invalid identifier segment regex pattern")
+});
+
+/// Regex to match the `Signature` segment of a file name.
+static REGEX_SEGMENT_SIGNATURE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(==[^\@\-\_\.]*)").expect("Invalid signature segment regex pattern"));
+
+/// Regex to match the `Title` segment of a file name.
+static REGEX_SEGMENT_TITLE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(--[^\@\=\_\.]*)").expect("Invalid title segment regex pattern"));
+
+/// Regex to match the `Keywords` segment of a file name.
+static REGEX_SEGMENT_KEYWORDS: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(__[^\@\=\-\.]*)").expect("Invalid keywords segment regex pattern"));
+
+/// Regex to match the `Extension` segment of a file name.
+static REGEX_SEGMENT_EXTENSION: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(\.[^\@\=\-\_]*)").expect("Invalid extension segment regex pattern"));
 
 /// Represents the possible segments of a dn file name, as well as the order in which
 /// they should be concatenated.
@@ -65,10 +81,10 @@ impl Display for Filename {
 impl ToFilename for String {
     fn to_filename(&self, config: &FileConfig) -> Filename {
         let (identifier, signature, title, keywords) =
-            if let Some(identifier) = parse_segment(self, PATTERN_SEGMENT_IDENTIFIER) {
-                let signature = parse_segment(self, PATTERN_SEGMENT_SIGNATURE);
-                let title = parse_segment(self, PATTERN_SEGMENT_TITLE);
-                let keywords = parse_segment(self, PATTERN_SEGMENT_KEYWORDS);
+            if let Some(identifier) = parse_segment(self, &REGEX_SEGMENT_IDENTIFIER) {
+                let signature = parse_segment(self, &REGEX_SEGMENT_SIGNATURE);
+                let title = parse_segment(self, &REGEX_SEGMENT_TITLE);
+                let keywords = parse_segment(self, &REGEX_SEGMENT_KEYWORDS);
 
                 (identifier, signature, title, keywords)
             } else {
@@ -82,7 +98,7 @@ impl ToFilename for String {
                 (identifier, None, title, None)
             };
 
-        let extension = parse_segment(self, PATTERN_SEGMENT_EXTENSION)
+        let extension = parse_segment(self, &REGEX_SEGMENT_EXTENSION)
             .unwrap_or_else(|| config.default_extension.clone());
 
         Filename {
@@ -135,12 +151,8 @@ impl ToFilename for FileMetadata {
 /// return it as an `Option<String>`
 ///
 /// **WARN**: Currently may panic on unwrap if the regex fails to be constructed.
-fn parse_segment(filename: &str, pattern: &str) -> Option<String> {
-    Regex::new(pattern)
-        // WARN: Unwrap may panic. Do we want to alert the user of an error creating this regex?
-        .unwrap()
-        .find(filename)
-        .map(|m| m.as_str().to_owned())
+fn parse_segment(filename: &str, regex: &Lazy<Regex>) -> Option<String> {
+    regex.find(filename).map(|m| m.as_str().to_owned())
 }
 
 /// Applies a prefix corresponding to the `FilenameSegment` variant to an input string.
@@ -316,18 +328,19 @@ mod tests {
         let filename = "20240101T120000==signature--title__keywords.txt";
         let test_cases = [
             (
-                PATTERN_SEGMENT_IDENTIFIER,
+                &REGEX_SEGMENT_IDENTIFIER,
                 Some("20240101T120000".to_string()),
             ),
-            (PATTERN_SEGMENT_SIGNATURE, Some("==signature".to_string())),
-            (PATTERN_SEGMENT_TITLE, Some("--title".to_string())),
-            (PATTERN_SEGMENT_KEYWORDS, Some("__keywords".to_string())),
-            (PATTERN_SEGMENT_EXTENSION, Some(".txt".to_string())),
+            (&REGEX_SEGMENT_SIGNATURE, Some("==signature".to_string())),
+            (&REGEX_SEGMENT_TITLE, Some("--title".to_string())),
+            (&REGEX_SEGMENT_KEYWORDS, Some("__keywords".to_string())),
+            (&REGEX_SEGMENT_EXTENSION, Some(".txt".to_string())),
         ];
 
-        for (pattern, expected) in test_cases {
+        for (regex, expected) in test_cases {
             // Act
-            let result = parse_segment(filename, pattern);
+            let result = parse_segment(filename, regex);
+            let pattern = regex.as_str();
 
             // Assert
             assert_eq!(
