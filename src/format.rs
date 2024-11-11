@@ -75,7 +75,7 @@ fn is_valid_frontmatter_format(content: &str) -> bool {
         && last == Some(&PATTERN_YAML_FRONTMATTER_CONTAINER);
     let is_toml = first == Some(&PATTERN_TOML_FRONTMATTER_CONTAINER)
         && last == Some(&PATTERN_TOML_FRONTMATTER_CONTAINER);
-    let is_org = !lines.is_empty() && lines.iter().all(|l| l.starts_with(&ORG_SEGMENT_PREFIX));
+    let is_org = !lines.is_empty() && lines.iter().all(|l| l.starts_with(ORG_SEGMENT_PREFIX));
 
     is_text || is_yaml || is_toml || is_org
 }
