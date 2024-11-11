@@ -1,8 +1,11 @@
 [package]
 name = "dn"
 version = "0.1.0"
-# description = ""
 edition = "2021"
+# description = ""
+# keywords = []
+# categories = []
+readme = "README.md"
 license = "GPL-3.0-or-later"
 license-file = "LICENSE.txt"
 repository = "https://github.com/mmibbetson/dn"
@@ -17,10 +20,13 @@ regex = "1.11.1"
 serde = { version = "1.0.214", features = ["derive"] }
 toml = "0.8.19"
 
+[lints.rust]
+unsafe_code = "forbid"
+
 [lints.clippy]
 all = { level = "deny", priority = -1 }
-pedantic = { level = "deny", priority = -1 }
 cargo = { level = "warn", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
 restriction = { level = "allow", priority = -1 }
 allow_attributes_without_reason = "deny"
 arbitrary_source_item_ordering = "deny"

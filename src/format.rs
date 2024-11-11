@@ -8,7 +8,7 @@ pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
 /// Multiline-pattern regex to match the closing horizontal rule of `Text` front matter,
 /// which should be exactly 27 '-' characters.
 static REGEX_FRONTMATTER_TEXT_RULE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^---------------------------$"#).expect("Invalid text rule regex pattern")
+    Regex::new("(?m)^---------------------------$").expect("Invalid text rule regex pattern")
 });
 
 /// Multiline-pattern regex to match the title line of `Text` front matter.
@@ -18,7 +18,7 @@ static REGEX_FRONTMATTER_TEXT_RULE: Lazy<Regex> = Lazy::new(|| {
 ///
 /// May also improperly match some `Org` and `Yaml` titles if present.
 static REGEX_FRONTMATTER_TEXT_TITLE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^title\s*:\s*(.+)$"#).expect("Invalid text title regex pattern")
+    Regex::new(r"(?m)^title\s*:\s*(.+)$").expect("Invalid text title regex pattern")
 });
 
 /// Multiline-pattern regex to match the date line of `Text` front matter.
@@ -28,7 +28,7 @@ static REGEX_FRONTMATTER_TEXT_TITLE: Lazy<Regex> = Lazy::new(|| {
 ///
 /// May also improperly match some `Org` and `Yaml` dates if present.
 static REGEX_FRONTMATTER_TEXT_DATETIME: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"(?m)^date\s*:\s*(.+)$"#).expect("Invalid text date regex pattern"));
+    Lazy::new(|| Regex::new(r"(?m)^date\s*:\s*(.+)$").expect("Invalid text date regex pattern"));
 
 /// Multiline-pattern regex to match the tags line of `Text` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
@@ -37,19 +37,19 @@ static REGEX_FRONTMATTER_TEXT_DATETIME: Lazy<Regex> =
 ///
 /// May also improperly match some `Org` keywords if present.
 static REGEX_FRONTMATTER_TEXT_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^tags\s*:\s*((?:\S+\s+)*\S+)$"#).expect("Invalid text keywords regex pattern")
+    Regex::new(r"(?m)^tags\s*:\s*((?:\S+\s+)*\S+)$").expect("Invalid text keywords regex pattern")
 });
 
 /// Multiline-pattern regex to match the identifier line of `Text` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
 static REGEX_FRONTMATTER_TEXT_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^identifier\s*:\s*(\d{8}T\d{6})$"#)
+    Regex::new(r"(?m)^identifier\s*:\s*(\d{8}T\d{6})$")
         .expect("Invalid text identifier regex pattern")
 });
 
 /// Multiline-pattern regex to match the opening and closing markers of `Yaml` front matter.
 static REGEX_FRONTMATTER_YAML_CONTAINER: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"(?m)^---$"#).expect("Invalid YAML container regex pattern"));
+    Lazy::new(|| Regex::new("(?m)^---$").expect("Invalid YAML container regex pattern"));
 
 /// Multiline-pattern regex to match the title line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Title` value.
@@ -64,7 +64,7 @@ static REGEX_FRONTMATTER_YAML_TITLE: Lazy<Regex> = Lazy::new(|| {
 ///
 /// May also improperly match some `Text` and `Org` dates if present.
 static REGEX_FRONTMATTER_YAML_DATETIME: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"(?m)^date\s*:\s+(.+)$"#).expect("Invalid YAML date regex pattern"));
+    Lazy::new(|| Regex::new(r"(?m)^date\s*:\s+(.+)$").expect("Invalid YAML date regex pattern"));
 
 /// Multiline-pattern regex to match the tags line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
@@ -82,7 +82,7 @@ static REGEX_FRONTMATTER_YAML_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
 
 /// Multiline-pattern regex to match the opening and closing markers of `Toml` frontmatter.
 static REGEX_FRONTMATTER_TOML_CONTAINER: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"(?m)^\+\+\+$"#).expect("Invalid TOML container regex pattern"));
+    Lazy::new(|| Regex::new(r"(?m)^\+\+\+$").expect("Invalid TOML container regex pattern"));
 
 /// Multiline-pattern regex to match the title line of `Toml` front matter.
 /// Contains a single capture group to extract the `Title` value.
@@ -93,7 +93,7 @@ static REGEX_FRONTMATTER_TOML_TITLE: Lazy<Regex> = Lazy::new(|| {
 /// Multiline-pattern regex to match the date line of `Toml` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
 static REGEX_FRONTMATTER_TOML_DATETIME: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"(?m)^date\s*=\s*(.+)$"#).expect("Invalid TOML date regex pattern"));
+    Lazy::new(|| Regex::new(r"(?m)^date\s*=\s*(.+)$").expect("Invalid TOML date regex pattern"));
 
 /// Multiline-pattern regex to match the tags line of `Toml` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
@@ -112,26 +112,26 @@ static REGEX_FRONTMATTER_TOML_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
 /// Multiline-pattern regex to match the title line of `Org` front matter.
 /// Contains a single capture group to extract the `Title` value.
 static REGEX_FRONTMATTER_ORG_TITLE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^#\+title\s*:\s+(.+)$"#).expect("Invalid Org title regex pattern")
+    Regex::new(r"(?m)^#\+title\s*:\s+(.+)$").expect("Invalid Org title regex pattern")
 });
 
 /// Multiline-pattern regex to match the date line of `Org` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
 static REGEX_FRONTMATTER_ORG_DATETIME: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^#\+date\s*:\s+(.+)$"#).expect("Invalid Org date regex pattern")
+    Regex::new(r"(?m)^#\+date\s*:\s+(.+)$").expect("Invalid Org date regex pattern")
 });
 
 /// Multiline-pattern regex to match the filetags line of `Org` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
 static REGEX_FRONTMATTER_ORG_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^#\+filetags\s*:\s+((?::\S+)+:)$"#)
+    Regex::new(r"(?m)^#\+filetags\s*:\s+((?::\S+)+:)$")
         .expect("Invalid Org keywords regex pattern")
 });
 
 /// Multiline-pattern regex to match the identifier line of `Org` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
 static REGEX_FRONTMATTER_ORG_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^#\+identifier\s*:\s+(\d{8}T\d{6})$"#)
+    Regex::new(r"(?m)^#\+identifier\s*:\s+(\d{8}T\d{6})$")
         .expect("Invalid Org identifier regex pattern")
 });
 
@@ -147,15 +147,15 @@ pub fn separate_existing_content(input_content: &str) -> (Option<String>, Option
             .split_once("\n\n")
             .or_else(|| input_content.split_once("\r\n\r\n"))
             .map_or_else(
-                || (None, Some(input_content.to_string())),
+                || (None, Some(input_content.to_owned())),
                 |(prefix, suffix)| {
                     let (filename, content) = if is_valid_frontmatter_format(prefix) {
                         (
-                            Some(prefix.to_string()),
-                            (!suffix.is_empty()).then(|| suffix.to_string()),
+                            Some(prefix.to_owned()),
+                            (!suffix.is_empty()).then(|| suffix.to_owned()),
                         )
                     } else {
-                        (None, Some(input_content.to_string()))
+                        (None, Some(input_content.to_owned()))
                     };
 
                     (filename, content)
@@ -195,7 +195,7 @@ mod tests {
             // Arrange
             let input = "---\nidentifier: \"20241212T121212\"\n---\n\n";
             let expected = (
-                Some("---\nidentifier: \"20241212T121212\"\n---".to_string()),
+                Some("---\nidentifier: \"20241212T121212\"\n---".to_owned()),
                 None,
             );
 
@@ -215,7 +215,7 @@ mod tests {
             let input = "# Example Markdown\n\nFirst paragraph here.\n";
             let expected = (
                 None,
-                Some("# Example Markdown\n\nFirst paragraph here.\n".to_string()),
+                Some("# Example Markdown\n\nFirst paragraph here.\n".to_owned()),
             );
 
             // Act
@@ -233,8 +233,8 @@ mod tests {
             // Arrange
             let input = "+++\ntitle =  \"This is a Test!\"\n+++\n\n# Example Markdown\n\nFirst paragraph here.\n";
             let expected = (
-                Some("+++\ntitle =  \"This is a Test!\"\n+++".to_string()),
-                Some("# Example Markdown\n\nFirst paragraph here.\n".to_string()),
+                Some("+++\ntitle =  \"This is a Test!\"\n+++".to_owned()),
+                Some("# Example Markdown\n\nFirst paragraph here.\n".to_owned()),
             );
 
             // Act
@@ -274,7 +274,7 @@ mod tests {
             let expected = true;
 
             // Act
-            let result = is_valid_frontmatter_format(&input);
+            let result = is_valid_frontmatter_format(input);
 
             // Assert
             assert_eq!(
@@ -290,7 +290,7 @@ mod tests {
             let expected = true;
 
             // Act
-            let result = is_valid_frontmatter_format(&input);
+            let result = is_valid_frontmatter_format(input);
 
             // Assert
             assert_eq!(
@@ -306,7 +306,7 @@ mod tests {
             let expected = true;
 
             // Act
-            let result = is_valid_frontmatter_format(&input);
+            let result = is_valid_frontmatter_format(input);
 
             // Assert
             assert_eq!(
@@ -322,7 +322,7 @@ mod tests {
             let expected = true;
 
             // Act
-            let result = is_valid_frontmatter_format(&input);
+            let result = is_valid_frontmatter_format(input);
 
             // Assert
             assert_eq!(
@@ -338,7 +338,7 @@ mod tests {
             let expected = false;
 
             // Act
-            let result = is_valid_frontmatter_format(&input);
+            let result = is_valid_frontmatter_format(input);
 
             // Assert
             assert_eq!(

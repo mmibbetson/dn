@@ -182,14 +182,14 @@ mod tests {
     #[test]
     fn string_to_filename_with_all_segments() {
         // Arrange
-        let input = "20240101T120000==signature--title__keywords.txt".to_string();
+        let input = "20240101T120000==signature--title__keywords.txt".to_owned();
         let config = FileConfig::default();
         let expected = Filename {
-            identifier: "20240101T120000".to_string(),
-            signature: Some("==signature".to_string()),
-            title: Some("--title".to_string()),
-            keywords: Some("__keywords".to_string()),
-            extension: ".txt".to_string(),
+            identifier: "20240101T120000".to_owned(),
+            signature: Some("==signature".to_owned()),
+            title: Some("--title".to_owned()),
+            keywords: Some("__keywords".to_owned()),
+            extension: ".txt".to_owned(),
             segment_order: Default::default(),
         };
 
@@ -206,15 +206,15 @@ mod tests {
     #[test]
     fn string_to_filename_non_dn_format() {
         // Arrange
-        let input = "@@I am a nau==ghty __STR1NG!.txt".to_string();
+        let input = "@@I am a nau==ghty __STR1NG!.txt".to_owned();
         let config = FileConfig::default();
         let now = Local::now();
         let expected = Filename {
             identifier: now.format(DN_IDENTIFIER_FORMAT).to_string(),
             signature: None,
-            title: Some("@@I am a nau==ghty __STR1NG!".to_string()),
+            title: Some("@@I am a nau==ghty __STR1NG!".to_owned()),
             keywords: None,
-            extension: ".txt".to_string(),
+            extension: ".txt".to_owned(),
             segment_order: Default::default(),
         };
 
@@ -233,19 +233,19 @@ mod tests {
         // Arrange
         let config = FileConfig::default();
         let metadata = FileMetadata {
-            identifier: "20240101T120000".to_string(),
-            signature: Some("test-sig".to_string()),
-            title: Some("test-title".to_string()),
-            keywords: Some(HashSet::from(["key1".to_string(), "key2".to_string()])),
-            extension: ".txt".to_string(),
+            identifier: "20240101T120000".to_owned(),
+            signature: Some("test-sig".to_owned()),
+            title: Some("test-title".to_owned()),
+            keywords: Some(HashSet::from(["key1".to_owned(), "key2".to_owned()])),
+            extension: ".txt".to_owned(),
             ..Default::default()
         };
         let expected = Filename {
-            identifier: "20240101T120000".to_string(),
-            signature: Some("==test-sig".to_string()),
-            title: Some("--test-title".to_string()),
-            keywords: Some("__key1_key2".to_string()),
-            extension: ".txt".to_string(),
+            identifier: "20240101T120000".to_owned(),
+            signature: Some("==test-sig".to_owned()),
+            title: Some("--test-title".to_owned()),
+            keywords: Some("__key1_key2".to_owned()),
+            extension: ".txt".to_owned(),
             segment_order: config.segment_order,
         };
 
@@ -297,11 +297,11 @@ mod tests {
     fn filename_display_format() {
         // Arrange
         let filename = Filename {
-            identifier: "20240101T120000".to_string(),
-            signature: Some("==signature".to_string()),
-            title: Some("--title".to_string()),
-            keywords: Some("__keywords".to_string()),
-            extension: ".txt".to_string(),
+            identifier: "20240101T120000".to_owned(),
+            signature: Some("==signature".to_owned()),
+            title: Some("--title".to_owned()),
+            keywords: Some("__keywords".to_owned()),
+            extension: ".txt".to_owned(),
             segment_order: [
                 FilenameSegment::Identifier,
                 FilenameSegment::Signature,
@@ -329,12 +329,12 @@ mod tests {
         let test_cases = [
             (
                 &REGEX_SEGMENT_IDENTIFIER,
-                Some("20240101T120000".to_string()),
+                Some("20240101T120000".to_owned()),
             ),
-            (&REGEX_SEGMENT_SIGNATURE, Some("==signature".to_string())),
-            (&REGEX_SEGMENT_TITLE, Some("--title".to_string())),
-            (&REGEX_SEGMENT_KEYWORDS, Some("__keywords".to_string())),
-            (&REGEX_SEGMENT_EXTENSION, Some(".txt".to_string())),
+            (&REGEX_SEGMENT_SIGNATURE, Some("==signature".to_owned())),
+            (&REGEX_SEGMENT_TITLE, Some("--title".to_owned())),
+            (&REGEX_SEGMENT_KEYWORDS, Some("__keywords".to_owned())),
+            (&REGEX_SEGMENT_EXTENSION, Some(".txt".to_owned())),
         ];
 
         for (regex, expected) in test_cases {

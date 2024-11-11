@@ -275,7 +275,7 @@ mod tests {
     #[test]
     fn derive_datetime_with_identifier() {
         // Arrange
-        let input = Some("20241212T121212".to_string());
+        let input = Some("20241212T121212".to_owned());
         let expected = Local.with_ymd_and_hms(2024, 12, 12, 12, 12, 12).unwrap();
 
         // Act
@@ -310,7 +310,7 @@ mod tests {
         // Arrange
         let config = setup_config();
         let input = "Test=Signature!";
-        let expected = Some("testsignature".to_string());
+        let expected = Some("testsignature".to_owned());
 
         // Act
         let result = parse_signature(input, &config.illegal_characters);
@@ -327,7 +327,7 @@ mod tests {
         // Arrange
         let config = setup_config();
         let input = "Test@Signature!-";
-        let expected = Some("testsignature".to_string());
+        let expected = Some("testsignature".to_owned());
 
         // Act
         let result = parse_signature(input, &config.illegal_characters);
@@ -361,7 +361,7 @@ mod tests {
         // Arrange
         let config = setup_config();
         let input = "My-teST Title";
-        let expected = Some("my-test-title".to_string());
+        let expected = Some("my-test-title".to_owned());
 
         // Act
         let result = parse_title(input, &config.illegal_characters);
@@ -379,9 +379,9 @@ mod tests {
         let config = setup_config();
         let input = "_dn_tags test";
         let expected = Some(vec![
-            "dn".to_string(),
-            "tags".to_string(),
-            "test".to_string(),
+            "dn".to_owned(),
+            "tags".to_owned(),
+            "test".to_owned(),
         ]);
 
         // Act
@@ -399,7 +399,7 @@ mod tests {
         // Arrange
         let config = setup_config();
         let input = ".tar.gz";
-        let expected = Some("tar.gz".to_string());
+        let expected = Some("tar.gz".to_owned());
 
         // Act
         let result = parse_extension(input, &config.illegal_characters);
@@ -416,7 +416,7 @@ mod tests {
         // Arrange
         let config = setup_config();
         let input = "MD";
-        let expected = Some("md".to_string());
+        let expected = Some("md".to_owned());
 
         // Act
         let result = parse_extension(input, &config.illegal_characters);
@@ -433,24 +433,24 @@ mod tests {
         // Arrange
         let config = setup_config();
         let args = FileMetadata::builder()
-            .with_identifier(&Some("20240101T120000".to_string()))
-            .with_signature(&Some("test@signature".to_string()))
-            .with_title(&Some("My T3ST Title!".to_string()))
-            .with_keywords(&Some("dn testing".to_string()))
-            .with_added_keywords(&Some("dn_testing_changes".to_string()))
-            .with_removed_keywords(&Some("dn".to_string()))
-            .with_extension(&Some("DJ".to_string()));
+            .with_identifier(&Some("20240101T120000".to_owned()))
+            .with_signature(&Some("test@signature".to_owned()))
+            .with_title(&Some("My T3ST Title!".to_owned()))
+            .with_keywords(&Some("dn testing".to_owned()))
+            .with_added_keywords(&Some("dn_testing_changes".to_owned()))
+            .with_removed_keywords(&Some("dn".to_owned()))
+            .with_extension(&Some("DJ".to_owned()));
 
         let expected = FileMetadata {
-            identifier: "20240101T120000".to_string(),
-            signature: Some("testsignature".to_string()),
-            title: Some("my-t3st-title".to_string()),
-            title_raw: Some("My T3ST Title!".to_string()),
+            identifier: "20240101T120000".to_owned(),
+            signature: Some("testsignature".to_owned()),
+            title: Some("my-t3st-title".to_owned()),
+            title_raw: Some("My T3ST Title!".to_owned()),
             keywords: Some(HashSet::from([
-                "testing".to_string(),
-                "changes".to_string(),
+                "testing".to_owned(),
+                "changes".to_owned(),
             ])),
-            extension: "dj".to_string(),
+            extension: "dj".to_owned(),
             datetime: setup_datetime(),
             ..Default::default()
         };
@@ -501,7 +501,7 @@ mod tests {
         // Arrange
         let config = setup_config();
         let input = "hello@world!";
-        let expected = "helloworld".to_string();
+        let expected = "helloworld".to_owned();
 
         // Act
         let result = sanitise(input, &config.illegal_characters);

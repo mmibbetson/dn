@@ -468,10 +468,10 @@ mod tests {
     #[test]
     fn builder_builds_with_supplied_values() {
         // Arrange
-        let default_extension = "dj".to_string();
-        let directory = ".".to_string();
+        let default_extension = "dj".to_owned();
+        let directory = ".".to_owned();
         let regenerate_identifier = true;
-        let template_path = "./template.txt".to_string();
+        let template_path = "./template.txt".to_owned();
         let enabled = true;
         let format = "org".into();
 

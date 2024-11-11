@@ -2,9 +2,9 @@
 
 /// Concatenates frontmatter and content portions of file content, frontmatter-first. Any portion
 /// the value of which is equal to `None` will be ignored.
-pub fn concatenate_file_content(
-    frontmatter: Option<impl AsRef<[u8]>>,
-    content: Option<impl AsRef<[u8]>>,
+pub fn concatenate_file_content<T: AsRef<[u8]>>(
+    frontmatter: Option<T>,
+    content: Option<T>,
 ) -> Vec<u8> {
     let frontmatter_vec = frontmatter.map(|f| f.as_ref().to_vec());
     let content_vec = content.map(|c| c.as_ref().to_vec());
@@ -24,7 +24,7 @@ pub fn concatenate_file_content(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::TimeZone;
+
 
     #[test]
     fn concatenate_with_frontmatter_no_template() {
