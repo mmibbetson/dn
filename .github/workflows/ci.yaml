@@ -1,0 +1,39 @@
+name: Rust CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Rust with stable toolchain
+      - name: Set up Rust stable toolchain
+        run: |
+          rustup update stable
+          rustup default stable
+          rustup component add rustfmt clippy
+
+      # Step 3: Run cargo fmt to check for formatting issues
+      - name: Run cargo fmt
+        run: cargo fmt -- --check
+
+      # Step 4: Run cargo check to ensure there are no compile-time issues
+      - name: Run cargo check
+        run: cargo check
+
+      # Step 5: Run cargo clippy to check for linting issues
+      - name: Run cargo clippy
+        run: cargo clippy
+
+      # Step 6: Run cargo test to execute tests
+      - name: Run cargo test
+        run: cargo test --verbose
