@@ -52,7 +52,7 @@ illegal_characters = [
 [frontmatter]
 enabled = false
 format = "text" # text, yaml, toml, org
-time_style = "hour24" # or "hour12" or "none"
+# time_style = "" # valid chrono datetime format string. If not provided, will default depending on frontmatter format.
 order = [
     "title",
     "date",
