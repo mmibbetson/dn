@@ -139,24 +139,28 @@ static REGEX_FRONTMATTER_ORG_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
 /// Does so by separating at the first blank line and checking for valid frontmatter
 /// format. In the event that this fails, it will return its argument in the second
 /// position of the return tuple, cast as an `Option<String>`.
-pub fn separate_existing_content(content: &str) -> (Option<String>, Option<String>) {
-    if content.is_empty() {
+pub fn separate_existing_content(input_content: &str) -> (Option<String>, Option<String>) {
+    if input_content.is_empty() {
         (None, None)
     } else {
-        content
+        input_content
             .split_once("\n\n")
-            .or_else(|| content.split_once("\r\n\r\n"))
-            .map(|(prefix, suffix)| {
-                if is_valid_frontmatter_format(prefix) {
-                    (
-                        Some(prefix.to_string()),
-                        (!suffix.is_empty()).then(|| suffix.to_string()),
-                    )
-                } else {
-                    (None, Some(content.to_string()))
-                }
-            })
-            .unwrap_or_else(|| (None, Some(content.to_string())))
+            .or_else(|| input_content.split_once("\r\n\r\n"))
+            .map_or_else(
+                || (None, Some(input_content.to_string())),
+                |(prefix, suffix)| {
+                    let (filename, content) = if is_valid_frontmatter_format(prefix) {
+                        (
+                            Some(prefix.to_string()),
+                            (!suffix.is_empty()).then(|| suffix.to_string()),
+                        )
+                    } else {
+                        (None, Some(input_content.to_string()))
+                    };
+
+                    (filename, content)
+                },
+            )
     }
 }
 

@@ -1,7 +1,12 @@
 [package]
 name = "dn"
 version = "0.1.0"
+# description = ""
 edition = "2021"
+license = "GPL-3.0-or-later"
+license-file = "LICENSE.txt"
+repository = "https://github.com/mmibbetson/dn"
+# homepage = "https://mmibbetson.github.io/dn"
 
 [dependencies]
 anyhow = "1.0.92"
