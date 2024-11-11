@@ -1,50 +1,101 @@
-/// TODO
+/// Format string for use with `chrono`'s `format` function.
+/// Represents the structure of a dn `Identifier`.
 pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
 
-/// TODO
-const PATTERN_TEXT_FRONTMATTER_RULE: &str = r#"(?m)^---------------------------$"#; // there should be exactly 27 '-' characters
-/// TODO
-const PATTERN_TEXT_FRONTMATTER_TITLE: &str = r#"(?m)^title\s*:\s*(.+)$"#;
-/// TODO
-const PATTERN_TEXT_FRONTMATTER_DATE: &str = r#"(?m)^date\s*:\s*(.+)$"#; // will also unfortunately match the org and yaml dates
-/// TODO
-const PATTERN_TEXT_FRONTMATTER_KEYWORDS: &str = r#"(?m)^tags\s*:\s*((?:\S+\s+)*\S+)$"#; // will also unfortunately match the org filetags
-/// TODO
-const PATTERN_TEXT_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^identifier\s*:\s*(\d{8}T\d{6})$"#; // will also unfortunately match the org ident
+/// Multiline pattern to match the closing horizontal rule of `Text` front matter,
+/// which should be exactly 27 '-' characters.
+const PATTERN_TEXT_FRONTMATTER_RULE: &str = r#"(?m)^---------------------------$"#;
 
-/// TODO
+/// Multiline pattern to match the title line of `Text` front matter.
+/// Contains a single capture group to extract the `Title` value.
+///
+/// ## Warning
+///
+/// May also improperly match some `Org` and `Yaml` titles if present.
+const PATTERN_TEXT_FRONTMATTER_TITLE: &str = r#"(?m)^title\s*:\s*(.+)$"#;
+
+/// Multiline pattern to match the date line of `Text` front matter.
+/// Contains a single capture group to extract the `DateTime` value.
+///
+/// ## Warning
+///
+/// May also improperly match some `Org` and `Yaml` dates if present.
+const PATTERN_TEXT_FRONTMATTER_DATETIME: &str = r#"(?m)^date\s*:\s*(.+)$"#;
+
+/// Multiline pattern to match the tags line of `Text` front matter.
+/// Contains a single capture group to extract the `Keywords` value.
+///
+/// ## Warning
+///
+/// May also improperly match some `Org` keywords if present.
+const PATTERN_TEXT_FRONTMATTER_KEYWORDS: &str = r#"(?m)^tags\s*:\s*((?:\S+\s+)*\S+)$"#;
+
+/// Multiline pattern to match the identifier line of `Text` front matter.
+/// Contains a single capture group to extract the `Identifier` value.
+const PATTERN_TEXT_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^identifier\s*:\s*(\d{8}T\d{6})$"#;
+
+/// Multiline pattern to match the opening and closing markers of `Yaml` front matter.
 const PATTERN_YAML_FRONTMATTER_CONTAINER: &str = r#"(?m)^---$"#;
-/// TODO
+
+/// Multiline pattern to match the title line of `Yaml` front matter.
+/// Contains a single capture group to extract the `Title` value.
 const PATTERN_YAML_FRONTMATTER_TITLE: &str = r#"(?m)^title\s*:\s+(".+")$"#;
-/// TODO
-const PATTERN_YAML_FRONTMATTER_DATE: &str = r#"(?m)^date\s*:\s+(.+)$"#; // will also unfortunately match the org and text dates
-/// TODO
+
+/// Multiline pattern to match the date line of `Yaml` front matter.
+/// Contains a single capture group to extract the `DateTime` value.
+///
+/// ## Warning
+///
+/// May also improperly match some `Text` and `Org` dates if present.
+const PATTERN_YAML_FRONTMATTER_DATE: &str = r#"(?m)^date\s*:\s+(.+)$"#;
+
+/// Multiline pattern to match the tags line of `Yaml` front matter.
+/// Contains a single capture group to extract the `Keywords` value.
 const PATTERN_YAML_FRONTMATTER_KEYWORDS: &str = r#"(?m)^tags\s*:\s+(\[(?:".+",\s+).*".+"\])$"#;
-/// TODO
+
+/// Multiline pattern to match the identifier line of `Yaml` front matter.
+/// Contains a single capture group to extract the `Identifier` value.
 const PATTERN_YAML_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^identifier\s*:\s+("\d{8}T\d{6}")$"#;
 
-/// TODO
+/// Multiline pattern to match the opening and closing markers of `Toml` frontmatter.
 const PATTERN_TOML_FRONTMATTER_CONTAINER: &str = r#"(?m)^\+\+\+$"#;
-/// TODO
+
+/// Multiline pattern to match the title line of `Toml` front matter.
+/// Contains a single capture group to extract the `Title` value.
 const PATTERN_TOML_FRONTMATTER_TITLE: &str = r#"(?m)^title\s*=\s*(".+")$"#;
-/// TODO
+
+/// Multiline pattern to match the date line of `Toml` front matter.
+/// Contains a single capture group to extract the `DateTime` value.
 const PATTERN_TOML_FRONTMATTER_DATE: &str = r#"(?m)^date\s*=\s*(.+)$"#;
-/// TODO
+
+/// Multiline pattern to match the tags line of `Toml` front matter.
+/// Contains a single capture group to extract the `Keywords` value.
 const PATTERN_TOML_FRONTMATTER_KEYWORDS: &str = r#"(?m)^tags\s*=\s*(\[(?:".+",\s+).*".+"\])$"#;
-/// TODO
+
+/// Multiline pattern to match the identifier line of `Toml` front matter.
+/// Contains a single capture group to extract the `Identifier` value.
 const PATTERN_TOML_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^identifier\s*=\s*("\d{8}T\d{6}")$"#;
 
-/// TODO
+/// Multiline pattern to match the title line of `Org` front matter.
+/// Contains a single capture group to extract the `Title` value.
 const PATTERN_ORG_FRONTMATTER_TITLE: &str = r#"(?m)^#\+title\s*:\s+(.+)$"#;
-/// TODO
-const PATTERN_ORG_FRONTMATTER_DATE: &str = r#"(?m)^#\+date\s*:\s+(.+)$"#; // matches any time format
-/// TODO
+
+/// Multiline pattern to match the date line of `Org` front matter.
+/// Contains a single capture group to extract the `DateTime` value.
+const PATTERN_ORG_FRONTMATTER_DATETIME: &str = r#"(?m)^#\+date\s*:\s+(.+)$"#;
+
+/// Multiline pattern to match the filetags line of `Org` front matter.
+/// Contains a single capture group to extract the `Keywords` value.
 const PATTERN_ORG_FRONTMATTER_KEYWORDS: &str = r#"(?m)^#\+filetags\s*:\s+((?::\S+)+:)$"#;
-/// TODO
+
+/// Multiline pattern to match the identifier line of `Org` front matter.
+/// Contains a single capture group to extract the `Identifier` value.
 const PATTERN_ORG_FRONTMATTER_IDENTIFIER: &str = r#"(?m)^#\+identifier\s*:\s+(\d{8}T\d{6})$"#;
 
 /// Attempts to partition a `&str` into a front matter prefix and a content suffix.
-/// Does so by separating
+/// Does so by separating at the first blank line and checking for valid frontmatter
+/// format. In the event that this fails, it will return its argument in the second
+/// position of the return tuple, cast as an `Option<String>`.
 pub fn separate_existing_content(content: &str) -> (Option<String>, Option<String>) {
     let split = content
         .split_once("\n\n")
@@ -66,7 +117,8 @@ pub fn separate_existing_content(content: &str) -> (Option<String>, Option<Strin
     }
 }
 
-/// Checks that a `&str` conforms to one of the valid dn front matter formats.
+/// Checks that a `&str` conforms to one of the valid dn front matter formats -
+/// `Text`, `Yaml`, `Toml`, or `Org`
 fn is_valid_frontmatter_format(content: &str) -> bool {
     const ORG_SEGMENT_PREFIX: &str = "#+";
 
@@ -254,7 +306,7 @@ mod tests {
         #[test]
         fn date_parses_correctly() {
             // Arrange
-            let re = Regex::new(PATTERN_TEXT_FRONTMATTER_DATE).unwrap();
+            let re = Regex::new(PATTERN_TEXT_FRONTMATTER_DATETIME).unwrap();
             let input = "date  :  2024-12-12 @ 12:12:12\n";
             let expected = "2024-12-12 @ 12:12:12";
 
@@ -488,7 +540,7 @@ mod tests {
         #[test]
         fn test_date() {
             // Arrange
-            let re = Regex::new(PATTERN_ORG_FRONTMATTER_DATE).unwrap();
+            let re = Regex::new(PATTERN_ORG_FRONTMATTER_DATETIME).unwrap();
             let input = "#+date:  [2024-12-12 Thu 12:12]\n";
             let expected = "[2024-12-12 Thu 12:12]";
 
