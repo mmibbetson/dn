@@ -12,7 +12,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Context, Error};
+use anyhow::{anyhow, Error};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -331,7 +331,7 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
 ///
 /// // Load from environment, returning None if not found
 /// let config = load_config(&None)?;
-/// 
+///
 /// // Handle the result
 /// match config {
 ///     Some(cfg) => println!("Config loaded successfully"),
@@ -339,7 +339,7 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
 /// }
 pub fn load_config(provided_path: &Option<String>) -> Result<Option<Config>, Error> {
     match provided_path {
-        Some(path) => read_config(&PathBuf::from(path)).map(Some),
+        Some(path) => read_config(PathBuf::from(path)).map(Some),
         None => match environment_config_dir() {
             Ok(path) => {
                 let config = path.join("dn.toml");
@@ -638,4 +638,6 @@ mod tests {
             "\nInput: {input:#?}\nExpected an error.\nReceived: {result:#?}",
         );
     }
+
+    // TODO: Add tests for load_config if possible.
 }
