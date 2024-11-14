@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! TODO
+//! CLI tool for managing notes in a minimalistic, cross-platform, free, extensible manner.
 
 use std::{fs, path::PathBuf};
 

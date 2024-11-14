@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! TODO
+//! Data types and utility functions for dealing with dn's configuration file
+//! and the configuration of individual modules.
 
 use std::{
     collections::HashSet,
@@ -180,6 +181,8 @@ impl ConfigBuilder {
     /// Returns an `anyhow::Error` if unable to determine the front matter
     /// format.
     pub fn build(&self) -> Result<Config, Error> {
+        // TODO: This should try to get the base config first from the default location
+        // and only if it is not present there should it default to the base struct values.
         let base_config = self.base_config.clone().unwrap_or_default();
 
         let directory = self
@@ -225,7 +228,7 @@ impl ConfigBuilder {
             let format = self
                 .frontmatter_format
                 .clone()
-                .map(|f| determine_frontmatter_format(&f));
+                .map(|f| string_to_frontmatter_format(&f));
 
             match format {
                 Some(result) => result?,
@@ -284,7 +287,7 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
 }
 
 /// Attempt to parse a string slice into a `FrontmatterFormat`.
-fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, Error> {
+fn string_to_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, Error> {
     match format_arg.to_lowercase().as_str() {
         "text" => Ok(FrontmatterFormat::Text),
         "yaml" => Ok(FrontmatterFormat::Yaml),

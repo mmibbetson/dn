@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! TODO
+//! Serialisation and deserialisation of dn-compatible file names.
 
 use std::fmt::Display;
 
@@ -153,8 +153,6 @@ impl ToFilename for FileMetadata {
 
 /// Attempts to parse a segment from a filename based on a regular expression and
 /// return it as an `Option<String>`
-///
-/// **WARN**: Currently may panic on unwrap if the regex fails to be constructed.
 fn parse_segment(filename: &str, regex: &Lazy<Regex>) -> Option<String> {
     regex.find(filename).map(|m| m.as_str().to_owned())
 }

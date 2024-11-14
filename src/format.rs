@@ -2,6 +2,11 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+//! This module should not exist in its current state.
+//!
+//! Due to have its components incorporated into the `content.rs` and `frontmatter.rs`
+//! modules soon.
+
 use once_cell::sync::Lazy;
 use regex::Regex;
 
@@ -149,11 +154,11 @@ pub fn separate_existing_content(input_content: &str) -> (Option<String>, Option
             .or_else(|| input_content.split_once("\r\n\r\n"))
             .map_or_else(
                 || (None, Some(input_content.to_owned())),
-                |(prefix, suffix)| {
-                    let (filename, content) = if is_valid_frontmatter_format(prefix) {
+                |(p, s)| {
+                    let (filename, content) = if is_valid_frontmatter_format(p) {
                         (
-                            Some(prefix.to_owned()),
-                            (!suffix.is_empty()).then(|| suffix.to_owned()),
+                            Some(p.to_owned()),
+                            (!s.is_empty()).then(|| s.to_owned()),
                         )
                     } else {
                         (None, Some(input_content.to_owned()))

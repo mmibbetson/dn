@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! TODO
+//! Serialisation and deserialisation of the general metadata of a note which dn concerns
+//! itself with.
 
 use std::collections::HashSet;
 

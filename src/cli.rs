@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! TODO
+//! CLAP-derive struct to define the dn CLI.
 
 use clap::{Parser, Subcommand};
 

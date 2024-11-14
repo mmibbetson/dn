@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! TODO
+//! Utilities for handling internal file contents.
 
 /// Concatenates frontmatter and content portions of file content, frontmatter-first. Any portion
 /// the value of which is equal to `None` will be ignored.
