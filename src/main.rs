@@ -4,9 +4,15 @@
 
 //! CLI tool for managing notes in a minimalistic, cross-platform, free, extensible manner.
 
+use std::{fs, path::PathBuf};
 
 use clap::Parser;
 use cli::Cli;
+use config::{read_config, Config};
+use content::concatenate_file_content;
+use filename::ToFilename;
+use format::separate_existing_content;
+use metadata::FileMetadata;
 
 mod cli;
 mod config;
@@ -17,7 +23,7 @@ mod format;
 mod metadata;
 
 fn main() {
-    let cli = Cli::parse();
+    // let cli = Cli::parse();
 
     // match &cli.command {
     //     cli::Commands::New {
@@ -45,7 +51,7 @@ fn main() {
     //             });
 
     //             config_builder = config_base
-    //                 .map(|p| config_builder.with_base_config(p))
+    //                 .map(|p| config_builder.with_base_config(&p))
     //                 .unwrap_or(config_builder);
 
     //             config_builder = cli_generate_frontmatter
@@ -53,19 +59,19 @@ fn main() {
     //                 .unwrap_or(config_builder);
 
     //             config_builder = cli_directory_path
-    //                 .map(|p| config_builder.with_file_directory(p))
+    //                 .map(|p| config_builder.with_file_directory(&p))
     //                 .unwrap_or(config_builder);
 
     //             config_builder = cli_extension
-    //                 .map(|e| config_builder.with_file_default_extension(e))
+    //                 .map(|e| config_builder.with_file_default_extension(&e))
     //                 .unwrap_or(config_builder);
 
     //             config_builder = cli_template_path
-    //                 .map(|p| config_builder.with_file_template_path(p.into()))
+    //                 .map(|p| config_builder.with_file_template_path(&p.into()))
     //                 .unwrap_or(config_builder);
 
     //             config_builder = cli_frontmatter_format
-    //                 .map(|f| config_builder.with_frontmatter_format(f))
+    //                 .map(|f| config_builder.with_frontmatter_format(&f))
     //                 .unwrap_or(config_builder);
 
     //             config_builder.build().unwrap_or_else(|e| {
@@ -141,7 +147,7 @@ fn main() {
     //             });
 
     //             config_builder = config_base
-    //                 .map(|p| config_builder.with_base_config(p))
+    //                 .map(|p| config_builder.with_base_config(&p))
     //                 .unwrap_or(config_builder);
 
     //             config_builder = cli_regenerate_identifier
@@ -153,11 +159,11 @@ fn main() {
     //                 .unwrap_or(config_builder);
 
     //             config_builder = cli_extension
-    //                 .map(|e| config_builder.with_file_default_extension(e))
+    //                 .map(|e| config_builder.with_file_default_extension(&e))
     //                 .unwrap_or(config_builder);
 
     //             config_builder = cli_frontmatter_format
-    //                 .map(|f| config_builder.with_frontmatter_format(f))
+    //                 .map(|f| config_builder.with_frontmatter_format(&f))
     //                 .unwrap_or(config_builder);
 
     //             config_builder.build().unwrap_or_else(|e| {

@@ -4,8 +4,15 @@
 
 //! Utilities for handling internal file contents.
 
-/// Concatenates frontmatter and content portions of file content, frontmatter-first. Any portion
-/// the value of which is equal to `None` will be ignored.
+/// Concatenates the frontmatter and content, with front matter first. If either portion is `None`, it is ignored.
+///
+/// # Example
+/// ```
+/// let frontmatter = Some(b"---\ntitle: Example\n---\n\n");
+/// let content = Some(b"Hello, world!");
+/// let result = concatenate_file_content(frontmatter, content);
+/// assert_eq!(result, b"---\ntitle: Example\n---\n\nHello, world!");
+/// ```
 pub fn concatenate_file_content<T: AsRef<[u8]>>(
     frontmatter: Option<T>,
     content: Option<T>,

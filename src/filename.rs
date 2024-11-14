@@ -51,17 +51,22 @@ pub struct Filename {
 
 /// A trait for converting a value to a `Filename`.
 ///
-/// Does not perform sanitisation on the data before creating the `Filename`.
-/// Intended to be used between the file name written to the file system and the
-/// `FileMetadata` struct.
+/// This trait does **not** perform any sanitization on the data before creating the `Filename`.
+/// It is intended for use between the filename written to the file system and the `FileMetadata`
+/// struct.
 ///
-/// When converting from `FileMetada` to `Filename`, the content will be
-/// sanitised. When converting from `String` to `Filename`, the resulting struct
-/// should be converted into a `FileMetadata` via the `FileMetadataBuilder` to
-/// ensure the validity of the content. From there it can be converted into a
-/// `Filename` again or any other type covertible from `FileMetadata`.
+/// - When converting from `FileMetadata` to `Filename`, the content will be sanitized.
+/// - When converting from `String` to `Filename`, the resulting `Filename` should be converted
+///   into a `FileMetadata` using the `FileMetadataBuilder` to ensure content validity. From there,
+///   it can be converted back into a `Filename` or any other type convertible from `FileMetadata`.
+///
+/// # Example
+/// ```
+/// let config = FileConfig::default();
+/// let filename = "--example__tag1.txt".to_filename(&config);
+/// ```
 pub trait ToFilename {
-    /// Converts the given value to a `Filename`.
+    /// Converts the value to a `Filename`.
     fn to_filename(&self, config: &FileConfig) -> Filename;
 }
 
@@ -69,7 +74,7 @@ impl Display for Filename {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let ordered = self
             .segment_order
-            .map(|seg| match seg {
+            .map(|s| match s {
                 FilenameSegment::Identifier => self.identifier.clone(),
                 FilenameSegment::Signature => self.signature.clone().unwrap_or_default(),
                 FilenameSegment::Title => self.title.clone().unwrap_or_default(),
@@ -150,14 +155,27 @@ impl ToFilename for FileMetadata {
         }
     }
 }
-
-/// Attempts to parse a segment from a filename based on a regular expression and
-/// return it as an `Option<String>`
+/// Attempts to parse a segment from a filename using the provided regex, returning it as an `Option<String>`.
+///
+/// # Example
+///
+/// ```
+/// let regex = Lazy::new(|| Regex::new(r"\d+").unwrap());
+/// let result = parse_segment("file123.txt", &regex);
+/// assert_eq!(result, Some("123".to_string()));
+/// ```
 fn parse_segment(filename: &str, regex: &Lazy<Regex>) -> Option<String> {
     regex.find(filename).map(|m| m.as_str().to_owned())
 }
 
 /// Applies a prefix corresponding to the `FilenameSegment` variant to an input string.
+///
+/// # Example
+///
+/// ```
+/// let result = prefix_segment("file", FilenameSegment::Title);
+/// assert_eq!(result, "--file");
+/// ```
 fn prefix_segment(value: &str, segment: FilenameSegment) -> String {
     let prefix = match segment {
         FilenameSegment::Identifier => "@@",
