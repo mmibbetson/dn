@@ -61,9 +61,8 @@ static REGEX_FRONTMATTER_YAML_CONTAINER: Lazy<Regex> =
 
 /// Multiline-pattern regex to match the title line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Title` value.
-static REGEX_FRONTMATTER_YAML_TITLE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?m)^title\s*:\s+(.+)$").expect("Invalid YAML title regex pattern")
-});
+static REGEX_FRONTMATTER_YAML_TITLE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?m)^title\s*:\s+(.+)$").expect("Invalid YAML title regex pattern"));
 
 /// Multiline-pattern regex to match the date line of `Yaml` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
