@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+// SPDX-FileContributor: Matthew Mark Ibbetson
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -11,10 +12,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Error};
+use anyhow::{anyhow, Context, Error};
 use serde::{Deserialize, Serialize};
 
-use crate::{directory::environment_notes_dir, metadata::SEGMENT_SEPARATORS};
+use crate::{
+    directory::{environment_config_dir, environment_notes_dir},
+    metadata::SEGMENT_SEPARATORS,
+};
 
 /// Represents the configuration state for dn as a whole.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -190,8 +194,6 @@ impl ConfigBuilder {
     /// assert_eq!(metadata.title, Some("example-title".to_owned()))
     /// ```
     pub fn build(&self) -> Result<Config, Error> {
-        // TODO: This should try to get the base config first from the default location
-        // and only if it is not present there should it default to the base struct values.
         let base_config = self.base_config.clone().unwrap_or_default();
 
         let directory = self
@@ -307,6 +309,50 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let config = toml::from_str(&contents)?;
 
     Ok(config)
+}
+
+/// Attempts to load configuration from either a provided path or the environment configuration directory.
+///
+/// If a path is provided, attempts to load and validate it, failing if invalid.
+/// If no path is provided, checks the environment configuration directory for "dn.toml".
+/// Returns None if no environment config exists or if the directory isn't accessible.
+///
+/// # Errors
+///
+/// This function will return an error in the following cases:
+/// - The configuration file cannot be read or parsed
+///
+/// # Examples
+///
+/// ```rust
+/// // Load from a specific path
+/// let config = load_config(&Some("config.toml".to_string()))?;
+/// assert!(config.is_some());
+///
+/// // Load from environment, returning None if not found
+/// let config = load_config(&None)?;
+/// 
+/// // Handle the result
+/// match config {
+///     Some(cfg) => println!("Config loaded successfully"),
+///     None => println!("No config found, using defaults"),
+/// }
+pub fn load_config(provided_path: &Option<String>) -> Result<Option<Config>, Error> {
+    match provided_path {
+        Some(path) => read_config(&PathBuf::from(path)).map(Some),
+        None => match environment_config_dir() {
+            Ok(path) => {
+                let config = path.join("dn.toml");
+
+                if config.exists() && config.is_file() {
+                    read_config(&path).map(Some)
+                } else {
+                    Ok(None)
+                }
+            }
+            Err(_) => Ok(None),
+        },
+    }
 }
 
 /// Attempts to parse a string slice into a `FrontmatterFormat`. The string is lowercased before
