@@ -179,6 +179,7 @@ We try to keep dependencies minimal. Ideally, this will become a [cold-blooded](
 
 - We follow [Semantic Versioning](https://semver.org/) for version numbering.
 - We use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+- We are [REUSE](https://reuse.software/) complaint.
 - We aim for [POSIX Compliance](https://pubs.opengroup.org/onlinepubs/9699919799/) where possible.
 
 ## Contributing

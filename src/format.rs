@@ -1,3 +1,12 @@
+// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+//! This module should not exist in its current state.
+//!
+//! Due to have its components incorporated into the `content.rs` and `frontmatter.rs`
+//! modules soon.
+
 use once_cell::sync::Lazy;
 use regex::Regex;
 
@@ -52,9 +61,8 @@ static REGEX_FRONTMATTER_YAML_CONTAINER: Lazy<Regex> =
 
 /// Multiline-pattern regex to match the title line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Title` value.
-static REGEX_FRONTMATTER_YAML_TITLE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^title\s*:\s+(".+")$"#).expect("Invalid YAML title regex pattern")
-});
+static REGEX_FRONTMATTER_YAML_TITLE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?m)^title\s*:\s+(.+)$").expect("Invalid YAML title regex pattern"));
 
 /// Multiline-pattern regex to match the date line of `Yaml` front matter.
 /// Contains a single capture group to extract the `DateTime` value.
@@ -68,7 +76,7 @@ static REGEX_FRONTMATTER_YAML_DATETIME: Lazy<Regex> =
 /// Multiline-pattern regex to match the tags line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
 static REGEX_FRONTMATTER_YAML_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^tags\s*:\s+(\[(?:".+",\s+).*".+"\])$"#)
+    Regex::new(r#"(?m)^tags\s*:\s+(\[(?:.+,\s+).*".+"\])$"#)
         .expect("Invalid YAML keywords regex pattern")
 });
 
@@ -132,10 +140,18 @@ static REGEX_FRONTMATTER_ORG_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
         .expect("Invalid Org identifier regex pattern")
 });
 
-/// Attempts to partition a `&str` into a front matter prefix and a content suffix.
-/// Does so by separating at the first blank line and checking for valid frontmatter
-/// format. In the event that this fails, it will return its argument in the second
-/// position of the return tuple, cast as an `Option<String>`.
+/// Attempts to partition a `&str` into front matter and content, separating at the first blank line.
+/// The front matter is validated for correct format. If parsing fails, the entire input is returned
+/// as content.
+///
+/// # Example
+///
+/// ```
+/// let input = "---\ntitle: Example\n---\nThis is the content.";
+/// let (frontmatter, content) = separate_existing_content(input);
+/// assert_eq!(frontmatter, Some("---\ntitle: Example\n---".to_string()));
+/// assert_eq!(content, Some("This is the content.".to_string()));
+/// ```
 pub fn separate_existing_content(input_content: &str) -> (Option<String>, Option<String>) {
     if input_content.is_empty() {
         (None, None)
@@ -145,12 +161,9 @@ pub fn separate_existing_content(input_content: &str) -> (Option<String>, Option
             .or_else(|| input_content.split_once("\r\n\r\n"))
             .map_or_else(
                 || (None, Some(input_content.to_owned())),
-                |(prefix, suffix)| {
-                    let (filename, content) = if is_valid_frontmatter_format(prefix) {
-                        (
-                            Some(prefix.to_owned()),
-                            (!suffix.is_empty()).then(|| suffix.to_owned()),
-                        )
+                |(p, s)| {
+                    let (filename, content) = if is_valid_frontmatter_format(p) {
+                        (Some(p.to_owned()), (!s.is_empty()).then(|| s.to_owned()))
                     } else {
                         (None, Some(input_content.to_owned()))
                     };
@@ -161,8 +174,17 @@ pub fn separate_existing_content(input_content: &str) -> (Option<String>, Option
     }
 }
 
-/// Checks that a `&str` conforms to one of the valid dn front matter formats -
-/// `Text`, `Yaml`, `Toml`, or `Org`
+/// Checks if a `&str` conforms to one of the valid front matter formats: `Text`, `Yaml`, `Toml`, or `Org`.
+/// Valid formats are determined by matching the structure of the front matter content.
+///
+/// # Example
+///
+/// ```
+/// let valid_yaml = "---\ntitle: Example\n---";
+/// let invalid_yaml = "title: Example";
+/// assert!(is_valid_frontmatter_format(valid_yaml));
+/// assert!(!is_valid_frontmatter_format(invalid_yaml));
+/// ```
 fn is_valid_frontmatter_format(content: &str) -> bool {
     const ORG_SEGMENT_PREFIX: &str = "#+";
 

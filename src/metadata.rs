@@ -1,4 +1,9 @@
-//! TODO
+// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+//! Serialisation and deserialisation of the general metadata of a note which dn concerns
+//! itself with.
 
 use std::collections::HashSet;
 
@@ -91,6 +96,15 @@ impl FileMetadataBuilder {
     ///
     /// Parses and sanitises the various segment arguments into their correct format
     /// for use in dn before constructing the `FileMetadata`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let builder = FileMetadata::builder();
+    /// builder = builder.with_title(&Some("Example Title!"));
+    /// metadata = builder.build(config)
+    /// assert_eq!(metadata.title, Some("example-title".to_owned()))
+    /// ```
     pub fn build(&self, config: &FileConfig) -> FileMetadata {
         let datetime = derive_datetime(&self.identifier);
 
@@ -161,8 +175,16 @@ impl FileMetadataBuilder {
     }
 }
 
-/// Derives a local datetime from an optional dn identifier. If the identifier is
-/// not successfully parsed into a `DateTime<Local>`, then falls back to `Local::now()`.
+/// Derives a `DateTime<Local>` from an optional dn identifier string.
+/// If parsing fails, defaults to the current local time (`Local::now()`).
+///
+/// # Example
+///
+/// ```
+/// let identifier = Some("20241212T121212".to_string());
+/// let datetime = derive_datetime(&identifier);
+/// assert_eq!(datetime.year(), 2024);
+/// ```
 fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
     match identifier {
         Some(identifier) => match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
@@ -175,7 +197,16 @@ fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
     }
 }
 
-/// Parses the signature argument to a valid dn signature.
+/// Parses the signature argument to a valid dn signature by removing segment separators
+/// and illegal characters, then converting to lowercase. Returns `None` if the result is empty.
+///
+/// # Example
+///
+/// ```
+/// let signature = "1A!3";
+/// let valid_signature = parse_signature(signature, &illegal_characters);
+/// assert_eq!(valid_signature, Some("1a3".to_string()));
+/// ```
 fn parse_signature(signature_arg: &str, illegal_characters: &HashSet<char>) -> Option<String> {
     let out = signature_arg
         .to_lowercase()
@@ -191,7 +222,16 @@ fn parse_signature(signature_arg: &str, illegal_characters: &HashSet<char>) -> O
     }
 }
 
-/// Parses the title argument to a valid dn title.
+/// Parses the title argument to a valid dn title by sanitizing and splitting on `-` or ` `,
+/// then joining the sanitized words with a `-`. Returns `None` if the result is empty.
+///
+/// # Example
+///
+/// ```
+/// let title = "My Title Example";
+/// let valid_title = parse_title(title, &illegal_characters);
+/// assert_eq!(valid_title, Some("my-title-example".to_string()));
+/// ```
 fn parse_title(title_arg: &str, illegal_characters: &HashSet<char>) -> Option<String> {
     let out = title_arg
         .to_lowercase()
@@ -208,7 +248,16 @@ fn parse_title(title_arg: &str, illegal_characters: &HashSet<char>) -> Option<St
     }
 }
 
-/// Parses the keywords argument to a valid dn keywords vector.
+/// Parses the keywords argument to a valid dn keywords vector by sanitizing and splitting on `_` or ` `,
+/// returning `None` if the result is empty.
+///
+/// # Example
+///
+/// ```
+/// let keywords = "tag_ONE! tagtwo";
+/// let valid_keywords = parse_keywords(keywords, &illegal_characters);
+/// assert_eq!(valid_keywords, Some(vec!["tag".to_string(), "one".to_string(), "tagtwo".to_string()]));
+/// ```
 fn parse_keywords(keywords_arg: &str, illegal_characters: &HashSet<char>) -> Option<Vec<String>> {
     let out = keywords_arg
         .to_lowercase()
@@ -224,7 +273,16 @@ fn parse_keywords(keywords_arg: &str, illegal_characters: &HashSet<char>) -> Opt
     }
 }
 
-/// Parses the extension argument to a valid dn extension.
+/// Parses the extension argument to a valid dn extension by sanitizing and splitting on `.` or ` `,
+/// then joining the sanitized parts with a `.`. Returns `None` if the result is empty.
+///
+/// # Example
+///
+/// ```
+/// let extension = ".tar gz";
+/// let valid_extension = parse_extension(extension, &illegal_characters);
+/// assert_eq!(valid_extension, Some("tar.gz".to_string()));
+/// ```
 fn parse_extension(extension_arg: &str, illegal_characters: &HashSet<char>) -> Option<String> {
     let out = extension_arg
         .to_lowercase()
@@ -241,7 +299,15 @@ fn parse_extension(extension_arg: &str, illegal_characters: &HashSet<char>) -> O
     }
 }
 
-/// Removes segment separators and illegal characters from a dirty string.
+/// Removes segment separators and illegal characters from a dirty string, returning a sanitized result.
+///
+/// # Example
+///
+/// ```
+/// let dirty = "My@-String!";
+/// let sanitized = sanitise(dirty, &illegal_characters);
+/// assert_eq!(sanitized, "MyString".to_string());
+/// ```
 fn sanitise(dirty: &str, illegal_characters: &HashSet<char>) -> String {
     dirty
         .chars()

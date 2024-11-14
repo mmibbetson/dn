@@ -1,4 +1,9 @@
-//! TODO
+// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+//! Data types and utility functions for dealing with dn's configuration file
+//! and the configuration of individual modules.
 
 use std::{
     collections::HashSet,
@@ -125,20 +130,20 @@ impl Config {
 
 impl ConfigBuilder {
     /// Adds a path to a configuration file to the builder.
-    pub fn with_base_config(mut self, value: Config) -> Self {
-        self.base_config = Some(value);
+    pub fn with_base_config(mut self, value: &Config) -> Self {
+        self.base_config = Some(value.to_owned());
         self
     }
 
     /// Adds the output directory for the file to the builder.
-    pub fn with_file_directory(mut self, value: String) -> Self {
-        self.file_directory = Some(value);
+    pub fn with_file_directory(mut self, value: &str) -> Self {
+        self.file_directory = Some(value.to_owned());
         self
     }
 
     /// Adds the default file extension for the file to the builder.
-    pub fn with_file_default_extension(mut self, value: String) -> Self {
-        self.file_default_extension = Some(value);
+    pub fn with_file_default_extension(mut self, value: &str) -> Self {
+        self.file_default_extension = Some(value.to_owned());
         self
     }
 
@@ -149,8 +154,8 @@ impl ConfigBuilder {
     }
 
     /// Adds the input path for a template file to the builder.
-    pub fn with_file_template_path(mut self, value: PathBuf) -> Self {
-        self.file_template_path = Some(value);
+    pub fn with_file_template_path(mut self, value: &PathBuf) -> Self {
+        self.file_template_path = Some(value.to_owned());
         self
     }
 
@@ -161,8 +166,8 @@ impl ConfigBuilder {
     }
 
     /// Sets which format to use for the frontmatter to the builder.
-    pub fn with_frontmatter_format(mut self, value: String) -> Self {
-        self.frontmatter_format = Some(value);
+    pub fn with_frontmatter_format(mut self, value: &str) -> Self {
+        self.frontmatter_format = Some(value.to_owned());
         self
     }
 
@@ -171,11 +176,22 @@ impl ConfigBuilder {
     ///
     /// Prioritises as follows: `builder method > config file > type default`.
     ///
-    /// ## Errors
+    /// # Errors
     ///
     /// Returns an `anyhow::Error` if unable to determine the front matter
     /// format.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let builder = Config::builder();
+    /// builder = builder.with_default_extension(&Some("Example Title!"));
+    /// metadata = builder.build(config)
+    /// assert_eq!(metadata.title, Some("example-title".to_owned()))
+    /// ```
     pub fn build(&self) -> Result<Config, Error> {
+        // TODO: This should try to get the base config first from the default location
+        // and only if it is not present there should it default to the base struct values.
         let base_config = self.base_config.clone().unwrap_or_default();
 
         let directory = self
@@ -221,7 +237,7 @@ impl ConfigBuilder {
             let format = self
                 .frontmatter_format
                 .clone()
-                .map(|f| determine_frontmatter_format(&f));
+                .map(|f| string_to_frontmatter_format(&f));
 
             match format {
                 Some(result) => result?,
@@ -271,7 +287,21 @@ impl Default for FrontmatterConfig {
     }
 }
 
-/// Attempt to read the entire contents of a file and parse it into a `Config`.
+/// Attempts to read the entire contents of a file at the given path and parse it into a `Config`.
+///
+/// # Errors
+///
+/// This function will return an error if there is a problem reading the file or parsing the contents
+/// as a valid `Config`.
+///
+/// # Example
+///
+/// ```
+/// let builder = FileMetadata::builder();
+/// let config = read_config("path/to/config.toml")?;
+///
+/// builder.build(&config.file);
+/// ```
 pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let contents = fs::read_to_string(path)?;
     let config = toml::from_str(&contents)?;
@@ -279,8 +309,22 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     Ok(config)
 }
 
-/// Attempt to parse a string slice into a `FrontmatterFormat`.
-fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, Error> {
+/// Attempts to parse a string slice into a `FrontmatterFormat`. The string is lowercased before
+/// being matched on.
+///
+/// # Errors
+///
+/// This function will return an error if the input string does not match one of the valid frontmatter
+/// format names: `Text`, `Yaml`, `Toml`, or `Org`.
+///
+/// # Example
+///
+/// ```
+/// let format = string_to_frontmatter_format("toml")?;
+///
+/// assert_eq!(format, FrontmatterFormat::Toml);
+/// ```
+fn string_to_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, Error> {
     match format_arg.to_lowercase().as_str() {
         "text" => Ok(FrontmatterFormat::Text),
         "yaml" => Ok(FrontmatterFormat::Yaml),
@@ -294,7 +338,7 @@ fn determine_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
 
 /// Returns the default notes directory for dn. For use in serde macros.
 ///
-/// ## Value
+/// # Value
 ///
 /// It's value is a `PathBuf` from the first of these paths:
 /// - `$HOME/Documents/notes`
@@ -308,7 +352,7 @@ fn default_notes_directory() -> PathBuf {
 
 /// Returns the default value for file name segment order in `FilenameConfig`. For use in serde macros.
 ///
-/// ## Value
+/// # Value
 ///
 /// ```rust
 /// [
@@ -331,7 +375,7 @@ fn default_segment_order() -> [FilenameSegment; 5] {
 
 /// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
 ///
-/// ## Value
+/// # Value
 ///
 /// ```rust
 /// "txt".to_owned()
@@ -342,7 +386,7 @@ fn default_file_extension() -> String {
 
 /// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
 ///
-/// ## Value
+/// # Value
 ///
 /// ```rust
 /// FrontmatterFormat::Text
@@ -353,7 +397,7 @@ fn default_frontmatter_format() -> FrontmatterFormat {
 
 /// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
 ///
-/// ## Value
+/// # Value
 ///
 /// ```rust
 /// vec![
@@ -373,7 +417,7 @@ fn default_frontmatter_segment_order() -> Vec<FrontmatterSegment> {
 }
 /// Returns the default value for illegal characters in `FileConfig`. For use in serde macros.
 ///
-/// ## Value
+/// # Value
 ///
 /// ```rust
 /// HashSet::from([
@@ -445,7 +489,7 @@ mod tests {
                 ..FrontmatterConfig::default()
             },
         };
-        let input = Config::builder().with_base_config(base_config.clone());
+        let input = Config::builder().with_base_config(&base_config);
         let expected_illegal_characters = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
         let expected = Config {
             file: FileConfig {
@@ -476,10 +520,10 @@ mod tests {
         let format = "org".into();
 
         let input = Config::builder()
-            .with_file_default_extension(default_extension.clone())
-            .with_file_directory(directory.clone())
+            .with_file_default_extension(&default_extension)
+            .with_file_directory(&directory)
             .with_file_regenerate_identifier(regenerate_identifier)
-            .with_file_template_path(template_path.clone().into())
+            .with_file_template_path(&template_path.clone().into())
             .with_frontmatter_enabled(enabled)
             .with_frontmatter_format(format);
 
@@ -518,7 +562,7 @@ mod tests {
             },
             ..Config::default()
         };
-        let input = Config::builder().with_base_config(base_config.clone());
+        let input = Config::builder().with_base_config(&base_config);
         let expected = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
 
         // Act
@@ -535,7 +579,7 @@ mod tests {
     fn build_config_fails_with_invalid_frontmatter_format() {
         // Arrange
         let format = "scaml";
-        let input = Config::builder().with_frontmatter_format(format.to_owned());
+        let input = Config::builder().with_frontmatter_format(format);
 
         // Act
         let result = input.build();

@@ -1,4 +1,8 @@
-//! TODO
+// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+//! CLAP-derive struct to define the dn CLI.
 
 use clap::{Parser, Subcommand};
 
