@@ -7,7 +7,7 @@ edition = "2021"
 # categories = []
 readme = "README.md"
 license = "GPL-3.0-or-later"
-license-file = "LICENSE.txt"
+license-file = "LICENSES/GPL-3.0-or-later.txt"
 repository = "https://github.com/mmibbetson/dn"
 # homepage = "https://mmibbetson.github.io/dn"
 

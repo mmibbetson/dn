@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 //! This module currently is not very testable, inherently.
 
 use std::{env, fs, path::PathBuf};

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 //! TODO
 
 /// Concatenates frontmatter and content portions of file content, frontmatter-first. Any portion
