@@ -4,15 +4,9 @@
 
 //! CLI tool for managing notes in a minimalistic, cross-platform, free, extensible manner.
 
-use std::{fs, path::PathBuf};
 
 use clap::Parser;
 use cli::Cli;
-use config::{read_config, Config};
-use content::concatenate_file_content;
-use filename::ToFilename;
-use format::separate_existing_content;
-use metadata::FileMetadata;
 
 mod cli;
 mod config;

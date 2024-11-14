@@ -4,61 +4,78 @@
 
 //! Utilities for accessing and/or creating necessary directories.
 
-use std::{env, fs, path::PathBuf};
+use std::{
+    env, fs,
+    path::PathBuf,
+};
 
 use anyhow::Error;
 
-/// Get the default notes directory `Documents/notes/` in a platform-agnostic way.
+/// Retrieves the path to the "notes" directory inside the user's "Documents" directory.
 ///
-/// Tries to get relative to `$HOME` (Unix-like systems) or `$USERPROFILE` (Windows).
+/// This function attempts to locate the user's "Documents/notes" directory, creating it if it does not exist.
 ///
-/// If one case succeeds but the `Documents/notes/` directory is not present, it will be created.
-/// If both cases fail, falls back to current directory.
+/// # Errors
+/// This function will return an error if there is a failure in retrieving environment variables
+/// (like `HOME` on Unix systems or `USERPROFILE` on Windows), or if the directory cannot be created
+/// due to file system errors.
+///
+/// # Example
+/// ```
+/// let notes_dir = environment_notes_dir();
+/// assert!(notes_dir.is_ok());
+/// ```
 pub fn environment_notes_dir() -> Result<PathBuf, Error> {
-    let home_dir = env::var("HOME").or_else(|_| env::var("USERPROFILE"))?;
+    #[cfg(unix)]
+    let home_dir = env::var("HOME")?;
+    #[cfg(windows)]
+    let home_dir = env::var("USERPROFILE")?;
 
-    let path = match PathBuf::from(home_dir).join("Documents") {
-        path if path.exists() && path.is_dir() => path,
-        path => path,
+    match PathBuf::from(home_dir).join("Documents").join("notes") {
+        path if path.exists() && path.is_dir() => Ok(path),
+        path => {
+            fs::create_dir_all(&path)?;
+
+            Ok(path)
+        }
+    }
+}
+
+/// Retrieves the path to the "dn" directory inside the user's configuration folder.
+///
+/// This function looks for the user's configuration directory and attempts to locate the "dn" subdirectory,
+/// creating it if it does not exist. On Unix systems, it will first check `$XDG_CONFIG_HOME`, and if that
+/// is unavailable, fall back to `$HOME/.config`. On Windows, it will check `USERPROFILE/AppData/Roaming`.
+///
+/// # Errors
+/// This function may return an error if environment variables (`XDG_CONFIG_HOME`, `HOME`, `USERPROFILE`) cannot
+/// be accessed, or if directory creation fails.
+///
+/// # Example
+/// ```
+/// let config_dir = environment_config_dir();
+/// assert!(config_dir.is_ok());
+/// ```
+fn environment_config_dir() -> Result<PathBuf, Error> {
+    #[cfg(unix)]
+    let config_dir = {
+        let config_home = env::var("XDG_CONFIG_HOME").map(PathBuf::from);
+        let home_home = env::var("HOME").map(|home| PathBuf::from(home).join(".config"));
+
+        config_home.or(home_home)?
     };
+    #[cfg(windows)]
+    let config_dir =
+        env::var("USERPROFILE").map(|home| PathBuf::from(home).join("AppData").join("Roaming"))?;
 
-    let path = path.join("notes");
+    match config_dir.join("dn") {
+        path if path.exists() && path.is_dir() => Ok(path),
+        path => {
+            fs::create_dir_all(&path)?;
 
-    path.try_exists()?.then(|| fs::create_dir_all(&path));
-
-    Ok(path)
-}
-
-/// Get the default config directory `dn/` in a platform-agnostic way.
-///
-/// Tries to get relative to `$XDG_CONFIG_HOME` (Unix-like systems)
-/// or `$USERPROFILE\AppData\Roaming` (Windows)
-///
-/// If one case succeeds but the `dn/` directory is not present, it will be created.
-/// If both cases fail, falls back to current directory.
-#[cfg(windows)]
-fn environment_config_dir() -> Result<PathBuf, Error> {
-    env::var("USERPROFILE")
-        .map(|profile| PathBuf::from(profile).join("AppData").join("Roaming").join("dn"))
-        .and_then(|path| path.try_exists().then(|| fs::create_dir_all(&path)).map(|_| path))
-}
-
-/// Get the default config directory `dn/` in a platform-agnostic way.
-///
-/// Tries to get relative to `$XDG_CONFIG_HOME` or `$HOME`.
-///
-/// If one case succeeds but the `dn/` directory is not present, it will be created.
-/// If both cases fail, falls back to current directory.
-#[cfg(unix)]
-fn environment_config_dir() -> Result<PathBuf, Error> {
-    env::var("XDG_CONFIG_HOME")
-        .map(PathBuf::from)
-        .or_else(|_| env::var("HOME").map(|home| PathBuf::from(home).join(".config").join("dn")))
-        .and_then(|path| {
-            path.try_exists()
-                .then(|| fs::create_dir_all(&path))
-                .map(|_| path)
-        })
+            Ok(path)
+        }
+    }
 }
 
 ///////////
