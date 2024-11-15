@@ -638,6 +638,4 @@ mod tests {
             "\nInput: {input:#?}\nExpected an error.\nReceived: {result:#?}",
         );
     }
-
-    // TODO: Add tests for load_config if possible.
 }
