@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+// SPDX-FileContributor: Matthew Mark Ibbetson
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -8,7 +9,7 @@ use std::{fs, path::PathBuf};
 
 use clap::Parser;
 use cli::Cli;
-use config::{read_config, Config};
+use config::{load_config, Config};
 use content::concatenate_file_content;
 use filename::ToFilename;
 use format::separate_existing_content;
@@ -41,13 +42,9 @@ fn main() {
     //         let config = {
     //             let config_builder = Config::builder();
 
-    //             let config_base = cli_config_path.map(|p| match read_config(p) {
-    //                 Ok(config) => config,
-    //                 Err(error) => {
-    //                     // ERROR
-    //                     eprintln!("Error reading configuration: {error:#?}");
-    //                     std::process::exit(1);
-    //                 }
+    //             let config_base = load_config(cli_config_path).unwrap_or_else(|e| {
+    //                 eprintln!("Error loading configuration: {e:#?}");
+    //                 std::process::exit(1);
     //             });
 
     //             config_builder = config_base
@@ -92,13 +89,12 @@ fn main() {
     //         let filename = metadata.to_filename(&config.file).to_string();
     //         let frontmatter = cli_generate_frontmatter
     //             .then(|| metadata.to_frontmatter(&config.frontmatter).to_string());
-    //         let template = cli_template_path.map(|p| match fs::read(p) {
-    //             Ok(template) => template,
-    //             Err(error) => {
+    //         let template = cli_template_path.map(|p| {
+    //             fs::read(p).unwrap_or_else(|e| {
     //                 // ERROR
-    //                 eprintln!("Error reading template file: {error:#?}");
+    //                 eprintln!("Error reading template file: {e:#?}");
     //                 std::process::exit(1);
-    //             }
+    //             })
     //         });
 
     //         let output_path = cli_directory_path
@@ -137,13 +133,9 @@ fn main() {
     //         let config = {
     //             let config_builder = Config::builder();
 
-    //             let config_base = cli_config_path.map(|p| match read_config(p) {
-    //                 Ok(config) => config,
-    //                 Err(error) => {
-    //                     // ERROR
-    //                     eprintln!("Error reading configuration: {error:#?}");
-    //                     std::process::exit(1);
-    //                 }
+    //             let config_base = load_config(cli_config_path).unwrap_or_else(|e| {
+    //                 eprintln!("Error loading configuration: {e:#?}");
+    //                 std::process::exit(1);
     //             });
 
     //             config_builder = config_base
@@ -168,20 +160,17 @@ fn main() {
 
     //             config_builder.build().unwrap_or_else(|e| {
     //                 // ERROR
-    //                 eprintln!("Error buildig configuration: {e:#?}");
+    //                 eprintln!("Error building configuration: {e:#?}");
     //                 std::process::exit(1);
     //             })
     //         };
 
     //         let input_path = PathBuf::from(input);
-    //         let input_content = match fs::read_to_string(input_path) {
-    //             Ok(path) => path,
-    //             Err(error) => {
-    //                 // ERROR
-    //                 eprintln!("Error reading input file: {error:#?}");
-    //                 std::process::exit(1);
-    //             }
-    //         };
+    //         let input_content = fs::read_to_string(input_path).unwrap_or_else(|e| {
+    //             // ERROR
+    //             eprintln!("Error reading input file: {e:#?}");
+    //             std::process::exit(1);
+    //         });
 
     //         let (frontmatter_old_str, content_old_str) = separate_existing_content(&input_content);
 

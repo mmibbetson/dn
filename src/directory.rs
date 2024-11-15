@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+// SPDX-FileContributor: Matthew Mark Ibbetson
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -57,7 +58,7 @@ pub fn environment_notes_dir() -> Result<PathBuf, Error> {
 /// let config_dir = environment_config_dir();
 /// assert!(config_dir.is_ok());
 /// ```
-fn environment_config_dir() -> Result<PathBuf, Error> {
+pub fn environment_config_dir() -> Result<PathBuf, Error> {
     #[cfg(unix)]
     let config_dir = {
         let config_home = env::var("XDG_CONFIG_HOME").map(PathBuf::from);

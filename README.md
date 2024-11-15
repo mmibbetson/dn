@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+SPDX-FileContributor: Matthew Mark Ibbetson
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 # dn
 
 **dn** is a CLI tool for creating and renaming plaintext notes with a predictable, timestamped naming format. It is inspired by the amazing Emacs package [Denote](https://protesilaos.com/emacs/denote) created by [Prot](https://protesilaos.com/). dn creates files that can be easily queried using standard tools like `find`, `sed`, `grep`, `awk`, `ripgrep`, `fzf`, etc.
