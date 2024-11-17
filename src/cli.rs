@@ -89,7 +89,7 @@ pub enum Commands {
         cli_regenerate_identifier: bool,
 
         /// Rename based on frontmatter values
-        #[arg(short = 'f', long = "frontmatter")]
+        #[arg(short = 'f', long = "from-frontmatter")]
         cli_rename_from_frontmatter: bool,
 
         /// Generate or regenerate frontmatter
