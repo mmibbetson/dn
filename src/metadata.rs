@@ -8,7 +8,9 @@
 
 use std::collections::HashSet;
 
+use anyhow::{anyhow, Error};
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
+use icu_collator::{Collator, CollatorOptions, Strength};
 
 use crate::{config::FileConfig, format::DN_IDENTIFIER_FORMAT};
 
@@ -23,7 +25,7 @@ pub struct FileMetadata {
     pub signature: Option<String>,
     pub title: Option<String>,
     pub title_raw: Option<String>,
-    pub keywords: Option<HashSet<String>>,
+    pub keywords: Option<Vec<String>>,
     pub extension: String,
     pub datetime: DateTime<Local>,
 }
@@ -148,13 +150,28 @@ impl FileMetadataBuilder {
             if base_keywords.is_empty() && added_keywords.is_empty() {
                 None
             } else {
-                Some(
-                    base_keywords
+                let collator = {
+                    let mut options = CollatorOptions::new();
+                    options.strength = Some(Strength::Tertiary);
+
+                    // WARN: This expect will crash the program. It should never occur, though.
+                    Collator::try_new(Default::default(), options)
+                        .expect("Failed to create Unicode collator - this should never happen")
+                };
+
+                let keywords = {
+                    let mut keywords = base_keywords
                         .into_iter()
                         .chain(added_keywords)
                         .filter(|k| !removed_keywords.contains(k))
-                        .collect(),
-                )
+                        .collect::<Vec<_>>();
+
+                    keywords.sort_by(|a, b| collator.compare(a, b));
+                    keywords.dedup();
+                    keywords
+                };
+
+                Some(keywords)
             }
         };
 
@@ -509,7 +526,7 @@ mod tests {
             signature: Some("testsignature".to_owned()),
             title: Some("my-t3st-title".to_owned()),
             title_raw: Some("My T3ST Title!".to_owned()),
-            keywords: Some(HashSet::from(["testing".to_owned(), "changes".to_owned()])),
+            keywords: Some(vec!["changes".to_owned(), "testing".to_owned()]),
             extension: "dj".to_owned(),
             datetime: setup_datetime(),
             ..Default::default()
