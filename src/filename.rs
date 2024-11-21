@@ -257,7 +257,7 @@ mod tests {
             identifier: "20240101T120000".to_owned(),
             signature: Some("test-sig".to_owned()),
             title: Some("test-title".to_owned()),
-            keywords: Some(HashSet::from(["key1".to_owned(), "key2".to_owned()])),
+            keywords: Some(vec!["key1".to_owned(), "key2".to_owned()]),
             extension: ".txt".to_owned(),
             ..Default::default()
         };

@@ -8,7 +8,9 @@
 
 use std::collections::HashSet;
 
+use anyhow::{anyhow, Error};
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
+use icu_collator::{Collator, CollatorOptions, Strength};
 
 use crate::{config::FileConfig, format::DN_IDENTIFIER_FORMAT};
 
@@ -23,7 +25,7 @@ pub struct FileMetadata {
     pub signature: Option<String>,
     pub title: Option<String>,
     pub title_raw: Option<String>,
-    pub keywords: Option<HashSet<String>>,
+    pub keywords: Option<Vec<String>>,
     pub extension: String,
     pub datetime: DateTime<Local>,
 }
@@ -106,7 +108,7 @@ impl FileMetadataBuilder {
     /// metadata = builder.build(config)
     /// assert_eq!(metadata.title, Some("example-title".to_owned()))
     /// ```
-    pub fn build(&self, config: &FileConfig) -> FileMetadata {
+    pub fn build(&self, config: &FileConfig) -> Result<FileMetadata, Error> {
         let datetime = derive_datetime(&self.identifier);
 
         let identifier = self
@@ -148,13 +150,26 @@ impl FileMetadataBuilder {
             if base_keywords.is_empty() && added_keywords.is_empty() {
                 None
             } else {
-                Some(
-                    base_keywords
+                let collator = {
+                    let mut options = CollatorOptions::new();
+                    options.strength = Some(Strength::Tertiary);
+
+                    Collator::try_new(&Default::default(), options).map_err(|e| anyhow!(e))?
+                };
+
+                let keywords = {
+                    let mut keywords = base_keywords
                         .into_iter()
                         .chain(added_keywords)
                         .filter(|k| !removed_keywords.contains(k))
-                        .collect(),
-                )
+                        .collect::<Vec<_>>();
+
+                    keywords.sort_by(|a, b| collator.compare(a, b));
+                    keywords.dedup();
+                    keywords
+                };
+
+                Some(keywords)
             }
         };
 
@@ -164,7 +179,7 @@ impl FileMetadataBuilder {
             .and_then(|e| parse_extension(e, &config.illegal_characters))
             .unwrap_or_else(|| config.default_extension.clone());
 
-        FileMetadata {
+        Ok(FileMetadata {
             identifier,
             signature,
             title,
@@ -172,7 +187,7 @@ impl FileMetadataBuilder {
             keywords,
             extension,
             datetime,
-        }
+        })
     }
 }
 

@@ -19,6 +19,7 @@ repository = "https://github.com/mmibbetson/dn"
 anyhow = "1.0.92"
 chrono = "0.4.38"
 clap = { version = "4.5.20", features = ["derive"] }
+icu_collator = "1.5.0"
 once_cell = "1.20.2" # When Lazy is stabilised in Rust Stable, can remove this.
 regex = "1.11.1"
 serde = { version = "1.0.214", features = ["derive"] }
