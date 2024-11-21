@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # dn
 
-**dn** is a CLI tool for creating and renaming plaintext notes with a predictable, timestamped naming format. It is inspired by the amazing Emacs package [Denote](https://protesilaos.com/emacs/denote) created by [Prot](https://protesilaos.com/). dn creates files that can be easily queried using standard tools like `find`, `sed`, `grep`, `awk`, `ripgrep`, `fzf`, etc.
+dn is a CLI tool for creating and renaming plaintext notes with a predictable, timestamped naming format. It is inspired by the amazing Emacs package [Denote](https://protesilaos.com/emacs/denote) created by [Prot](https://protesilaos.com/). dn creates files that can be easily queried using standard tools like `find`, `sed`, `grep`, `awk`, `ripgrep`, `fzf`, etc.
 
 dn aims to reproduce the file naming functionality of Denote, while being entirely editor agnostic and scriptable in any language. It will adhere to the defaults of Denote as much as possible unless there are justifiable reasons to deviate such as limitation of scope for a CLI or the rare strong opinion of the author.
 
@@ -30,6 +30,8 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 (Add installation instructions here, e.g., through package managers, building from source, etc.)
 
 ### Package Manager
+
+TODO: Repology
 
 | OS  | Version |
 | :-- | ------: |
@@ -76,6 +78,8 @@ echo "foo" | rg $DN_DIRECTORY/$1 --file | nvim
 - [Denote](https://protesilaos.com/emacs/denote): The Emacs package that inspired this project
 - [Zettelkasten](https://zettelkasten.de/introduction/): A method for personal knowledge management
 - The Unix Philosophy
+
+## FAQ
 
 ## Dependencies
 

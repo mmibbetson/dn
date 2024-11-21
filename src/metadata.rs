@@ -108,7 +108,7 @@ impl FileMetadataBuilder {
     /// metadata = builder.build(config)
     /// assert_eq!(metadata.title, Some("example-title".to_owned()))
     /// ```
-    pub fn build(&self, config: &FileConfig) -> Result<FileMetadata, Error> {
+    pub fn build(&self, config: &FileConfig) -> FileMetadata {
         let datetime = derive_datetime(&self.identifier);
 
         let identifier = self
@@ -154,7 +154,9 @@ impl FileMetadataBuilder {
                     let mut options = CollatorOptions::new();
                     options.strength = Some(Strength::Tertiary);
 
-                    Collator::try_new(&Default::default(), options).map_err(|e| anyhow!(e))?
+                    // WARN: This expect will crash the program. It should never occur, though.
+                    Collator::try_new(Default::default(), options)
+                        .expect("Failed to create Unicode collator - this should never happen")
                 };
 
                 let keywords = {
@@ -179,7 +181,7 @@ impl FileMetadataBuilder {
             .and_then(|e| parse_extension(e, &config.illegal_characters))
             .unwrap_or_else(|| config.default_extension.clone());
 
-        Ok(FileMetadata {
+        FileMetadata {
             identifier,
             signature,
             title,
@@ -187,7 +189,7 @@ impl FileMetadataBuilder {
             keywords,
             extension,
             datetime,
-        })
+        }
     }
 }
 
@@ -524,7 +526,7 @@ mod tests {
             signature: Some("testsignature".to_owned()),
             title: Some("my-t3st-title".to_owned()),
             title_raw: Some("My T3ST Title!".to_owned()),
-            keywords: Some(HashSet::from(["testing".to_owned(), "changes".to_owned()])),
+            keywords: Some(vec!["changes".to_owned(), "testing".to_owned()]),
             extension: "dj".to_owned(),
             datetime: setup_datetime(),
             ..Default::default()
