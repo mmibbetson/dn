@@ -33,10 +33,6 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 
 TODO: Repology
 
-| OS  | Version |
-| :-- | ------: |
-|     |         |
-
 ### Cargo
 
 ```sh

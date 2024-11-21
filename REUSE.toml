@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+# SPDX-FileContributor: Matthew Mark Ibbetson
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+version = 1
+SPDX-PackageName = "dn"
+SPDX-PackageSupplier = "Matthew Mark Ibbetson <mmibbetson@gmail.com>"
+
+[[annotations]]
+path = "Cargo.lock"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Matthew Mark Ibbetson"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = "docs/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Matthew Mark Ibbetson"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = "man/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Matthew Mark Ibbetson"
+SPDX-License-Identifier = "GPL-3.0-or-later"

@@ -1,10 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
-SPDX-FileContributor: Matthew Mark Ibbetson
-
-SPDX-License-Identifier: GPL-3.0-or-later
--->
-
 # dn Commands
 
 This document details the commands available with dn as well as their various options.
