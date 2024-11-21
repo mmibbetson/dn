@@ -31,11 +31,11 @@ By default, the created note will be created in `~/Documents/notes` with the fol
 
 #### Content Options
 
-| Option                   | Short | Argument | Description                                    | Example                   |
-| :----------------------- | ----: | :------- | :--------------------------------------------- | :------------------------ |
-| `--generate-frontmatter` |  `-G` | None     | Add frontmatter to note                        | `dn new -G`               |
-| `--frontmatter-format`   |  `-F` | Format   | Set frontmatter format (text\|yaml\|toml\|org) | `dn new -F toml`          |
-| `--template`             |  `-T` | Path     | Use template file for note content             | `dn new -T ./example.txt` |
+| Option                   | Short | Argument | Description                                     | Example                   |
+| :----------------------- | ----: | :------- | :---------------------------------------------- | :------------------------ |
+| `--generate-frontmatter` |  `-G` | None     | Add frontmatter to note                         | `dn new -G`               |
+| `--frontmatter-format`   |  `-F` | Format   | Set frontmatter format (text\|yaml\|toml\|json) | `dn new -F toml`          |
+| `--template`             |  `-T` | Path     | Use template file for note content              | `dn new -T ./example.txt` |
 
 #### Other Options
 
@@ -92,9 +92,9 @@ The front matter generated in this new file would look something like the follow
 
 ```yaml
 ---
-title:      "My Note 2: This Time with Front Matter"
-date:       2024-11-20T21:57:00+02:00
-tags:       ["example", "kwrds"]
+title: "My Note 2: This Time with Front Matter"
+date: 2024-11-20T21:57:00+02:00
+tags: ["example", "kwrds"]
 identifier: "20241120T215700"
 ---
 ```
@@ -175,7 +175,7 @@ dn rename path/to/note
 | :----------------------- | ----: | :------- | :---------------------------------- | :--------------------------- |
 | `--from-frontmatter`     |  `-f` | None     | Use frontmatter values for renaming | `dn rename ./demo.md -f`     |
 | `--generate-frontmatter` |  `-G` | None     | Generate/regenerate frontmatter     | `dn rename ./demo.md -G`     |
-| `--frontmatter-format`   |  `-F` | Format   | Set format (text\|yaml\|toml\|org)  | `dn rename ./demo.md -f org` |
+| `--frontmatter-format`   |  `-F` | Format   | Set format (text\|yaml\|toml\|json)  | `dn rename ./demo.md -f json` |
 
 #### Other Renaming Options
 

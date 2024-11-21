@@ -105,7 +105,7 @@ pub enum FrontmatterFormat {
     Text,
     Yaml,
     Toml,
-    Org,
+    Json,
 }
 
 /// The valid front matter segments which dn concerns itself with.
@@ -361,7 +361,7 @@ pub fn load_config(provided_path: &Option<String>) -> Result<Option<Config>, Err
 /// # Errors
 ///
 /// This function will return an error if the input string does not match one of the valid frontmatter
-/// format names: `Text`, `Yaml`, `Toml`, or `Org`.
+/// format names: `Text`, `Yaml`, `Toml`, or `Json`.
 ///
 /// # Example
 ///
@@ -375,9 +375,9 @@ fn string_to_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, E
         "text" => Ok(FrontmatterFormat::Text),
         "yaml" => Ok(FrontmatterFormat::Yaml),
         "toml" => Ok(FrontmatterFormat::Toml),
-        "org" => Ok(FrontmatterFormat::Org),
+        "json" => Ok(FrontmatterFormat::Json),
         _ => Err(anyhow!(
-            "Invalid frontmatter format provided, must be one of: text, yaml, toml, org.\nGot: {format_arg:#?}"
+            "Invalid frontmatter format provided, must be one of: text, yaml, toml, json.\nGot: {format_arg:#?}"
         )),
     }
 }
@@ -563,7 +563,7 @@ mod tests {
         let regenerate_identifier = true;
         let template_path = "./template.txt".to_owned();
         let enabled = true;
-        let format = "org".into();
+        let format = "json".into();
 
         let input = Config::builder()
             .with_file_default_extension(&default_extension)
@@ -583,7 +583,7 @@ mod tests {
             },
             frontmatter: FrontmatterConfig {
                 enabled,
-                format: FrontmatterFormat::Org,
+                format: FrontmatterFormat::Json,
                 ..Default::default()
             },
         };

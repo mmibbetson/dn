@@ -54,7 +54,7 @@ pub enum Commands {
         #[arg(
             short = 'F',
             long = "frontmatter-format",
-            value_name = "text|yaml|toml|org"
+            value_name = "text|yaml|toml|json"
         )]
         cli_frontmatter_format: Option<String>,
 
@@ -104,7 +104,7 @@ pub enum Commands {
         #[arg(
             short = 'F',
             long = "frontmatter-format",
-            value_name = "text|yaml|toml|org"
+            value_name = "text|yaml|toml|json"
         )]
         cli_frontmatter_format: Option<String>,
 
