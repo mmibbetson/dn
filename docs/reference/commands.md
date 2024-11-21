@@ -171,11 +171,11 @@ dn rename path/to/note
 
 #### Frontmatter Renaming Options
 
-| Option                   | Short | Argument | Description                         | Example                      |
-| :----------------------- | ----: | :------- | :---------------------------------- | :--------------------------- |
-| `--from-frontmatter`     |  `-f` | None     | Use frontmatter values for renaming | `dn rename ./demo.md -f`     |
-| `--generate-frontmatter` |  `-G` | None     | Generate/regenerate frontmatter     | `dn rename ./demo.md -G`     |
-| `--frontmatter-format`   |  `-F` | Format   | Set format (text\|yaml\|toml\|json)  | `dn rename ./demo.md -f json` |
+| Option                   | Short | Argument | Description                         | Example                       |
+| :----------------------- | ----: | :------- | :---------------------------------- | :---------------------------- |
+| `--from-frontmatter`     |  `-f` | None     | Use frontmatter values for renaming | `dn rename ./demo.md -f`      |
+| `--generate-frontmatter` |  `-G` | None     | Generate/regenerate frontmatter     | `dn rename ./demo.md -G`      |
+| `--frontmatter-format`   |  `-F` | Format   | Set format (text\|yaml\|toml\|json) | `dn rename ./demo.md -f json` |
 
 #### Other Renaming Options
 
