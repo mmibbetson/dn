@@ -12,7 +12,7 @@ use cli::Cli;
 use config::{load_config, Config};
 use content::concatenate_file_content;
 use filename::ToFilename;
-use format::separate_existing_content;
+use format::get_first_paragraph;
 use metadata::FileMetadata;
 
 mod cli;
