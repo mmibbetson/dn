@@ -64,12 +64,12 @@ dn new --title 'My First Note!' \
        --keywords 'demo example' \
        --extension md
 
-# [identifier]--my-first-note\_\_demo_example.md
+# [identifier]--my-first-note__demo_example.md
 ```
 
 #### Working with Separators
 
-Instead of quoting the values like `'My First Note!'`, you can also use the corresponding segment separator to provide multiple words for a segment. Since the separator for title is `-`, the prior could be rewritten as `My-First-Note!`.
+Instead of quoting the values like `'My First Note!'`, you can also use the corresponding segment separator to provide multiple words for a segment. Since the separator for **title** is `-`, the prior could be rewritten as `My-First-Note!`.
 
 ```sh
 # Separators in metadata are handled automatically
@@ -122,7 +122,7 @@ dn new --template ./journal-template.md \
 dn new --generate-frontmatter \
        --template ./journal-template.md
 
-# [identifier]\_\_journal.md (frontmatter + template content)
+# [identifier]__journal.md (frontmatter + template content)
 ```
 
 #### Location and Output
@@ -222,7 +222,7 @@ dn rename old-note.txt \
 dn rename note.txt \
           --keywords "tag1 tag2"
 
-# [identifier]--note\_\_tag1_tag2.txt
+# [identifier]--note__tag1_tag2.txt
 ```
 
 ```sh
@@ -230,7 +230,7 @@ dn rename note.txt \
 dn rename 20241117T105000--note__oldtag.txt \
           --add-keywords "newtag"
 
-# 20241117T105000--note\_\_oldtag_newtag.txt
+# 20241117T105000--note__oldtag_newtag.txt
 ```
 
 ```sh
@@ -248,7 +248,7 @@ dn rename 20241117T105000--note__oldtag.txt \
           --add-keywords "newtag moretag" \
           --remove-keywords "oldtag moretag"
 
-# 20241117T105000--note\_\_newtag.txt
+# 20241117T105000--note__newtag.txt
 ```
 
 #### Frontmatter Operations
@@ -290,4 +290,4 @@ dn rename ~/Documents/notes/note.txt \
           --title "Find Me"
 ```
 
-Renames the file and prints its new absolute path. If you're on a Unix-like system with the default notes directory, this will look something like `/home/[your-name]/Documents/notes/[timestamp]--find-me.txt`
+Renames the file and prints its new absolute path. If you're on a Unix-like system with the default notes directory, this will look something like `/home/[username]/Documents/notes/[timestamp]--find-me.txt`
