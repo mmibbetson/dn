@@ -101,7 +101,7 @@ identifier: "20241120T215700"
 
 #### Templates
 
-TODO
+Sometimes, you may want to repeatedly create notes with the same initial structure. The `--template` flag is a convenient way to fill a new note with text from another file.
 
 ```sh
 # Use template file
@@ -112,30 +112,72 @@ dn new --template ./journal-template.md \
 # 20241117T105000__journal.md
 ```
 
+Assuming the contents of _journal-template.md_ were:
+
+```md
+# Journal Entry No. ID
+
+Captain's log, -DATE-.
+
+BODY
+
+Signing out.
+```
+
+Then the newly created note would also contain this same content upon creation.
+
+If you also want to add front matter while dealing with templates, the template will be inserted after a line break below the frontmatter. Continuing with the prior example, this command:
+
 ```sh
-# Combine template with frontmatter
+# Combine template with front matter
 dn new --generate-frontmatter \
-       --template ./journal-template.md
+       --template ./journal-template.md \
+       --keywords journal \
+       --extension md
 
 # 20241117T105000__journal.md
 ```
 
+Would create a note with the following contents:
+
+```md
+date: 2024-11-17
+tags: journal
+identifier: 20241117T105000
+
+---
+
+# Journal Entry No. ID
+
+Captain's log, -DATE-.
+
+BODY
+
+Signing out.
+```
+
 #### Location and Output
+
+It's useful to be able to pipe the location of a newly created note into other command line programs. Therefore, the `--print` option is provided to print out the absolute path of the newly created file when dn finishes executing. This can be leveraged to automate workflows and integrate dn into the wider ecosystem of terminal tooling.
 
 ```sh
 # Print absolute path
 dn new --print \
        --title show-my-location
+
+# 20241117T105000--show-my-location.txt
 ```
 
-Creates file and prints its absolute path
+If you're on a Unix-like system and using the default notes directory, this will print something like `/home/[username]/Documents/notes/20241117T105000--show-my-location.txt`.
+
+You can also specify the directory in which you'd like to create the new note. This is useful if you have reason to make a note outside of your general notes context.
 
 ```sh
 # Custom output directory
 dn new --directory ./private/notes
 ```
 
-Creates note in specified directory
+Quite often this will involve wanting to create a new note in your current working directory, which is achieved as you might expect:
 
 ```sh
 # Use current directory
@@ -143,6 +185,8 @@ dn new --directory .
 ```
 
 #### Configuration
+
+If you don't want to store your configuration file in the standard location, or perhaps have distinct configurations for different note contexts, you can pass in a path to specify which configuration file to use with `--config`.
 
 ```sh
 # Use custom config file
@@ -285,4 +329,4 @@ dn rename ~/Documents/notes/note.txt \
           --title "Find Me"
 ```
 
-Renames the file and prints its new absolute path. If you're on a Unix-like system with the default notes directory, this will look something like `/home/[username]/Documents/notes/20241117T105000--find-me.txt`
+Renames the file and prints its new absolute path. I
