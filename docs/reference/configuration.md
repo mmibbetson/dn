@@ -4,4 +4,6 @@ This document contains the details of every configuration option available in th
 
 ## File Section
 
+### Illegal Characters
+
 ## Frontmatter Section

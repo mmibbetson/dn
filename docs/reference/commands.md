@@ -49,7 +49,7 @@ By default, the created note will be created in `~/Documents/notes` with the fol
 
 #### Basic Note Creation
 
-By providing values for the various segments of a file name, they will be inserted into the appropriate position of the new file name. The text will be lowercased and sanitised to remove illegal characters.
+By providing values for the various segments of a file name, they will be inserted into the appropriate positions of the new file name. The text will be lowercased and sanitised to remove illegal characters [illegal characters are configurable](../reference/configuration.md#illegal-characters).
 
 ```sh
 # Simple note with title and keywords
@@ -57,7 +57,7 @@ dn new --title 'My First Note!' \
        --keywords 'demo example' \
        --extension md
 
-# [identifier]--my-first-note__demo_example.md
+# 20241117T105000--my-first-note__demo_example.md
 ```
 
 #### Working with Separators
@@ -71,12 +71,12 @@ dn new --signature 1a1 \
        --keywords demo_example \
        --extension md.bak
 
-# [identifier]==1a1--my-first-note__demo_example.md.bak
+# 20241117T105000==1a1--my-first-note__demo_example.md.bak
 ```
 
 #### Using Front Matter
 
-If you want to generate front matter for a note you can pass the `--generate-frontmatter` flag and information provided will be used to fill the front matter segments.
+If you want to generate front matter for a note you can pass the `--generate-frontmatter` flag and information provided will be used to fill the front matter segments. If no front matter format is provided with `--frontmatter-format`, the default format of `text` will be used.
 
 ```sh
 # Generate YAML frontmatter
@@ -85,7 +85,7 @@ dn new --generate-frontmatter \
        -t 'My Note 2: This Time with Front Matter' \
        -k example_kwrds
 
-# [identifier]--my-note-2-this-time-with-front-matter__example_kwrds.txt
+# 20241117T105000--my-note-2-this-time-with-front-matter__example_kwrds.txt
 ```
 
 The front matter generated in this new file would look something like the following:
@@ -99,7 +99,9 @@ identifier: "20241120T215700"
 ---
 ```
 
-#### Templates and Content
+#### Templates
+
+TODO
 
 ```sh
 # Use template file
@@ -107,7 +109,7 @@ dn new --template ./journal-template.md \
        --keywords journal \
        --extension md
 
-# [identifier]__journal.md (with template content)
+# 20241117T105000__journal.md
 ```
 
 ```sh
@@ -115,7 +117,7 @@ dn new --template ./journal-template.md \
 dn new --generate-frontmatter \
        --template ./journal-template.md
 
-# [identifier]__journal.md (frontmatter + template content)
+# 20241117T105000__journal.md
 ```
 
 #### Location and Output
@@ -196,7 +198,7 @@ dn rename path/to/note
 dn rename old-note.txt \
           --title "New Title"
 
-# [identifier]--new-title.txt
+# 20241117T105000--new-title.txt
 ```
 
 ```sh
@@ -205,7 +207,7 @@ dn rename old-note.txt \
           --signature "2b2" \
           --extension "md"
 
-# [identifier]==2b2--old-note.md
+# 20241117T105000==2b2--old-note.md
 ```
 
 #### Working with Keywords
@@ -215,7 +217,7 @@ dn rename old-note.txt \
 dn rename note.txt \
           --keywords "tag1 tag2"
 
-# [identifier]--note__tag1_tag2.txt
+# 20241117T105000--note__tag1_tag2.txt
 ```
 
 ```sh
@@ -273,7 +275,7 @@ dn rename 20241117T105000--note.dj \
           --title "Fresh Title" \
           --keywords "new keywords"
 
-# [identifier]--fresh-title__new_keywords.txt
+# 20241122T085100--fresh-title__new_keywords.txt
 ```
 
 ```sh
@@ -283,4 +285,4 @@ dn rename ~/Documents/notes/note.txt \
           --title "Find Me"
 ```
 
-Renames the file and prints its new absolute path. If you're on a Unix-like system with the default notes directory, this will look something like `/home/[username]/Documents/notes/[timestamp]--find-me.txt`
+Renames the file and prints its new absolute path. If you're on a Unix-like system with the default notes directory, this will look something like `/home/[username]/Documents/notes/20241117T105000--find-me.txt`
