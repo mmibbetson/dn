@@ -14,7 +14,7 @@ dn new
 
 By default, the created note will be created in `~/Documents/notes` with the following characteristics:
 
-- Timestamp identifier
+- A timestamp identifier
 - `.txt` extension
 - No frontmatter
 
@@ -201,6 +201,8 @@ Rename existing notes following the Denote naming scheme, with options to modify
 dn rename path/to/note
 ```
 
+By default, the renamed note will preserve the existing segments if it was previously in valid dn format. If it wasn't, it will attempt to retain the file extension (falling back to .txt if there is none) and treat the previous file name as the **title** segment. An identifier will always be included. The renamed file will always remain in the directory it was in prior to the rename.
+
 ### `rename` Options
 
 #### Metadata Renaming Options
@@ -328,5 +330,3 @@ dn rename ~/Documents/notes/note.txt \
           --print \
           --title "Find Me"
 ```
-
-Renames the file and prints its new absolute path. I
