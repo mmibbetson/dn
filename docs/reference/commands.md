@@ -144,8 +144,7 @@ Would create a note with the following contents:
 date: 2024-11-17
 tags: journal
 identifier: 20241117T105000
-
----
+---------------------------
 
 # Journal Entry No. ID
 
@@ -201,7 +200,7 @@ Rename existing notes following the Denote naming scheme, with options to modify
 dn rename path/to/note
 ```
 
-By default, the renamed note will preserve the existing segments if it was previously in valid dn format. If it wasn't, it will attempt to retain the file extension (falling back to .txt if there is none) and treat the previous file name as the **title** segment. An identifier will always be included. The renamed file will always remain in the directory it was in prior to the rename.
+By default, the renamed note will preserve the existing segments if it was previously in valid dn format. If it wasn't, it will attempt to retain the file extension (falling back to .txt if there is none) and treat the previous file name as the **title** segment; an identifier will always be included. The renamed file will always remain in the directory it was in prior to the rename.
 
 ### `rename` Options
 
@@ -239,6 +238,10 @@ By default, the renamed note will preserve the existing segments if it was previ
 
 #### Basic Renaming
 
+It's a common occurence when managing notes to need to migrate a file into the dn format or to update an existing valid dn-formatted file with new metadata. The `rename` command can be used for this purpose.
+
+New metadata can be provided with the same metadata options that are present on the `new` command.
+
 ```sh
 # Rename with new title
 dn rename old-note.txt \
@@ -247,16 +250,22 @@ dn rename old-note.txt \
 # 20241117T105000--new-title.txt
 ```
 
+For files that already fit the dn format, if there is existing metadata for which a new value is not provided, the old metadata will be preserved.
+
 ```sh
-# Rename with new signature and extension
-dn rename old-note.txt \
+# Rename with new signature and extension but preserve title and keywords
+dn rename 20241117T105000--old-note__preserved.txt \
           --signature "2b2" \
           --extension "md"
 
-# 20241117T105000==2b2--old-note.md
+# 20241117T105000==2b2--old-note__preserved.md
 ```
 
 #### Working with Keywords
+
+Perhaps the most common use for adjusting existing dn notes is to update their keywords. The three options provided for this are `--keywords`, `--add-keywords`, and `--remove-keywords`.
+
+`--keywords` overwrites the existing metadata the way that the other standard options do.
 
 ```sh
 # Replace all keywords
@@ -266,6 +275,8 @@ dn rename note.txt \
 # 20241117T105000--note__tag1_tag2.txt
 ```
 
+`--add-keywords` extends the value of the existing metadata, or the value of `--keywords` if provided instead. If there are duplicates, they will be ignored.
+
 ```sh
 # Add additional keywords
 dn rename 20241117T105000--note__oldtag.txt \
@@ -273,6 +284,8 @@ dn rename 20241117T105000--note__oldtag.txt \
 
 # 20241117T105000--note__oldtag_newtag.txt
 ```
+
+`--remove-keywords` will reduce the existing metadata value or the value of `--keywords` if provided instead. If a keyword is provided which is not present, it will be silently ignored.
 
 ```sh
 # Remove specific keywords
@@ -282,10 +295,11 @@ dn rename 20241117T105000--note__oldtag.txt \
 # 20241117T105000--note.txt
 ```
 
-Keyword operations can be combined:
+Finally, these keyword operations can be combined for more complicated adjustments:
 
 ```sh
-dn rename 20241117T105000--note__oldtag.txt \
+dn rename 20241117T105000--note.txt \
+          --keywords oldtag \
           --add-keywords "newtag moretag" \
           --remove-keywords "oldtag moretag"
 
@@ -308,6 +322,8 @@ dn rename note.txt \
           --generate-frontmatter \
           --frontmatter-format yaml \
           --title "New Title"
+
+# 20241122T085100--new-title.txt
 ```
 
 Renames file and updates/adds YAML frontmatter
@@ -321,7 +337,7 @@ dn rename 20241117T105000--note.dj \
           --title "Fresh Title" \
           --keywords "new keywords"
 
-# 20241122T085100--fresh-title__new_keywords.txt
+# 20241122T085100--fresh-title__new_keywords.dj
 ```
 
 ```sh
