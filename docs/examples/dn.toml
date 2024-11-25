@@ -1,14 +1,6 @@
 [file]
-directory = "~/Documents/dn"
-segment_order = [
-    "identifier",
-    "signature",
-    "title",
-    "keywords",
-    "extension",
-]
 default_extension = "txt"
-regenerate_identifier = false
+directory = "~/Documents/dn"
 illegal_characters = [
     '[',
     ']',
@@ -47,15 +39,23 @@ illegal_characters = [
     '_',
     '.',
 ]
+regenerate_identifier = false
+segment_order = [
+    "identifier",
+    "signature",
+    "title",
+    "keywords",
+    "extension",
+]
 # template_path = ""
 
 [frontmatter]
 enabled = false
 format = "text"
-# time_style = ""
 order = [
     "title",
     "date",
     "keywords",
     "identifier",
 ]
+time_style = "%FT%T%:z"

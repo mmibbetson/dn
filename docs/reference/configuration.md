@@ -4,30 +4,6 @@ This document contains the details of every configuration option available in th
 
 ## File Section
 
-### Directory
-
-The _directory_ value determines where notes will be created by default when no output path is specified with the `dn new` command. It expects an **absolute** path as its value, and not a relative path. When _directory_ is not set, dn will attempt to write files to $HOME/Documents/notes or $USERPROFILE/Documents/notes. If neither $HOME nor $USERPROFILE are able to be acquired from the environment, it will instead write in the current working directory.
-
-```toml
-[file]
-directory = "~/Directory/notes"
-```
-
-### Segment Order
-
-The _segment order_ determines the order in which file name segments appear in newly created or renamed files. **All segments are required** - although all segments must be defined for the order, this does not mean they will all be present in every file name. They will only appear in files which have corresponding metadata provided, as expected.
-
-```toml
-[file]
-segment_order = [
-    "Identifier",
-    "Signature",
-    "Title",
-    "Keywords",
-    "Extension",
-]
-```
-
 ### Default Extension
 
 The _default extension_ determines the value of the `Extension` segment of a note when not explicitly provided. If this value is not set in the configuration file, it will be "txt". If you tend to take all of your notes in a particular plaintext format, such as [djot](https://djot.net/) or [Markdown](https://commonmark.org/), it can be more convenient to specify this here than to repeatedly specify it each time a new note is created.
@@ -35,6 +11,15 @@ The _default extension_ determines the value of the `Extension` segment of a not
 ```toml
 [file]
 default_extension = "dj"
+```
+
+### Directory
+
+The _directory_ value determines where notes will be created by default when no output path is specified with the `dn new` command. It expects an **absolute** path as its value, and not a relative path. When _directory_ is not set, dn will attempt to write files to $HOME/Documents/notes or $USERPROFILE/Documents/notes. If neither $HOME nor $USERPROFILE are able to be acquired from the environment, it will instead write in the current working directory.
+
+```toml
+[file]
+directory = "~/Directory/notes"
 ```
 
 ### Illegal Characters
@@ -54,6 +39,21 @@ illegal_characters = [
     ')',
     '“',
     '”',
+]
+```
+
+### Segment Order
+
+The _segment order_ determines the order in which file name segments appear in newly created or renamed files. **All segments are required** - although all segments must be defined for the order, this does not mean they will all be present in every file name. They will only appear in files which have corresponding metadata provided, as expected.
+
+```toml
+[file]
+segment_order = [
+    "Identifier",
+    "Signature",
+    "Title",
+    "Keywords",
+    "Extension",
 ]
 ```
 
@@ -86,15 +86,6 @@ _Format_ determines how metadata will be serialised into front matter. Its allow
 format = "text"
 ```
 
-### Time Style
-
-The _time style_ determines the way that the date and time will be formatted in dn-generated front matter. This can be used to discard time zone information, or only output the date and not the time, for example. The value is expected to be a valid format string in accordance with [chrono's strftime formatting rules](https://docs.rs/chrono/latest/chrono/format/strftime/index.html).
-
-```toml
-[frontmatter]
-time_style = "%FT%T%:z"
-```
-
 ### Order
 
 The _order_ determines which front matter segments are generated and in what order. Each segment is optional, so by leaving some out they will not be generated but the others will. If an empty array is provided, no front matter will be generated even when enabled. If this value is not set, then when front matter is enabled, it will default to the value `["title", "date", "keywords", "identifier"]`
@@ -107,4 +98,13 @@ order = [
     "keywords",
     "identifier",
 ]
+```
+
+### Time Style
+
+The _time style_ determines the way that the date and time will be formatted in dn-generated front matter. This can be used to discard time zone information, or only output the date and not the time, for example. The value is expected to be a valid format string in accordance with [chrono's strftime formatting rules](https://docs.rs/chrono/latest/chrono/format/strftime/index.html).
+
+```toml
+[frontmatter]
+time_style = "%FT%T%:z"
 ```
