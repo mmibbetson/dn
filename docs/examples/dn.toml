@@ -6,7 +6,7 @@ segment_order = [
     "title",
     "keywords",
     "extension",
-] # These are not optional, you must specify each segment.
+]
 default_extension = "txt"
 regenerate_identifier = false
 illegal_characters = [
@@ -47,15 +47,15 @@ illegal_characters = [
     '_',
     '.',
 ]
-# template_path = "" # If you want to by default reuse a template for a diary workflow, for example.
+# template_path = ""
 
 [frontmatter]
 enabled = false
-format = "text" # text, yaml, toml, json
-# time_style = "" # valid chrono datetime format string. If not provided, will default depending on frontmatter format.
+format = "text"
+# time_style = ""
 order = [
     "title",
     "date",
     "keywords",
     "identifier",
-] # These are all optional so you can leave some or all out
+]
