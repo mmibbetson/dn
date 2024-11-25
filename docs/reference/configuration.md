@@ -4,6 +4,22 @@ This document contains the details of every configuration option available in th
 
 ## File Section
 
+### Directory
+
+### Segment Order
+
+### Default Extension
+
 ### Illegal Characters
 
+### Template Path
+
 ## Frontmatter Section
+
+### Enabled
+
+### Format
+
+### Time Style
+
+### Order
