@@ -261,6 +261,18 @@ dn rename 20241117T105000--old-note__preserved.txt \
 # 20241117T105000==2b2--old-note__preserved.md
 ```
 
+Because the identifier is generated from a timestamp, an option is provided to generate a new one to ensure the format is correct when one wants to create a new identifier for an existing note.
+
+```sh
+# Regenerate identifier with new metadata
+dn rename 20241117T105000--note.dj \
+          --regenerate-identifier \
+          --title "Fresh Title" \
+          --keywords "new keywords"
+
+# 20241122T085100--fresh-title__new_keywords.dj
+```
+
 #### Working with Keywords
 
 Perhaps the most common use for adjusting existing dn notes is to update their keywords. The three options provided for this are `--keywords`, `--add-keywords`, and `--remove-keywords`.
@@ -306,7 +318,9 @@ dn rename 20241117T105000--note.txt \
 # 20241117T105000--note__newtag.txt
 ```
 
-#### Frontmatter Operations
+#### Front Matter Operations
+
+The front matter values that dn can generate interact with the `rename` command in various ways. One useful option is to rename a file based on the contents of its front matter. If one were to adjust the contents of an existing note and then change its tags, for example, in the front matter, it may be most convenient to run a command to just adjust the existing file name to match.
 
 ```sh
 # Rename based on frontmatter values
@@ -314,35 +328,41 @@ dn rename note.txt \
           --from-frontmatter
 ```
 
-Uses title, keywords, etc. from file's frontmatter
+> NOTE: When there are multiple sources of metadata they follow a precedence hierarchy: `CLI Options > Frontmatter > Existing Metadata > Defaults`.
+
+Sometimes you may not have existing front matter for a note and want to add it programmatically. This can be achieved with the `--generate-frontmatter` option. Like all other options, it can be combined trivially with the others.
 
 ```sh
 # Generate new frontmatter during rename
 dn rename note.txt \
           --generate-frontmatter \
-          --frontmatter-format yaml \
+          --frontmatter-format toml \
           --title "New Title"
 
 # 20241122T085100--new-title.txt
 ```
 
-Renames file and updates/adds YAML frontmatter
+This renamed file will now have the following front matter:
 
-#### Advanced Usage
-
-```sh
-# Regenerate identifier with new metadata
-dn rename 20241117T105000--note.dj \
-          --regenerate-identifier \
-          --title "Fresh Title" \
-          --keywords "new keywords"
-
-# 20241122T085100--fresh-title__new_keywords.dj
+```md
++++
+title      = "New Title"
+date       = 2024-11-22T08:51:00+02:00
+identifier = "20241122T085100"
++++
 ```
+
+#### Other Usage
+
+As with the `new` command, the new path of the renamed note can be printed for use with other CLI tooling.
 
 ```sh
 # Print new path after renaming
 dn rename ~/Documents/notes/note.txt \
           --print \
           --title "Find Me"
+
+# 20241122T085100--find-me.txt
 ```
+
+If you're on a Unix-like system and using the default notes directory, this will print something like `/home/[username]/Documents/notes/20241122T085100--find-me.txt`.
