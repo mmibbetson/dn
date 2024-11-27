@@ -11,7 +11,7 @@ use clap::{ArgAction, Parser, Subcommand};
 #[command(
     name = "dn",
     version = "0.1.0",
-    about = "A command to manage notes following the Denote naming scheme",
+    about = "A command to manage notes following the Denote naming scheme"
 )]
 pub struct Cli {
     #[command(subcommand)]
