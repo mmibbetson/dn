@@ -7,13 +7,13 @@
 name = "dn"
 version = "0.1.0"
 edition = "2021"
-# description = ""
-# keywords = []
-# categories = []
+description = "A simple, minimal, and flexible command line utility for managing plaintext files."
+keywords = ["cli", "utility", "file", "notes", "pkms"]
+categories = ["command-line-utilities", "filesystem"]
 readme = "README.md"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/mmibbetson/dn"
-# homepage = "https://mmibbetson.github.io/dn"
+homepage = "https://mmibbetson.github.io/projects/dn"
 
 [dependencies]
 anyhow = "1.0.92" # MIT or Apache-2.0

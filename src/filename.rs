@@ -146,12 +146,14 @@ impl ToFilename for FileMetadata {
             )
         });
 
+        let extension = prefix_segment(&self.extension, FilenameSegment::Extension);
+
         Filename {
             identifier,
             title,
             signature,
             keywords,
-            extension: self.extension.clone(),
+            extension,
             segment_order: config.segment_order,
         }
     }
@@ -258,7 +260,7 @@ mod tests {
             signature: Some("test-sig".to_owned()),
             title: Some("test-title".to_owned()),
             keywords: Some(vec!["key1".to_owned(), "key2".to_owned()]),
-            extension: ".txt".to_owned(),
+            extension: "txt".to_owned(),
             ..Default::default()
         };
         let expected = Filename {

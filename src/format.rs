@@ -64,7 +64,7 @@ static REGEX_FRONTMATTER_YAML_TITLE: Lazy<Regex> = Lazy::new(|| {
 /// Multiline-pattern regex to match the tags line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
 static REGEX_FRONTMATTER_YAML_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^\s*tags\s*:\s+\[\s*((?:.+,\s+).*".+")\s*\]\s*$"#)
+    Regex::new(r#"(?m)^\s*tags\s*:\s+\[\s*((?:.+\s*,\s+).*".+")\s*\]\s*$"#)
         .expect("Invalid YAML keywords regex pattern")
 });
 
@@ -88,7 +88,7 @@ static REGEX_FRONTMATTER_TOML_TITLE: Lazy<Regex> = Lazy::new(|| {
 /// Multiline-pattern regex to match the tags line of `Toml` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
 static REGEX_FRONTMATTER_TOML_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^\s*tags\s*=\s*\[\s*((?:".+",\s+).*".+",{0,1})\s*\]\s*$"#)
+    Regex::new(r#"(?m)^\s*tags\s*=\s*\[\s*((?:".+"\s*,\s+).*".+",{0,1})\s*\]\s*$"#)
         .expect("Invalid TOML keywords regex pattern")
 });
 
@@ -110,20 +110,20 @@ static REGEX_FRONTMATTER_JSON_SUFFIX: Lazy<Regex> =
 /// Multiline-pattern regex to match the title line of `Json` front matter.
 /// Contains a single capture group to extract the `Title` value.
 static REGEX_FRONTMATTER_JSON_TITLE: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?m)^\s*title:\s+(.+)\s*$").expect("Invalid Json title regex pattern")
+    Regex::new(r#"(?m)^\s*\"title\":\s+(.+)\s*$"#).expect("Invalid Json title regex pattern")
 });
 
 /// Multiline-pattern regex to match the tags line of `Json` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
 static REGEX_FRONTMATTER_JSON_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^\s*tags:\s+\[\s*((?:".+",\s+).*".+")\s*\]\s*$"#)
+    Regex::new(r#"(?m)^\s*\"tags\":\s+\[\s*((?:".+"\s*,\s+).*".+")\s*\]\s*$"#)
         .expect("Invalid Json keywords regex pattern")
 });
 
 /// Multiline-pattern regex to match the identifier line of `Json` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
 static REGEX_FRONTMATTER_JSON_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"(?m)^\s*identifier:\s+(\"\d{8}T\d{6}\")\s*$"#)
+    Regex::new(r#"(?m)^\s*\"identifier\":\s+(\"\d{8}T\d{6}\")\s*$"#)
         .expect("Invalid Json identifier regex pattern")
 });
 
@@ -566,7 +566,7 @@ mod tests {
         #[test]
         fn title_parses_correctly() {
             // Arrange
-            let input = "{\ntitle:   \"my-Test_ A N3w title\"\n}";
+            let input = "{\n\"title\":   \"my-Test_ A N3w title\"\n}";
             let expected = "\"my-Test_ A N3w title\"";
 
             // Act
@@ -587,7 +587,7 @@ mod tests {
         #[test]
         fn keywords_parse_correcly() {
             // Arrange
-            let input = "{\ntags:   [ \"bar\",   \"baz\", \"boom\", \"foo\"]\n}";
+            let input = "{\n\"tags\":   [ \"bar\",   \"baz\", \"boom\", \"foo\"]\n}";
             let expected = "\"bar\",   \"baz\", \"boom\", \"foo\"";
 
             // Act
@@ -608,7 +608,7 @@ mod tests {
         #[test]
         fn identifier_parses_correctly() {
             // Arrange
-            let input = "{\nidentifier:   \"20241212T121212\"\n}";
+            let input = "{\n\"identifier\":   \"20241212T121212\"\n}";
             let expected = "\"20241212T121212\"";
 
             // Act
