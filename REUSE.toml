@@ -24,3 +24,9 @@ path = "man/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2024 Matthew Mark Ibbetson"
 SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = "completions/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Matthew Mark Ibbetson"
+SPDX-License-Identifier = "GPL-3.0-or-later"

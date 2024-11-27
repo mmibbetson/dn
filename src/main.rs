@@ -24,7 +24,7 @@ mod format;
 mod metadata;
 
 fn main() {
-    // let cli = Cli::parse();
+    let cli = Cli::parse();
 
     // match &cli.command {
     //     cli::Commands::New {

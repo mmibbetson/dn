@@ -9,21 +9,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 dn is a CLI tool for creating and renaming plaintext notes with a predictable, timestamped naming format. It is inspired by the amazing Emacs package [Denote](https://protesilaos.com/emacs/denote) created by [Prot](https://protesilaos.com/). dn creates files that can be easily queried using standard tools like `find`, `sed`, `grep`, `awk`, `ripgrep`, `fzf`, etc.
 
-dn aims to reproduce the file naming functionality of Denote, while being entirely editor agnostic and scriptable in any language. It will adhere to the defaults of Denote as much as possible unless there are justifiable reasons to deviate such as limitation of scope for a CLI or the rare strong opinion of the author.
+dn aims to reproduce the file naming functionality of Denote, while being entirely editor agnostic and scriptable in any language. It deviates in several ways from the behaviour of Denote, both due to the reduced scope (much of Denote's functionality is best suited for editor integrations) and different concerns (we feel that Emacs & Org already have a complete, quality solution to practically all of the goals dn addresses, i.e. Denote).
 
 ## Summary
 
-`@@[identifier]==[signature]--[title]__[keywords].[extension]`
-
-## Key Terms
-
-| Term       | Definition                                                                                                                |
-| :--------- | :------------------------------------------------------------------------------------------------------------------------ |
-| Identifier | The first file name fragment by default, prefixed with `@@` if placed elsewhere; used as a unique identifier for the file |
-| Signature  | The file name fragment from `==`, a single-part fragment used to uniquely distinguish past the identifier                 |
-| Title      | The file name fragment from `--`, also used in original format in the frontmatter                                         |
-| Keywords   | The file name fragment from `__`, one-word associations used to categorise files; files can have multiple keywords        |
-| Extension  | The file type indicator following the last `.` in the file name                                                           |
+TODO
 
 ## Installation
 
@@ -32,12 +22,6 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 ### Package Manager
 
 TODO: Repology
-
-### Cargo
-
-```sh
-# presumably cargo install dn
-```
 
 ### Binary Download
 
@@ -66,32 +50,33 @@ dn rename 20241001T121314--oldtitle__foo.md -A bar_baz -R baz # produces 2024100
 
 # Search $DN_DIRECTORY for a note and then open it in neovim
 # this is obviously wrong atm
-echo "foo" | rg $DN_DIRECTORY/$1 --file | nvim
+rg "--dn-example__metanote" $DN_DIRECTORY/$1 --file | nvim
 ```
+
+## Shell Completions
+
+TODO
+
+## Man Pages
+
+TODO
 
 ## Inspirations
 
-- [Denote](https://protesilaos.com/emacs/denote): The Emacs package that inspired this project
-- [Zettelkasten](https://zettelkasten.de/introduction/): A method for personal knowledge management
-- The Unix Philosophy
+- [Denote](https://protesilaos.com/emacs/denote)
+- [Zettelkasten](https://zettelkasten.de/introduction/)
+- [GNU Core Utils]()
 
 ## FAQ
 
+TODO
+
 ## Dependencies
 
-We try to keep dependencies minimal. Ideally, this will become a [cold-blooded]() project and the dependencies will be vendored.
+We try to keep dependencies relatively minimal. In time, this project will be feature-complete, and enter maintenance mode. A primary concern for dn is to minimise churn and maximise long-term stability. Eventually, all dependencies will be vendored and the program will be considered "finished", outside of necessary bug fixes and/or emergency patches.
 
 ## Development
 
 - We follow [Semantic Versioning](https://semver.org/) for version numbering.
 - We use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
-- We are [REUSE](https://reuse.software/) complaint.
-- We aim for [POSIX Compliance](https://pubs.opengroup.org/onlinepubs/9699919799/) where possible.
-
-## Contributing
-
-(Add information about how others can contribute to the project, including guidelines for submitting issues, pull requests, etc.)
-
-## License
-
-dn is licensed under the [GPLv3 License](https://www.gnu.org/licenses/gpl-3.0.en.html), available in this repository in the `LICENSE` file.
+- We are [REUSE](https://reuse.software/) compliant.
