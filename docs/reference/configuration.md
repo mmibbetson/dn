@@ -26,7 +26,7 @@ directory = "~/Directory/notes"
 
 _Illegal characters_ is a list of characters which are not permitted to appear in any segment of the file name. Where they do appear in provided values, they will be removed and the letters around them will be concatenated. For example, if '[' is llegal and a title value is provided as "new[[no[te", it will be sanitised into "newnote".
 
-> NOTE: The segment prefix/separator characters are implicitly illegal outside of their own segments. So you can provide a '-' in a title argument but not in a keywords argument.
+This following example represents the default value for illegal characters:
 
 ```toml
 [file]
@@ -37,12 +37,42 @@ illegal_characters = [
     '}',
     '(',
     ')',
+    '!',
+    '#',
+    '$',
+    '%',
+    '^',
+    '&',
+    '*',
+    '+',
+    '\',
+    '"',
+    "'",
+    '?',
+    ',',
+    '|',
+    ';',
+    ':',
+    '~',
+    '`',
+    '‘',
+    '’',
     '“',
     '”',
+    '/',
+    '*',
+    ' ',
+    '@',
+    '=',
+    '-',
+    '_',
+    '.',
 ]
 ```
 
+> NOTE: The segment prefix/separator characters are implicitly illegal outside of their own segments. So you can provide a '-' in a title argument but not in a keywords argument.
 ### Segment Order
+
 
 The _segment order_ determines the order in which file name segments appear in newly created or renamed files. **All segments are required** - although all segments must be defined for the order, this does not mean they will all be present in every file name. They will only appear in files which have corresponding metadata provided, as expected.
 
