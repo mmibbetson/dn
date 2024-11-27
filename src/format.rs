@@ -566,7 +566,7 @@ mod tests {
         #[test]
         fn title_parses_correctly() {
             // Arrange
-            let input = "{\ntitle:   \"my-Test_ A N3w title\"\n}";
+            let input = "{\n\"title\":   \"my-Test_ A N3w title\"\n}";
             let expected = "\"my-Test_ A N3w title\"";
 
             // Act
@@ -587,7 +587,7 @@ mod tests {
         #[test]
         fn keywords_parse_correcly() {
             // Arrange
-            let input = "{\ntags:   [ \"bar\",   \"baz\", \"boom\", \"foo\"]\n}";
+            let input = "{\n\"tags\":   [ \"bar\",   \"baz\", \"boom\", \"foo\"]\n}";
             let expected = "\"bar\",   \"baz\", \"boom\", \"foo\"";
 
             // Act
@@ -608,7 +608,7 @@ mod tests {
         #[test]
         fn identifier_parses_correctly() {
             // Arrange
-            let input = "{\nidentifier:   \"20241212T121212\"\n}";
+            let input = "{\n\"identifier\":   \"20241212T121212\"\n}";
             let expected = "\"20241212T121212\"";
 
             // Act
