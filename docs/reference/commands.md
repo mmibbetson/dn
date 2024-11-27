@@ -12,7 +12,7 @@ Create a new note following the dn naming system. Basic usage is as follows:
 dn new
 ```
 
-By default, the created note will be created in `~/Documents/notes` with the following characteristics:
+By default, the note will be created in `~/Documents/notes` with the following characteristics:
 
 - A timestamp identifier
 - `.txt` extension
@@ -23,27 +23,27 @@ By default, the created note will be created in `~/Documents/notes` with the fol
 #### Metadata Options
 
 | Option        | Short | Argument  | Description        | Example                      |
-| :------------ | ----: | :-------- | :----------------- | :--------------------------- |
-| `--signature` |  `-s` | Signature | Add a signature    | `dn new -s 1a1`              |
-| `--title`     |  `-t` | Title     | Add note title     | `dn new -t "My First Note!"` |
-| `--keywords`  |  `-k` | Keywords  | Add keywords       | `dn new -k demo_example`     |
-| `--extension` |  `-e` | Extension | Set file extension | `dn new -e md`               |
+| :------------ | :---: | :-------- | :----------------- | :--------------------------- |
+| `--signature` | `-s`  | Signature | Add a signature    | `dn new -s 1a1`              |
+| `--title`     | `-t`  | Title     | Add note title     | `dn new -t "My First Note!"` |
+| `--keywords`  | `-k`  | Keywords  | Add keywords       | `dn new -k demo_example`     |
+| `--extension` | `-e`  | Extension | Set file extension | `dn new -e md`               |
 
 #### Content Options
 
 | Option                   | Short | Argument | Description                                     | Example                   |
-| :----------------------- | ----: | :------- | :---------------------------------------------- | :------------------------ |
-| `--generate-frontmatter` |  `-G` | None     | Add frontmatter to note                         | `dn new -G`               |
-| `--frontmatter-format`   |  `-F` | Format   | Set frontmatter format (text\|yaml\|toml\|json) | `dn new -F toml`          |
-| `--template`             |  `-T` | Path     | Use template file for note content              | `dn new -T ./example.txt` |
+| :----------------------- | :---: | :------- | :---------------------------------------------- | :------------------------ |
+| `--generate-frontmatter` | `-G`  | None     | Add frontmatter to note                         | `dn new -G`               |
+| `--frontmatter-format`   | `-F`  | Format   | Set frontmatter format (text\|yaml\|toml\|json) | `dn new -F toml`          |
+| `--template`             | `-T`  | Path     | Use template file for note content              | `dn new -T ./example.txt` |
 
 #### Other Options
 
 | Option        | Short | Argument | Description                         | Example                           |
-| :------------ | ----: | :------- | :---------------------------------- | :-------------------------------- |
-| `--directory` |  `-d` | Path     | Specify output directory            | `dn new -d ./docs/`               |
-| `--config`    |  `-c` | Path     | Use custom config file              | `dn new -c ./special-config.toml` |
-| `--print`     |  `-p` | None     | Print absolute path of created note | `dn new -p`                       |
+| :------------ | :---: | :------- | :---------------------------------- | :-------------------------------- |
+| `--directory` | `-d`  | Path     | Specify output directory            | `dn new -d ./docs/`               |
+| `--config`    | `-c`  | Path     | Use custom config file              | `dn new -c ./special-config.toml` |
+| `--print`     | `-p`  | None     | Print absolute path of created note | `dn new -p`                       |
 
 ### `new` Examples
 
@@ -207,30 +207,30 @@ By default, the renamed note will preserve the existing segments if it was previ
 #### Metadata Renaming Options
 
 | Option                    | Short | Argument  | Description                       | Example                                  |
-| :------------------------ | ----: | :-------- | :-------------------------------- | :--------------------------------------- |
-| `--regenerate-identifier` |  `-I` | None      | Generate new timestamp identifier | `dn rename ./demo.md -I`                 |
-| `--signature`             |  `-s` | Signature | Set new signature                 | `dn rename ./demo.md -s 1a2`             |
-| `--title`                 |  `-t` | Title     | Set new title                     | `dn rename ./demo.md -t "Updated Title"` |
-| `--keywords`              |  `-k` | Keywords  | Replace all keywords              | `dn rename ./demo.md -k 'new renamed'`   |
-| `--add-keywords`          |  `-A` | Keywords  | Add keywords to existing set      | `dn rename ./demo.md -A more_added`      |
-| `--remove-keywords`       |  `-R` | Keywords  | Remove keywords from set          | `dn rename ./demo.md -R added`           |
-| `--extension`             |  `-e` | Extension | Change file extension             | `dn rename ./demo.md -e md`              |
+| :------------------------ | :---: | :-------- | :-------------------------------- | :--------------------------------------- |
+| `--regenerate-identifier` | `-I`  | None      | Generate new timestamp identifier | `dn rename ./demo.md -I`                 |
+| `--signature`             | `-s`  | Signature | Set new signature                 | `dn rename ./demo.md -s 1a2`             |
+| `--title`                 | `-t`  | Title     | Set new title                     | `dn rename ./demo.md -t "Updated Title"` |
+| `--keywords`              | `-k`  | Keywords  | Replace all keywords              | `dn rename ./demo.md -k 'new renamed'`   |
+| `--add-keywords`          | `-A`  | Keywords  | Add keywords to existing set      | `dn rename ./demo.md -A more_added`      |
+| `--remove-keywords`       | `-R`  | Keywords  | Remove keywords from set          | `dn rename ./demo.md -R added`           |
+| `--extension`             | `-e`  | Extension | Change file extension             | `dn rename ./demo.md -e md`              |
 
 #### Frontmatter Renaming Options
 
 | Option                   | Short | Argument | Description                         | Example                       |
-| :----------------------- | ----: | :------- | :---------------------------------- | :---------------------------- |
-| `--from-frontmatter`     |  `-f` | None     | Use frontmatter values for renaming | `dn rename ./demo.md -f`      |
-| `--generate-frontmatter` |  `-G` | None     | Generate/regenerate frontmatter     | `dn rename ./demo.md -G`      |
-| `--frontmatter-format`   |  `-F` | Format   | Set format (text\|yaml\|toml\|json) | `dn rename ./demo.md -f json` |
+| :----------------------- | :---: | :------- | :---------------------------------- | :---------------------------- |
+| `--from-frontmatter`     | `-f`  | None     | Use frontmatter values for renaming | `dn rename ./demo.md -f`      |
+| `--generate-frontmatter` | `-G`  | None     | Generate/regenerate frontmatter     | `dn rename ./demo.md -G`      |
+| `--frontmatter-format`   | `-F`  | Format   | Set format (text\|yaml\|toml\|json) | `dn rename ./demo.md -f json` |
 
 #### Other Renaming Options
 
 | Option     | Short | Argument | Description                         | Example                                        |
-| :--------- | ----: | :------- | :---------------------------------- | :--------------------------------------------- |
-| `input`    |   N/A | Path     | Path to the note to rename          | `dn rename ./demo.md`                          |
-| `--print`  |  `-p` | None     | Print absolute path of renamed note | `dn rename ./demo.md -p`                       |
-| `--config` |  `-c` | Path     | Use custom config file              | `dn rename ./demo.md -c ./special-config.toml` |
+| :--------- | :---: | :------- | :---------------------------------- | :--------------------------------------------- |
+| `input`    |  N/A  | Path     | Path to the note to rename          | `dn rename ./demo.md`                          |
+| `--print`  | `-p`  | None     | Print absolute path of renamed note | `dn rename ./demo.md -p`                       |
+| `--config` | `-c`  | Path     | Use custom config file              | `dn rename ./demo.md -c ./special-config.toml` |
 
 > NOTE: `input` is a required positional argument, the first value after the `rename` command.
 
