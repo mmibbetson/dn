@@ -1,0 +1,169 @@
+#compdef dn
+
+autoload -U is-at-least
+
+_dn() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_dn_commands" \
+"*::: :->dn" \
+&& ret=0
+    case $state in
+    (dn)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dn-command-$line[1]:"
+        case $line[1] in
+            (new)
+_arguments "${_arguments_options[@]}" : \
+'-d+[Directory in which the note will be created]:PATH:_default' \
+'--directory=[Directory in which the note will be created]:PATH:_default' \
+'-c+[Configuration file path]:PATH:_default' \
+'--config=[Configuration file path]:PATH:_default' \
+'-T+[Template file to add contents to new note]:PATH:_default' \
+'--template=[Template file to add contents to new note]:PATH:_default' \
+'-F+[Frontmatter format]:FORMAT:(text yaml toml json)' \
+'--frontmatter-format=[Frontmatter format]:FORMAT:(text yaml toml json)' \
+'-s+[Signature for the note]:SIGNATURE:_default' \
+'--signature=[Signature for the note]:SIGNATURE:_default' \
+'-t+[Title for the note]:TITLE:_default' \
+'--title=[Title for the note]:TITLE:_default' \
+'-e+[File extension for the note]:EXTENSION:_default' \
+'--extension=[File extension for the note]:EXTENSION:_default' \
+'-k+[Keywords for the note]:KEYWORD(S):_default' \
+'--keywords=[Keywords for the note]:KEYWORD(S):_default' \
+'-p[Print the absolute path of the created note]' \
+'--print[Print the absolute path of the created note]' \
+'-G[Generate frontmatter]' \
+'--generate-frontmatter[Generate frontmatter]' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(rename)
+_arguments "${_arguments_options[@]}" : \
+'-c+[Configuration file path]:PATH:_default' \
+'--config=[Configuration file path]:PATH:_default' \
+'-F+[Frontmatter format]:FORMAT:(text yaml toml json)' \
+'--frontmatter-format=[Frontmatter format]:FORMAT:(text yaml toml json)' \
+'-s+[New signature for the note]:SIGNATURE:_default' \
+'--signature=[New signature for the note]:SIGNATURE:_default' \
+'-t+[New title for the note]:TITLE:_default' \
+'--title=[New title for the note]:TITLE:_default' \
+'-k+[New keywords for the note]:KEYWORDS:_default' \
+'--keywords=[New keywords for the note]:KEYWORDS:_default' \
+'-A+[Add keywords to the current or new keywords]:KEYWORDS:_default' \
+'--add-keywords=[Add keywords to the current or new keywords]:KEYWORDS:_default' \
+'-R+[Remove keywords from the current or new keywords]:KEYWORDS:_default' \
+'--remove-keywords=[Remove keywords from the current or new keywords]:KEYWORDS:_default' \
+'-e+[New file extension for the note]:EXTENSION:_default' \
+'--extension=[New file extension for the note]:EXTENSION:_default' \
+'-p[Print the absolute path of the created file]' \
+'--print[Print the absolute path of the created file]' \
+'-I[Generate an identifier even if there is an existing one]' \
+'--regenerate-identifier[Generate an identifier even if there is an existing one]' \
+'-f[Rename based on frontmatter values]' \
+'--from-frontmatter[Rename based on frontmatter values]' \
+'-G[Generate or regenerate frontmatter]' \
+'--generate-frontmatter[Generate or regenerate frontmatter]' \
+'-h[Print help]' \
+'--help[Print help]' \
+':input -- Path to the input file to be renamed:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_dn__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:dn-help-command-$line[1]:"
+        case $line[1] in
+            (new)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(rename)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_dn_commands] )) ||
+_dn_commands() {
+    local commands; commands=(
+'new:Create a new note' \
+'rename:Rename an existing note' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dn commands' commands "$@"
+}
+(( $+functions[_dn__help_commands] )) ||
+_dn__help_commands() {
+    local commands; commands=(
+'new:Create a new note' \
+'rename:Rename an existing note' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'dn help commands' commands "$@"
+}
+(( $+functions[_dn__help__help_commands] )) ||
+_dn__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'dn help help commands' commands "$@"
+}
+(( $+functions[_dn__help__new_commands] )) ||
+_dn__help__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'dn help new commands' commands "$@"
+}
+(( $+functions[_dn__help__rename_commands] )) ||
+_dn__help__rename_commands() {
+    local commands; commands=()
+    _describe -t commands 'dn help rename commands' commands "$@"
+}
+(( $+functions[_dn__new_commands] )) ||
+_dn__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'dn new commands' commands "$@"
+}
+(( $+functions[_dn__rename_commands] )) ||
+_dn__rename_commands() {
+    local commands; commands=()
+    _describe -t commands 'dn rename commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_dn" ]; then
+    _dn "$@"
+else
+    compdef _dn dn
+fi
