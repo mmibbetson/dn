@@ -18,7 +18,9 @@ use clap_complete_nushell::Nushell;
 pub fn gen() {
     let base_dir = Path::new("");
     let completions_dir = base_dir.join("completions");
+
     fs::create_dir_all(&completions_dir).unwrap();
+    println!("Generating shell completions...");
 
     let mut cmd = Cli::command();
     generate_to(Bash, &mut cmd, "dn", &completions_dir).unwrap();
@@ -27,4 +29,5 @@ pub fn gen() {
     generate_to(Elvish, &mut cmd, "dn", &completions_dir).unwrap();
     generate_to(Nushell, &mut cmd, "dn", &completions_dir).unwrap();
     generate_to(PowerShell, &mut cmd, "dn", &completions_dir).unwrap();
+    println!("Finished!");
 }

@@ -11,6 +11,7 @@ use std::{
 use clap::{Parser, Subcommand};
 
 mod completions;
+mod manpages;
 
 #[derive(Parser)]
 struct Cli {
@@ -22,6 +23,8 @@ struct Cli {
 enum Commands {
     /// Generate shell completion files
     Completions,
+    /// Generate man page files
+    Manpages,
 }
 
 fn main() {
@@ -31,6 +34,7 @@ fn main() {
 
     match command {
         Commands::Completions => completions::gen(),
+        Commands::Manpages => manpages::gen(),
     }
 }
 
