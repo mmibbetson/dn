@@ -8,7 +8,10 @@ name = "dn"
 version = "0.1.0"
 edition = "2021"
 # rust-version = ""
-authors = ["Matthew Mark Ibbetson <mmibbetson@gmail.com>", "Adam Stokes"] # TODO: Add email if Adam is comfortable with it.
+authors = [
+    "Matthew Mark Ibbetson <mmibbetson@gmail.com>",
+    "Adam Stokes",
+] # TODO: Add email if Adam is comfortable with it.
 description = "A simple, minimal, and flexible command line utility for managing plaintext files."
 keywords = ["cli", "utility", "file", "notes", "pkms"]
 categories = ["command-line-utilities", "filesystem"]
@@ -36,11 +39,10 @@ path = "src/lib.rs"
 anyhow = "1.0.92"                                      # MIT or Apache-2.0
 chrono = "0.4.38"                                      # MIT or Apache-2.0
 icu_collator = "1.5.0"                                 # Unicode-3.0
-once_cell = "1.20.2"                                   # MIT or Apache-2.0 - When Lazy is in Rust Stable, can remove this.
-regex = "1.11.1"                                       # MIT or Apache-2.0
 serde = { version = "1.0.214", features = ["derive"] } # MIT or Apache-2.0
 toml = "0.8.19"                                        # MIT or Apache-2.0
 clap.workspace = true                                  # MIT or Apache-2.0
+winnow = "0.6.20"                                      # MIT
 
 [profile.release]
 opt-level = 3
