@@ -12,7 +12,7 @@ use anyhow::{anyhow, Error};
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 use icu_collator::{Collator, CollatorOptions, Strength};
 
-use crate::{config::FileConfig, format::DN_IDENTIFIER_FORMAT};
+use crate::{config::FileConfig, parsers::DN_IDENTIFIER_FORMAT};
 
 /// The unique separator characters for each segment of a dn file name.
 pub const SEGMENT_SEPARATORS: [char; 5] = ['@', '=', '-', '_', '.'];

@@ -8,35 +8,38 @@
 use std::fmt::Display;
 
 use chrono::Local;
-use once_cell::sync::Lazy;
-use regex::Regex;
+use winnow::PResult;
 
 use crate::{
     config::{FileConfig, FilenameSegment},
-    format::DN_IDENTIFIER_FORMAT,
     metadata::FileMetadata,
+    parsers::DN_IDENTIFIER_FORMAT,
 };
 
-/// Regex to match the `Identifier` segment of a file name.
-static REGEX_SEGMENT_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(\b[0-9]{8}T[0-9]{6}\b)").expect("Invalid identifier segment regex pattern")
-});
+/// Parser to match the `Identifier` segment of a file name.
+fn segment_identifier(input: &mut &str) -> PResult<String> {
+    todo!()
+}
 
-/// Regex to match the `Signature` segment of a file name.
-static REGEX_SEGMENT_SIGNATURE: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(==[^\@\-\_\.]*)").expect("Invalid signature segment regex pattern"));
+/// Parser to match the `Signature` segment of a file name.
+fn segment_signature(input: &mut &str) -> PResult<String> {
+    todo!()
+}
 
-/// Regex to match the `Title` segment of a file name.
-static REGEX_SEGMENT_TITLE: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(--[^\@\=\_\.]*)").expect("Invalid title segment regex pattern"));
+/// Parser to match the `Title` segment of a file name.
+fn segment_title(input: &mut &str) -> PResult<String> {
+    todo!()
+}
 
-/// Regex to match the `Keywords` segment of a file name.
-static REGEX_SEGMENT_KEYWORDS: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(__[^\@\=\-\.]*)").expect("Invalid keywords segment regex pattern"));
+/// Parser to match the `Keywords` segment of a file name.
+fn segment_keywords(input: &mut &str) -> PResult<Vec<String>> {
+    todo!()
+}
 
-/// Regex to match the `Extension` segment of a file name.
-static REGEX_SEGMENT_EXTENSION: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(\.[^\@\=\-\_]*)").expect("Invalid extension segment regex pattern"));
+/// Parser to match the `Extension` segment of a file name.
+fn segment_extension(input: &mut &str) -> PResult<String> {
+    todo!()
+}
 
 /// Represents the possible segments of a dn file name, as well as the order in which
 /// they should be concatenated.

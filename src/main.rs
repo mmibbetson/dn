@@ -12,7 +12,6 @@ use cli::Cli;
 use config::{load_config, Config};
 use content::concatenate_file_content;
 use filename::ToFilename;
-use format::get_first_paragraph;
 use metadata::FileMetadata;
 
 mod cli;
@@ -20,7 +19,7 @@ mod config;
 mod content;
 mod directory;
 mod filename;
-mod format;
+mod parsers;
 mod metadata;
 
 fn main() {
