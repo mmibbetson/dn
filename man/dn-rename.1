@@ -1,0 +1,56 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH dn-rename 1  "rename " 
+.SH NAME
+dn\-rename \- Rename an existing note
+.SH SYNOPSIS
+\fBdn rename\fR [\fB\-p\fR|\fB\-\-print\fR] [\fB\-I\fR|\fB\-\-regenerate\-identifier\fR] [\fB\-f\fR|\fB\-\-from\-frontmatter\fR] [\fB\-G\fR|\fB\-\-generate\-frontmatter\fR] [\fB\-c\fR|\fB\-\-config\fR] [\fB\-F\fR|\fB\-\-frontmatter\-format\fR] [\fB\-s\fR|\fB\-\-signature\fR] [\fB\-t\fR|\fB\-\-title\fR] [\fB\-k\fR|\fB\-\-keywords\fR] [\fB\-A\fR|\fB\-\-add\-keywords\fR] [\fB\-R\fR|\fB\-\-remove\-keywords\fR] [\fB\-e\fR|\fB\-\-extension\fR] [\fB\-h\fR|\fB\-\-help\fR] <\fIINPUT\fR> 
+.SH DESCRIPTION
+Rename an existing note
+.SH OPTIONS
+.TP
+\fB\-p\fR, \fB\-\-print\fR
+Print the absolute path of the created file
+.TP
+\fB\-I\fR, \fB\-\-regenerate\-identifier\fR
+Generate an identifier even if there is an existing one
+.TP
+\fB\-f\fR, \fB\-\-from\-frontmatter\fR
+Rename based on frontmatter values
+.TP
+\fB\-G\fR, \fB\-\-generate\-frontmatter\fR
+Generate or regenerate frontmatter
+.TP
+\fB\-c\fR, \fB\-\-config\fR=\fIPATH\fR
+Configuration file path
+.TP
+\fB\-F\fR, \fB\-\-frontmatter\-format\fR=\fIFORMAT\fR
+Frontmatter format
+.br
+
+.br
+[\fIpossible values: \fRtext, yaml, toml, json]
+.TP
+\fB\-s\fR, \fB\-\-signature\fR=\fISIGNATURE\fR
+New signature for the note
+.TP
+\fB\-t\fR, \fB\-\-title\fR=\fITITLE\fR
+New title for the note
+.TP
+\fB\-k\fR, \fB\-\-keywords\fR=\fIKEYWORDS\fR
+New keywords for the note
+.TP
+\fB\-A\fR, \fB\-\-add\-keywords\fR=\fIKEYWORDS\fR
+Add keywords to the current or new keywords
+.TP
+\fB\-R\fR, \fB\-\-remove\-keywords\fR=\fIKEYWORDS\fR
+Remove keywords from the current or new keywords
+.TP
+\fB\-e\fR, \fB\-\-extension\fR=\fIEXTENSION\fR
+New file extension for the note
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.TP
+<\fIINPUT\fR>
+Path to the input file to be renamed

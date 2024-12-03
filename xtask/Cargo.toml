@@ -14,3 +14,4 @@ dn = { path = "../" }
 clap.workspace = true
 clap_complete = "4.5.38"        # MIT or Apache-2.0
 clap_complete_nushell = "4.5.4" # MIT or Apache-2.0
+clap_mangen = "0.2.24"          # MIT or Apache-2.0
