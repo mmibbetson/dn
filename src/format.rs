@@ -283,10 +283,7 @@ mod tests {
             let result = get_frontmatter_format(input);
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
 
         #[test]
@@ -299,10 +296,7 @@ mod tests {
             let result = get_frontmatter_format(input);
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
 
         #[test]
@@ -315,10 +309,7 @@ mod tests {
             let result = get_frontmatter_format(input);
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
     }
 
@@ -349,10 +340,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
 
         #[test]
@@ -370,10 +358,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
 
         #[test]
@@ -391,10 +376,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
     }
 
@@ -423,10 +405,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
 
         #[test]
@@ -444,10 +423,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
 
         #[test]
@@ -465,10 +441,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
     }
 
@@ -497,10 +470,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
 
         #[test]
@@ -518,10 +488,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
 
         #[test]
@@ -539,10 +506,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected match: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
     }
 
