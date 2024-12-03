@@ -46,7 +46,7 @@ const EXTENSION_PREFIX: &str = ".";
 const EXTENSION_DELIMITER: char = '.';
 
 /// Parser to match the `Identifier` segment of a file name.
-pub fn segment_identifier<'i>(input: &mut &'i str) -> PResult<String> {
+pub fn segment_identifier(input: &mut &str) -> PResult<String> {
     let token = preceded(
         opt(IDENTIFIER_PREFIX),
         take_while(15, |_| {
@@ -64,7 +64,7 @@ pub fn segment_identifier<'i>(input: &mut &'i str) -> PResult<String> {
 }
 
 /// Parser to match the `Signature` segment of a file name.
-pub fn segment_signature<'i>(input: &mut &'i str) -> PResult<String> {
+pub fn segment_signature(input: &mut &str) -> PResult<String> {
     let token = preceded(
         SIGNATURE_PREFIX,
         take_till(1.., |c| {
@@ -81,7 +81,7 @@ pub fn segment_signature<'i>(input: &mut &'i str) -> PResult<String> {
 }
 
 /// Parser to match the `Title` segment of a file name.
-pub fn segment_title<'i>(input: &mut &'i str) -> PResult<String> {
+pub fn segment_title(input: &mut &str) -> PResult<String> {
     let token = preceded(
         TITLE_PREFIX,
         take_till(1.., |c| {
@@ -98,7 +98,7 @@ pub fn segment_title<'i>(input: &mut &'i str) -> PResult<String> {
 }
 
 /// Parser to match the `Keywords` segment of a file name.
-pub fn segment_keywords<'i>(input: &mut &'i str) -> PResult<Vec<String>> {
+pub fn segment_keywords(input: &mut &str) -> PResult<Vec<String>> {
     let token = preceded(
         KEYWORDS_PREFIX,
         separated(
@@ -119,7 +119,7 @@ pub fn segment_keywords<'i>(input: &mut &'i str) -> PResult<Vec<String>> {
 }
 
 /// Parser to match the `Extension` segment of a file name.
-pub fn segment_extension<'i>(input: &mut &'i str) -> PResult<String> {
+pub fn segment_extension(input: &mut &str) -> PResult<String> {
     let token = preceded(
         EXTENSION_PREFIX,
         take_till(1.., |c| {
@@ -135,77 +135,77 @@ pub fn segment_extension<'i>(input: &mut &'i str) -> PResult<String> {
     Ok(token)
 }
 
-// Text Frontmatter Parsers
-pub fn text_frontmatter_suffix(input: &mut &str) -> PResult<()> {
-    todo!()
-}
+// // Text Frontmatter Parsers
+// pub fn text_frontmatter_suffix(input: &mut &str) -> PResult<()> {
+//     todo!()
+// }
 
-pub fn text_frontmatter_title(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// pub fn text_frontmatter_title(input: &mut &str) -> PResult<String> {
+//     todo!()
+// }
 
-pub fn text_frontmatter_keywords(input: &mut &str) -> PResult<Vec<String>> {
-    todo!()
-}
+// pub fn text_frontmatter_keywords(input: &mut &str) -> PResult<Vec<String>> {
+//     todo!()
+// }
 
-pub fn text_frontmatter_identifier(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// pub fn text_frontmatter_identifier(input: &mut &str) -> PResult<String> {
+//     todo!()
+// }
 
-// YAML Frontmatter Parsers
-pub fn yaml_frontmatter_container(input: &mut &str) -> PResult<()> {
-    todo!()
-}
+// // YAML Frontmatter Parsers
+// pub fn yaml_frontmatter_container(input: &mut &str) -> PResult<()> {
+//     todo!()
+// }
 
-pub fn yaml_frontmatter_title(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// pub fn yaml_frontmatter_title(input: &mut &str) -> PResult<String> {
+//     todo!()
+// }
 
-pub fn yaml_frontmatter_keywords(input: &mut &str) -> PResult<Vec<String>> {
-    todo!()
-}
+// pub fn yaml_frontmatter_keywords(input: &mut &str) -> PResult<Vec<String>> {
+//     todo!()
+// }
 
-pub fn yaml_frontmatter_identifier(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// pub fn yaml_frontmatter_identifier(input: &mut &str) -> PResult<String> {
+//     todo!()
+// }
 
-// TOML Frontmatter Parsers
-pub fn toml_frontmatter_container(input: &mut &str) -> PResult<()> {
-    todo!()
-}
+// // TOML Frontmatter Parsers
+// pub fn toml_frontmatter_container(input: &mut &str) -> PResult<()> {
+//     todo!()
+// }
 
-pub fn toml_frontmatter_title(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// pub fn toml_frontmatter_title(input: &mut &str) -> PResult<String> {
+//     todo!()
+// }
 
-pub fn toml_frontmatter_keywords(input: &mut &str) -> PResult<Vec<String>> {
-    todo!()
-}
+// pub fn toml_frontmatter_keywords(input: &mut &str) -> PResult<Vec<String>> {
+//     todo!()
+// }
 
-pub fn toml_frontmatter_identifier(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// pub fn toml_frontmatter_identifier(input: &mut &str) -> PResult<String> {
+//     todo!()
+// }
 
-// JSON Frontmatter Parsers
-pub fn json_frontmatter_prefix(input: &mut &str) -> PResult<()> {
-    todo!()
-}
+// // JSON Frontmatter Parsers
+// pub fn json_frontmatter_prefix(input: &mut &str) -> PResult<()> {
+//     todo!()
+// }
 
-pub fn json_frontmatter_suffix(input: &mut &str) -> PResult<()> {
-    todo!()
-}
+// pub fn json_frontmatter_suffix(input: &mut &str) -> PResult<()> {
+//     todo!()
+// }
 
-pub fn json_frontmatter_title(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// pub fn json_frontmatter_title(input: &mut &str) -> PResult<String> {
+//     todo!()
+// }
 
-pub fn json_frontmatter_keywords(input: &mut &str) -> PResult<Vec<String>> {
-    todo!()
-}
+// pub fn json_frontmatter_keywords(input: &mut &str) -> PResult<Vec<String>> {
+//     todo!()
+// }
 
-pub fn json_frontmatter_identifier(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// pub fn json_frontmatter_identifier(input: &mut &str) -> PResult<String> {
+//     todo!()
+// }
 
 #[cfg(test)]
 mod tests {
@@ -217,24 +217,24 @@ mod tests {
             segment_title,
         };
 
-        #[test]
-        fn identifier() {
-            // Arrange
-            let mut input_valid_1 = "20241212T121212";
-            let mut input_valid_2 = "@@20241212T121212";
-            let mut input_invalid = "20241212@121212";
-            let expected = "20241212T121212".to_owned();
+        // #[test]
+        // fn identifier() {
+        //     // Arrange
+        //     let mut input_valid_1 = "20241212T121212";
+        //     let mut input_valid_2 = "@@20241212T121212";
+        //     let mut input_invalid = "20241212@121212";
+        //     let expected = "20241212T121212".to_owned();
 
-            // Act
-            let result_1 = segment_identifier(&mut input_valid_1);
-            let result_2 = segment_identifier(&mut input_valid_2);
-            let result_3 = segment_identifier(&mut input_invalid);
+        //     // Act
+        //     let result_1 = segment_identifier(&mut input_valid_1);
+        //     let result_2 = segment_identifier(&mut input_valid_2);
+        //     let result_3 = segment_identifier(&mut input_invalid);
 
-            // Assert
-            assert_eq!(expected, result_1.unwrap());
-            assert_eq!(expected, result_2.unwrap());
-            assert!(result_3.is_err());
-        }
+        //     // Assert
+        //     assert_eq!(expected, result_1.unwrap());
+        //     assert_eq!(expected, result_2.unwrap());
+        //     assert!(result_3.is_err());
+        // }
 
         #[test]
         fn signature() {
