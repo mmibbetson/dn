@@ -1,402 +1,382 @@
-// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
-// SPDX-FileContributor: Matthew Mark Ibbetson
-//
-// SPDX-License-Identifier: GPL-3.0-or-later
+// // SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+// // SPDX-FileContributor: Matthew Mark Ibbetson
+// //
+// // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! Serialisation and deserialisation of dn-compatible file names.
+// //! Serialisation and deserialisation of dn-compatible file names.
 
-use std::fmt::Display;
+// use std::fmt::Display;
 
-use chrono::Local;
-use winnow::PResult;
+// use chrono::Local;
+// use winnow::{
+//     ascii::digit1,
+//     combinator::{delimited, opt, preceded},
+//     token::take_while,
+//     PResult, Parser,
+// };
 
-use crate::{
-    config::{FileConfig, FilenameSegment},
-    metadata::FileMetadata,
-    parsers::DN_IDENTIFIER_FORMAT,
-};
+// use crate::{
+//     config::{FileConfig, FilenameSegment},
+//     metadata::FileMetadata,
+//     parsers::DN_IDENTIFIER_FORMAT,
+// };
 
-/// Parser to match the `Identifier` segment of a file name.
-fn segment_identifier(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// /// Represents the possible segments of a dn file name, as well as the order in which
+// /// they should be concatenated.
+// #[derive(Debug, PartialEq, Default, Clone)]
+// pub struct Filename {
+//     pub identifier: String,
+//     pub signature: Option<String>,
+//     pub title: Option<String>,
+//     pub keywords: Option<String>,
+//     pub extension: String,
+//     pub segment_order: [FilenameSegment; 5],
+// }
 
-/// Parser to match the `Signature` segment of a file name.
-fn segment_signature(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// /// A trait for converting a value to a `Filename`.
+// ///
+// /// This trait does **not** perform any sanitization on the data before creating the `Filename`.
+// /// It is intended for use between the filename written to the file system and the `FileMetadata`
+// /// struct.
+// ///
+// /// - When converting from `FileMetadata` to `Filename`, the content will be sanitized.
+// /// - When converting from `String` to `Filename`, the resulting `Filename` should be converted
+// ///   into a `FileMetadata` using the `FileMetadataBuilder` to ensure content validity. From there,
+// ///   it can be converted back into a `Filename` or any other type convertible from `FileMetadata`.
+// ///
+// /// # Example
+// /// ```
+// /// let config = FileConfig::default();
+// /// let filename = "--example__tag1.txt".to_filename(&config);
+// /// ```
+// pub trait ToFilename {
+//     /// Converts the value to a `Filename`.
+//     fn to_filename(&self, config: &FileConfig) -> Filename;
+// }
 
-/// Parser to match the `Title` segment of a file name.
-fn segment_title(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// impl Display for Filename {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         let ordered = self
+//             .segment_order
+//             .map(|s| match s {
+//                 FilenameSegment::Identifier => self.identifier.clone(),
+//                 FilenameSegment::Signature => self.signature.clone().unwrap_or_default(),
+//                 FilenameSegment::Title => self.title.clone().unwrap_or_default(),
+//                 FilenameSegment::Keywords => self.keywords.clone().unwrap_or_default(),
+//                 FilenameSegment::Extension => self.extension.clone(),
+//             })
+//             .concat();
 
-/// Parser to match the `Keywords` segment of a file name.
-fn segment_keywords(input: &mut &str) -> PResult<Vec<String>> {
-    todo!()
-}
+//         write!(f, "{ordered}")
+//     }
+// }
 
-/// Parser to match the `Extension` segment of a file name.
-fn segment_extension(input: &mut &str) -> PResult<String> {
-    todo!()
-}
+// impl ToFilename for String {
+//     fn to_filename(&self, config: &FileConfig) -> Filename {
+//         let (identifier, signature, title, keywords) =
+//             if let Some(identifier) = parse_segment(self, &REGEX_SEGMENT_IDENTIFIER) {
+//                 let signature = parse_segment(self, &REGEX_SEGMENT_SIGNATURE);
+//                 let title = parse_segment(self, &REGEX_SEGMENT_TITLE);
+//                 let keywords = parse_segment(self, &REGEX_SEGMENT_KEYWORDS);
 
-/// Represents the possible segments of a dn file name, as well as the order in which
-/// they should be concatenated.
-#[derive(Debug, PartialEq, Default, Clone)]
-pub struct Filename {
-    pub identifier: String,
-    pub signature: Option<String>,
-    pub title: Option<String>,
-    pub keywords: Option<String>,
-    pub extension: String,
-    pub segment_order: [FilenameSegment; 5],
-}
+//                 (identifier, signature, title, keywords)
+//             } else {
+//                 let identifier = Local::now().format(DN_IDENTIFIER_FORMAT).to_string();
+//                 let title = self
+//                     .chars()
+//                     .take_while(|&c| c != '.')
+//                     .collect::<String>()
+//                     .into();
 
-/// A trait for converting a value to a `Filename`.
-///
-/// This trait does **not** perform any sanitization on the data before creating the `Filename`.
-/// It is intended for use between the filename written to the file system and the `FileMetadata`
-/// struct.
-///
-/// - When converting from `FileMetadata` to `Filename`, the content will be sanitized.
-/// - When converting from `String` to `Filename`, the resulting `Filename` should be converted
-///   into a `FileMetadata` using the `FileMetadataBuilder` to ensure content validity. From there,
-///   it can be converted back into a `Filename` or any other type convertible from `FileMetadata`.
-///
-/// # Example
-/// ```
-/// let config = FileConfig::default();
-/// let filename = "--example__tag1.txt".to_filename(&config);
-/// ```
-pub trait ToFilename {
-    /// Converts the value to a `Filename`.
-    fn to_filename(&self, config: &FileConfig) -> Filename;
-}
+//                 (identifier, None, title, None)
+//             };
 
-impl Display for Filename {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let ordered = self
-            .segment_order
-            .map(|s| match s {
-                FilenameSegment::Identifier => self.identifier.clone(),
-                FilenameSegment::Signature => self.signature.clone().unwrap_or_default(),
-                FilenameSegment::Title => self.title.clone().unwrap_or_default(),
-                FilenameSegment::Keywords => self.keywords.clone().unwrap_or_default(),
-                FilenameSegment::Extension => self.extension.clone(),
-            })
-            .concat();
+//         let extension = parse_segment(self, &REGEX_SEGMENT_EXTENSION)
+//             .unwrap_or_else(|| config.default_extension.clone());
 
-        write!(f, "{ordered}")
-    }
-}
+//         Filename {
+//             identifier,
+//             signature,
+//             title,
+//             keywords,
+//             extension,
+//             ..Default::default()
+//         }
+//     }
+// }
 
-impl ToFilename for String {
-    fn to_filename(&self, config: &FileConfig) -> Filename {
-        let (identifier, signature, title, keywords) =
-            if let Some(identifier) = parse_segment(self, &REGEX_SEGMENT_IDENTIFIER) {
-                let signature = parse_segment(self, &REGEX_SEGMENT_SIGNATURE);
-                let title = parse_segment(self, &REGEX_SEGMENT_TITLE);
-                let keywords = parse_segment(self, &REGEX_SEGMENT_KEYWORDS);
+// impl ToFilename for FileMetadata {
+//     fn to_filename(&self, config: &FileConfig) -> Filename {
+//         let identifier = match config.segment_order[0] {
+//             FilenameSegment::Identifier => self.identifier.clone(),
+//             _ => prefix_segment(&self.identifier, FilenameSegment::Identifier),
+//         };
 
-                (identifier, signature, title, keywords)
-            } else {
-                let identifier = Local::now().format(DN_IDENTIFIER_FORMAT).to_string();
-                let title = self
-                    .chars()
-                    .take_while(|&c| c != '.')
-                    .collect::<String>()
-                    .into();
+//         let signature = self
+//             .signature
+//             .clone()
+//             .map(|s| prefix_segment(&s, FilenameSegment::Signature));
 
-                (identifier, None, title, None)
-            };
+//         let title = self
+//             .title
+//             .clone()
+//             .map(|t| prefix_segment(&t, FilenameSegment::Title));
 
-        let extension = parse_segment(self, &REGEX_SEGMENT_EXTENSION)
-            .unwrap_or_else(|| config.default_extension.clone());
+//         let keywords = self.keywords.clone().map(|w| {
+//             prefix_segment(
+//                 &w.into_iter().collect::<Vec<_>>().join("_"),
+//                 FilenameSegment::Keywords,
+//             )
+//         });
 
-        Filename {
-            identifier,
-            signature,
-            title,
-            keywords,
-            extension,
-            ..Default::default()
-        }
-    }
-}
+//         let extension = prefix_segment(&self.extension, FilenameSegment::Extension);
 
-impl ToFilename for FileMetadata {
-    fn to_filename(&self, config: &FileConfig) -> Filename {
-        let identifier = match config.segment_order[0] {
-            FilenameSegment::Identifier => self.identifier.clone(),
-            _ => prefix_segment(&self.identifier, FilenameSegment::Identifier),
-        };
+//         Filename {
+//             identifier,
+//             title,
+//             signature,
+//             keywords,
+//             extension,
+//             segment_order: config.segment_order,
+//         }
+//     }
+// }
+// /// Attempts to parse a segment from a filename using the provided regex, returning it as an `Option<String>`.
+// ///
+// /// # Example
+// ///
+// /// ```
+// /// let regex = Lazy::new(|| Regex::new(r"\d+").unwrap());
+// /// let result = parse_segment("file123.txt", &regex);
+// /// assert_eq!(result, Some("123".to_string()));
+// /// ```
+// fn parse_segment(filename: &str, regex: &Lazy<Regex>) -> Option<String> {
+//     regex.find(filename).map(|m| m.as_str().to_owned())
+// }
 
-        let signature = self
-            .signature
-            .clone()
-            .map(|s| prefix_segment(&s, FilenameSegment::Signature));
+// /// Applies a prefix corresponding to the `FilenameSegment` variant to an input string.
+// ///
+// /// # Example
+// ///
+// /// ```
+// /// let result = prefix_segment("file", FilenameSegment::Title);
+// /// assert_eq!(result, "--file");
+// /// ```
+// fn prefix_segment(value: &str, segment: FilenameSegment) -> String {
+//     let prefix = match segment {
+//         FilenameSegment::Identifier => "@@",
+//         FilenameSegment::Signature => "==",
+//         FilenameSegment::Title => "--",
+//         FilenameSegment::Keywords => "__",
+//         FilenameSegment::Extension => ".",
+//     };
 
-        let title = self
-            .title
-            .clone()
-            .map(|t| prefix_segment(&t, FilenameSegment::Title));
+//     format!("{prefix}{value}")
+// }
 
-        let keywords = self.keywords.clone().map(|w| {
-            prefix_segment(
-                &w.into_iter().collect::<Vec<_>>().join("_"),
-                FilenameSegment::Keywords,
-            )
-        });
+// ///////////
+// // Tests //
+// ///////////
 
-        let extension = prefix_segment(&self.extension, FilenameSegment::Extension);
+// #[cfg(test)]
+// mod tests {
+//     use std::collections::HashSet;
 
-        Filename {
-            identifier,
-            title,
-            signature,
-            keywords,
-            extension,
-            segment_order: config.segment_order,
-        }
-    }
-}
-/// Attempts to parse a segment from a filename using the provided regex, returning it as an `Option<String>`.
-///
-/// # Example
-///
-/// ```
-/// let regex = Lazy::new(|| Regex::new(r"\d+").unwrap());
-/// let result = parse_segment("file123.txt", &regex);
-/// assert_eq!(result, Some("123".to_string()));
-/// ```
-fn parse_segment(filename: &str, regex: &Lazy<Regex>) -> Option<String> {
-    regex.find(filename).map(|m| m.as_str().to_owned())
-}
+//     use super::*;
+//     use chrono::Local;
 
-/// Applies a prefix corresponding to the `FilenameSegment` variant to an input string.
-///
-/// # Example
-///
-/// ```
-/// let result = prefix_segment("file", FilenameSegment::Title);
-/// assert_eq!(result, "--file");
-/// ```
-fn prefix_segment(value: &str, segment: FilenameSegment) -> String {
-    let prefix = match segment {
-        FilenameSegment::Identifier => "@@",
-        FilenameSegment::Signature => "==",
-        FilenameSegment::Title => "--",
-        FilenameSegment::Keywords => "__",
-        FilenameSegment::Extension => ".",
-    };
+//     #[test]
+//     fn string_to_filename_with_all_segments() {
+//         // Arrange
+//         let input = "20240101T120000==signature--title__keywords.txt".to_owned();
+//         let config = FileConfig::default();
+//         let expected = Filename {
+//             identifier: "20240101T120000".to_owned(),
+//             signature: Some("==signature".to_owned()),
+//             title: Some("--title".to_owned()),
+//             keywords: Some("__keywords".to_owned()),
+//             extension: ".txt".to_owned(),
+//             segment_order: Default::default(),
+//         };
 
-    format!("{prefix}{value}")
-}
+//         // Act
+//         let result = input.to_filename(&config);
 
-///////////
-// Tests //
-///////////
+//         // Assert
+//         assert_eq!(
+//             expected, result,
+//             "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+//         );
+//     }
 
-#[cfg(test)]
-mod tests {
-    use std::collections::HashSet;
+//     #[test]
+//     fn string_to_filename_non_dn_format() {
+//         // Arrange
+//         let input = "@@I am a nau==ghty __STR1NG!.txt".to_owned();
+//         let config = FileConfig::default();
+//         let now = Local::now();
+//         let expected = Filename {
+//             identifier: now.format(DN_IDENTIFIER_FORMAT).to_string(),
+//             signature: None,
+//             title: Some("@@I am a nau==ghty __STR1NG!".to_owned()),
+//             keywords: None,
+//             extension: ".txt".to_owned(),
+//             segment_order: Default::default(),
+//         };
 
-    use super::*;
-    use chrono::Local;
+//         // Act
+//         let result = input.to_filename(&config);
 
-    #[test]
-    fn string_to_filename_with_all_segments() {
-        // Arrange
-        let input = "20240101T120000==signature--title__keywords.txt".to_owned();
-        let config = FileConfig::default();
-        let expected = Filename {
-            identifier: "20240101T120000".to_owned(),
-            signature: Some("==signature".to_owned()),
-            title: Some("--title".to_owned()),
-            keywords: Some("__keywords".to_owned()),
-            extension: ".txt".to_owned(),
-            segment_order: Default::default(),
-        };
+//         // Assert
+//         assert_eq!(
+//             expected, result,
+//             "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
+//         );
+//     }
 
-        // Act
-        let result = input.to_filename(&config);
+//     #[test]
+//     fn metadata_to_filename_full() {
+//         // Arrange
+//         let config = FileConfig::default();
+//         let metadata = FileMetadata {
+//             identifier: "20240101T120000".to_owned(),
+//             signature: Some("test-sig".to_owned()),
+//             title: Some("test-title".to_owned()),
+//             keywords: Some(vec!["key1".to_owned(), "key2".to_owned()]),
+//             extension: "txt".to_owned(),
+//             ..Default::default()
+//         };
+//         let expected = Filename {
+//             identifier: "20240101T120000".to_owned(),
+//             signature: Some("==test-sig".to_owned()),
+//             title: Some("--test-title".to_owned()),
+//             keywords: Some("__key1_key2".to_owned()),
+//             extension: ".txt".to_owned(),
+//             segment_order: config.segment_order,
+//         };
 
-        // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-        );
-    }
+//         let expected_keywords = HashSet::from(["key1", "key2"]);
 
-    #[test]
-    fn string_to_filename_non_dn_format() {
-        // Arrange
-        let input = "@@I am a nau==ghty __STR1NG!.txt".to_owned();
-        let config = FileConfig::default();
-        let now = Local::now();
-        let expected = Filename {
-            identifier: now.format(DN_IDENTIFIER_FORMAT).to_string(),
-            signature: None,
-            title: Some("@@I am a nau==ghty __STR1NG!".to_owned()),
-            keywords: None,
-            extension: ".txt".to_owned(),
-            segment_order: Default::default(),
-        };
+//         // Act
+//         let result = metadata.to_filename(&config);
+//         let result_keywords = result
+//             .keywords
+//             .as_ref()
+//             .unwrap()
+//             .split('_')
+//             .filter(|&w| !w.is_empty())
+//             .collect::<HashSet<_>>();
 
-        // Act
-        let result = input.to_filename(&config);
+//         // Assert
+//         assert_eq!(
+//             expected.identifier, result.identifier,
+//             "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+//             metadata.identifier, expected.identifier, result.identifier
+//         );
 
-        // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-        );
-    }
+//         assert_eq!(
+//             expected.signature, result.signature,
+//             "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+//             metadata.signature, expected.signature, result.signature
+//         );
 
-    #[test]
-    fn metadata_to_filename_full() {
-        // Arrange
-        let config = FileConfig::default();
-        let metadata = FileMetadata {
-            identifier: "20240101T120000".to_owned(),
-            signature: Some("test-sig".to_owned()),
-            title: Some("test-title".to_owned()),
-            keywords: Some(vec!["key1".to_owned(), "key2".to_owned()]),
-            extension: "txt".to_owned(),
-            ..Default::default()
-        };
-        let expected = Filename {
-            identifier: "20240101T120000".to_owned(),
-            signature: Some("==test-sig".to_owned()),
-            title: Some("--test-title".to_owned()),
-            keywords: Some("__key1_key2".to_owned()),
-            extension: ".txt".to_owned(),
-            segment_order: config.segment_order,
-        };
+//         assert_eq!(
+//             expected.title, result.title,
+//             "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+//             metadata.title, expected.title, result.title
+//         );
 
-        let expected_keywords = HashSet::from(["key1", "key2"]);
+//         assert_eq!(
+//             expected_keywords, result_keywords,
+//             "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+//             metadata.keywords, expected.keywords, result.keywords
+//         );
 
-        // Act
-        let result = metadata.to_filename(&config);
-        let result_keywords = result
-            .keywords
-            .as_ref()
-            .unwrap()
-            .split('_')
-            .filter(|&w| !w.is_empty())
-            .collect::<HashSet<_>>();
+//         assert_eq!(
+//             expected.extension, result.extension,
+//             "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
+//             metadata.extension, expected.extension, result.extension
+//         );
+//     }
 
-        // Assert
-        assert_eq!(
-            expected.identifier, result.identifier,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.identifier, expected.identifier, result.identifier
-        );
+//     #[test]
+//     fn filename_display_format() {
+//         // Arrange
+//         let filename = Filename {
+//             identifier: "20240101T120000".to_owned(),
+//             signature: Some("==signature".to_owned()),
+//             title: Some("--title".to_owned()),
+//             keywords: Some("__keywords".to_owned()),
+//             extension: ".txt".to_owned(),
+//             segment_order: [
+//                 FilenameSegment::Identifier,
+//                 FilenameSegment::Signature,
+//                 FilenameSegment::Title,
+//                 FilenameSegment::Keywords,
+//                 FilenameSegment::Extension,
+//             ],
+//         };
+//         let expected = "20240101T120000==signature--title__keywords.txt";
 
-        assert_eq!(
-            expected.signature, result.signature,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.signature, expected.signature, result.signature
-        );
+//         // Act
+//         let result = filename.to_string();
 
-        assert_eq!(
-            expected.title, result.title,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.title, expected.title, result.title
-        );
+//         // Assert
+//         assert_eq!(
+//             expected, result,
+//             "\nInput: {filename:#?}\nExpected: {expected}\nReceived: {result}"
+//         );
+//     }
 
-        assert_eq!(
-            expected_keywords, result_keywords,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.keywords, expected.keywords, result.keywords
-        );
+//     #[test]
+//     fn parse_segment_extracts_correct_parts() {
+//         // Arrange
+//         let filename = "20240101T120000==signature--title__keywords.txt";
+//         let test_cases = [
+//             (
+//                 &REGEX_SEGMENT_IDENTIFIER,
+//                 Some("20240101T120000".to_owned()),
+//             ),
+//             (&REGEX_SEGMENT_SIGNATURE, Some("==signature".to_owned())),
+//             (&REGEX_SEGMENT_TITLE, Some("--title".to_owned())),
+//             (&REGEX_SEGMENT_KEYWORDS, Some("__keywords".to_owned())),
+//             (&REGEX_SEGMENT_EXTENSION, Some(".txt".to_owned())),
+//         ];
 
-        assert_eq!(
-            expected.extension, result.extension,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.extension, expected.extension, result.extension
-        );
-    }
+//         for (regex, expected) in test_cases {
+//             // Act
+//             let result = parse_segment(filename, regex);
+//             let pattern = regex.as_str();
 
-    #[test]
-    fn filename_display_format() {
-        // Arrange
-        let filename = Filename {
-            identifier: "20240101T120000".to_owned(),
-            signature: Some("==signature".to_owned()),
-            title: Some("--title".to_owned()),
-            keywords: Some("__keywords".to_owned()),
-            extension: ".txt".to_owned(),
-            segment_order: [
-                FilenameSegment::Identifier,
-                FilenameSegment::Signature,
-                FilenameSegment::Title,
-                FilenameSegment::Keywords,
-                FilenameSegment::Extension,
-            ],
-        };
-        let expected = "20240101T120000==signature--title__keywords.txt";
+//             // Assert
+//             assert_eq!(
+//                 expected, result,
+//                 "\nInput: {filename}\nPattern: {pattern}\nExpected: {expected:#?}\nReceived: {result:#?}"
+//             );
+//         }
+//     }
 
-        // Act
-        let result = filename.to_string();
+//     #[test]
+//     fn prefix_segment_adds_correct_prefix() {
+//         // Arrange
+//         let test_cases = [
+//             (FilenameSegment::Identifier, "@@test"),
+//             (FilenameSegment::Signature, "==test"),
+//             (FilenameSegment::Title, "--test"),
+//             (FilenameSegment::Keywords, "__test"),
+//             (FilenameSegment::Extension, ".test"),
+//         ];
+//         let input = "test";
 
-        // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {filename:#?}\nExpected: {expected}\nReceived: {result}"
-        );
-    }
+//         for (segment, expected) in test_cases {
+//             // Act
+//             let result = prefix_segment(input, segment);
 
-    #[test]
-    fn parse_segment_extracts_correct_parts() {
-        // Arrange
-        let filename = "20240101T120000==signature--title__keywords.txt";
-        let test_cases = [
-            (
-                &REGEX_SEGMENT_IDENTIFIER,
-                Some("20240101T120000".to_owned()),
-            ),
-            (&REGEX_SEGMENT_SIGNATURE, Some("==signature".to_owned())),
-            (&REGEX_SEGMENT_TITLE, Some("--title".to_owned())),
-            (&REGEX_SEGMENT_KEYWORDS, Some("__keywords".to_owned())),
-            (&REGEX_SEGMENT_EXTENSION, Some(".txt".to_owned())),
-        ];
-
-        for (regex, expected) in test_cases {
-            // Act
-            let result = parse_segment(filename, regex);
-            let pattern = regex.as_str();
-
-            // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {filename}\nPattern: {pattern}\nExpected: {expected:#?}\nReceived: {result:#?}"
-            );
-        }
-    }
-
-    #[test]
-    fn prefix_segment_adds_correct_prefix() {
-        // Arrange
-        let test_cases = [
-            (FilenameSegment::Identifier, "@@test"),
-            (FilenameSegment::Signature, "==test"),
-            (FilenameSegment::Title, "--test"),
-            (FilenameSegment::Keywords, "__test"),
-            (FilenameSegment::Extension, ".test"),
-        ];
-        let input = "test";
-
-        for (segment, expected) in test_cases {
-            // Act
-            let result = prefix_segment(input, segment);
-
-            // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input}\nSegment: {segment:#?}\nExpected: {expected}\nReceived: {result}"
-            );
-        }
-    }
-}
+//             // Assert
+//             assert_eq!(
+//                 expected, result,
+//                 "\nInput: {input}\nSegment: {segment:#?}\nExpected: {expected}\nReceived: {result}"
+//             );
+//         }
+//     }
+// }
