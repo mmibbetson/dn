@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//! Parser functions for managing front matter.
+//! Parser functions for acquiring metadata from file names and front matter.
 
 use winnow::{
     combinator::{opt, preceded, separated},
@@ -300,4 +300,12 @@ mod tests {
             assert!(result_2.is_err());
         }
     }
+
+    mod text_frontmatter_parsers {}
+
+    mod yaml_frontmatter_parsers {}
+
+    mod toml_frontmatter_parsers {}
+
+    mod json_frontmatter_parsers {}
 }
