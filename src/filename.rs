@@ -220,10 +220,7 @@ mod tests {
         let result = input.to_filename(&config);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -245,10 +242,7 @@ mod tests {
         let result = input.to_filename(&config);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -285,35 +279,11 @@ mod tests {
             .collect::<HashSet<_>>();
 
         // Assert
-        assert_eq!(
-            expected.identifier, result.identifier,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.identifier, expected.identifier, result.identifier
-        );
-
-        assert_eq!(
-            expected.signature, result.signature,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.signature, expected.signature, result.signature
-        );
-
-        assert_eq!(
-            expected.title, result.title,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.title, expected.title, result.title
-        );
-
-        assert_eq!(
-            expected_keywords, result_keywords,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.keywords, expected.keywords, result.keywords
-        );
-
-        assert_eq!(
-            expected.extension, result.extension,
-            "\nInput: {:#?}\nExpected: {:#?}\nReceived: {:#?}",
-            metadata.extension, expected.extension, result.extension
-        );
+        assert_eq!(expected.identifier, result.identifier,);
+        assert_eq!(expected.signature, result.signature,);
+        assert_eq!(expected.title, result.title,);
+        assert_eq!(expected_keywords, result_keywords,);
+        assert_eq!(expected.extension, result.extension,);
     }
 
     #[test]
@@ -339,10 +309,7 @@ mod tests {
         let result = filename.to_string();
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {filename:#?}\nExpected: {expected}\nReceived: {result}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -366,10 +333,7 @@ mod tests {
             let pattern = regex.as_str();
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {filename}\nPattern: {pattern}\nExpected: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result,);
         }
     }
 
@@ -390,10 +354,7 @@ mod tests {
             let result = prefix_segment(input, segment);
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input}\nSegment: {segment:#?}\nExpected: {expected}\nReceived: {result}"
-            );
+            assert_eq!(expected, result,);
         }
     }
 }

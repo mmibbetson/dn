@@ -48,10 +48,7 @@ mod tests {
         let result = concatenate_file_content(frontmatter, content);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -65,10 +62,7 @@ mod tests {
         let result = concatenate_file_content(frontmatter, content);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -82,10 +76,7 @@ mod tests {
         let result = concatenate_file_content(frontmatter, content);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -99,9 +90,6 @@ mod tests {
         let result = concatenate_file_content(frontmatter, content);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected content: {expected:#?}\nReceived: {result:#?}",
-        );
+        assert_eq!(expected, result,);
     }
 }

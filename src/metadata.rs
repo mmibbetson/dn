@@ -52,45 +52,45 @@ impl FileMetadata {
 
 impl FileMetadataBuilder {
     /// Optionally adds an identifier to the builder which will override the default.
-    pub fn with_identifier(mut self, value: &Option<String>) -> Self {
-        self.identifier.clone_from(value);
+    pub fn with_identifier(mut self, value: Option<&str>) -> Self {
+        self.identifier.clone_from(&value.map(String::from));
         self
     }
 
     /// Optionally adds a signature to the builder.
-    pub fn with_signature(mut self, value: &Option<String>) -> Self {
-        self.signature.clone_from(value);
+    pub fn with_signature(mut self, value: Option<&str>) -> Self {
+        self.signature.clone_from(&value.map(String::from));
         self
     }
 
     /// Optionally adds a title to the builder.
-    pub fn with_title(mut self, value: &Option<String>) -> Self {
-        self.title.clone_from(value);
+    pub fn with_title(mut self, value: Option<&str>) -> Self {
+        self.title.clone_from(&value.map(String::from));
         self
     }
 
     /// Optionally adds keywords to the builder.
-    pub fn with_keywords(mut self, value: &Option<String>) -> Self {
-        self.keywords.clone_from(value);
+    pub fn with_keywords(mut self, value: Option<&str>) -> Self {
+        self.keywords.clone_from(&value.map(String::from));
         self
     }
 
     /// Optionally adds additional keywords to be joined with existing keywords to the builder.
-    pub fn with_added_keywords(mut self, value: &Option<String>) -> Self {
-        self.added_keywords.clone_from(value);
+    pub fn with_added_keywords(mut self, value: Option<&str>) -> Self {
+        self.added_keywords.clone_from(&value.map(String::from));
         self
     }
 
     /// Optionally adds additional keywords to be removed from existing and added keywords to the
     /// builder.
-    pub fn with_removed_keywords(mut self, value: &Option<String>) -> Self {
-        self.removed_keywords.clone_from(value);
+    pub fn with_removed_keywords(mut self, value: Option<&str>) -> Self {
+        self.removed_keywords.clone_from(&value.map(String::from));
         self
     }
 
     /// Optionally adds a file extension to the builder which will override the default.
-    pub fn with_extension(mut self, value: &Option<String>) -> Self {
-        self.extension.clone_from(value);
+    pub fn with_extension(mut self, value: Option<&str>) -> Self {
+        self.extension.clone_from(&value.map(String::from));
         self
     }
 
@@ -109,7 +109,7 @@ impl FileMetadataBuilder {
     /// assert_eq!(metadata.title, Some("example-title".to_owned()))
     /// ```
     pub fn build(&self, config: &FileConfig) -> FileMetadata {
-        let datetime = derive_datetime(&self.identifier);
+        let datetime = derive_datetime(self.identifier.as_deref());
 
         let identifier = self
             .identifier
@@ -203,7 +203,7 @@ impl FileMetadataBuilder {
 /// let datetime = derive_datetime(&identifier);
 /// assert_eq!(datetime.year(), 2024);
 /// ```
-fn derive_datetime(identifier: &Option<String>) -> DateTime<Local> {
+fn derive_datetime(identifier: Option<&str>) -> DateTime<Local> {
     match identifier {
         Some(identifier) => match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
             Ok(naive) => TimeZone::from_local_datetime(&Local, &naive)
@@ -359,17 +359,14 @@ mod tests {
     #[test]
     fn derive_datetime_with_identifier() {
         // Arrange
-        let input = Some("20241212T121212".to_owned());
+        let input = Some("20241212T121212");
         let expected = Local.with_ymd_and_hms(2024, 12, 12, 12, 12, 12).unwrap();
 
         // Act
-        let result = derive_datetime(&input);
+        let result = derive_datetime(input);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected datetime: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -379,14 +376,11 @@ mod tests {
         let before_call = Local::now();
 
         // Act
-        let result = derive_datetime(&input);
+        let result = derive_datetime(input);
         let after_call = Local::now();
 
         // Assert
-        assert!(
-            result >= before_call && result <= after_call,
-            "\nInput: Local::now()\nExpected datetime between: {before_call:#?} and {after_call:#?}\nReceived: {result:#?}"
-        );
+        assert!(result >= before_call && result <= after_call,);
     }
 
     #[test]
@@ -400,10 +394,7 @@ mod tests {
         let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -417,10 +408,7 @@ mod tests {
         let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -434,10 +422,7 @@ mod tests {
         let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected signature: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -451,10 +436,7 @@ mod tests {
         let result = parse_title(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected title: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -468,10 +450,7 @@ mod tests {
         let result = parse_keywords(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected keywords: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -485,10 +464,7 @@ mod tests {
         let result = parse_extension(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected extension: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -502,10 +478,7 @@ mod tests {
         let result = parse_extension(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected extension: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -513,13 +486,13 @@ mod tests {
         // Arrange
         let config = setup_config();
         let args = FileMetadata::builder()
-            .with_identifier(&Some("20240101T120000".to_owned()))
-            .with_signature(&Some("test@signature".to_owned()))
-            .with_title(&Some("My T3ST Title!".to_owned()))
-            .with_keywords(&Some("dn testing".to_owned()))
-            .with_added_keywords(&Some("dn_testing_changes".to_owned()))
-            .with_removed_keywords(&Some("dn".to_owned()))
-            .with_extension(&Some("DJ".to_owned()));
+            .with_identifier(Some("20240101T120000"))
+            .with_signature(Some("test@signature"))
+            .with_title(Some("My T3ST Title!"))
+            .with_keywords(Some("dn testing"))
+            .with_added_keywords(Some("dn_testing_changes"))
+            .with_removed_keywords(Some("dn"))
+            .with_extension(Some("DJ"));
 
         let expected = FileMetadata {
             identifier: "20240101T120000".to_owned(),
@@ -536,41 +509,13 @@ mod tests {
         let result = args.build(&config);
 
         // Assert
-        assert_eq!(
-            expected.identifier, result.identifier,
-            "\nIdentifier mismatch:\nExpected: {:#?}\nReceived: {:#?}",
-            expected.identifier, result.identifier
-        );
-        assert_eq!(
-            expected.signature, result.signature,
-            "\nSignature mismatch:\nExpected: {:#?}\nReceived: {:#?}",
-            expected.signature, result.signature
-        );
-        assert_eq!(
-            expected.title, result.title,
-            "\nTitle mismatch:\nExpected: {:#?}\nReceived: {:#?}",
-            expected.title, result.title
-        );
-        assert_eq!(
-            expected.title_raw, result.title_raw,
-            "\nTitle raw mismatch:\nExpected: {:#?}\nReceived: {:#?}",
-            expected.title_raw, result.title_raw
-        );
-        assert_eq!(
-            expected.keywords, result.keywords,
-            "\nKeywords mismatch:\nExpected: {:#?}\nReceived: {:#?}",
-            expected.keywords, result.keywords
-        );
-        assert_eq!(
-            expected.extension, result.extension,
-            "\nExtension mismatch:\nExpected: {:#?}\nReceived: {:#?}",
-            expected.extension, result.extension
-        );
-        assert_eq!(
-            expected.datetime, result.datetime,
-            "\nDatetime mismatch:\nExpected: {:#?}\nReceived: {:#?}",
-            expected.datetime, result.datetime
-        );
+        assert_eq!(expected.identifier, result.identifier,);
+        assert_eq!(expected.signature, result.signature,);
+        assert_eq!(expected.title, result.title,);
+        assert_eq!(expected.title_raw, result.title_raw,);
+        assert_eq!(expected.keywords, result.keywords,);
+        assert_eq!(expected.extension, result.extension,);
+        assert_eq!(expected.datetime, result.datetime,);
     }
 
     #[test]
@@ -584,9 +529,6 @@ mod tests {
         let result = sanitise(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected sanitized string: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 }

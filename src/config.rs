@@ -337,7 +337,7 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
 ///     Some(cfg) => println!("Config loaded successfully"),
 ///     None => println!("No config found, using defaults"),
 /// }
-pub fn load_config(provided_path: &Option<String>) -> Result<Option<Config>, Error> {
+pub fn load_config(provided_path: Option<&str>) -> Result<Option<Config>, Error> {
     match provided_path {
         Some(path) => read_config(PathBuf::from(path)).map(Some),
         None => match environment_config_dir() {
@@ -513,10 +513,7 @@ mod tests {
         let result = input.build().unwrap();
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -549,10 +546,7 @@ mod tests {
         let result = input.build().unwrap();
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -592,10 +586,7 @@ mod tests {
         let result = input.build().unwrap();
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}",
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -615,10 +606,7 @@ mod tests {
         let result = input.build().unwrap().file.illegal_characters;
 
         // Assert
-        assert_eq!(
-            expected, result,
-            "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-        );
+        assert_eq!(expected, result,);
     }
 
     #[test]
@@ -631,11 +619,8 @@ mod tests {
         let result = input.build();
 
         // Assert
-        assert!(
-            result
-                .as_ref()
-                .is_err_and(|e| e.to_string().contains("Invalid frontmatter format")),
-            "\nInput: {input:#?}\nExpected an error.\nReceived: {result:#?}",
-        );
+        assert!(result
+            .as_ref()
+            .is_err_and(|e| e.to_string().contains("Invalid frontmatter format")),);
     }
 }
