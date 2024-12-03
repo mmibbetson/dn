@@ -15,6 +15,8 @@ The title value is the title provided to the note through the dn command, prior 
 
 ## Date
 
+The date value is...
+
 ## Tags
 
 ## Identifier
