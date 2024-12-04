@@ -29,7 +29,7 @@ pub struct Config {
 
 /// A `mut self` builder that allows progressively updating an input state for a new `Config`.
 #[derive(Debug, Default)]
-struct ConfigBuilder {
+pub struct ConfigBuilder {
     base_config: Option<Config>,
     file_directory: Option<String>,
     file_default_extension: Option<String>,
