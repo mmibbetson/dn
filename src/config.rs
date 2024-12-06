@@ -69,13 +69,17 @@ pub struct FileConfig {
 
 /// The segments which comprise a dn file name.
 #[derive(PartialEq, Copy, Clone, Default, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
 pub enum FilenameSegment {
+    #[serde(alias = "identifier")]
     Identifier,
+    #[serde(alias = "signature")]
     Signature,
     #[default]
+    #[serde(alias = "title")]
     Title,
+    #[serde(alias = "keywords")]
     Keywords,
+    #[serde(alias = "extension")]
     Extension,
 }
 
@@ -102,27 +106,27 @@ pub struct FrontmatterConfig {
 /// The possible valid formats for front matter.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FrontmatterFormat {
+    #[serde(alias = "text")]
     Text,
+    #[serde(alias = "yaml")]
     Yaml,
+    #[serde(alias = "toml")]
     Toml,
+    #[serde(alias = "json")]
     Json,
 }
 
 /// The valid front matter segments which dn concerns itself with.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FrontmatterSegment {
+    #[serde(alias = "title")]
     Title,
+    #[serde(alias = "date")]
     Date,
+    #[serde(alias = "keywords")]
     Keywords,
+    #[serde(alias = "identifier")]
     Identifier,
-}
-
-/// The valid time formats for front matter datetimes.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum FrontmatterTimeFormat {
-    Hour24,
-    Hour12,
-    None,
 }
 
 impl Config {
@@ -134,20 +138,20 @@ impl Config {
 
 impl ConfigBuilder {
     /// Adds a path to a configuration file to the builder.
-    pub fn with_base_config(mut self, value: &Config) -> Self {
-        self.base_config = Some(value.to_owned());
+    pub fn with_base_config(mut self, value: Config) -> Self {
+        self.base_config = Some(value);
         self
     }
 
     /// Adds the output directory for the file to the builder.
-    pub fn with_file_directory(mut self, value: &str) -> Self {
-        self.file_directory = Some(value.to_owned());
+    pub fn with_file_directory(mut self, value: String) -> Self {
+        self.file_directory = Some(value);
         self
     }
 
     /// Adds the default file extension for the file to the builder.
-    pub fn with_file_default_extension(mut self, value: &str) -> Self {
-        self.file_default_extension = Some(value.to_owned());
+    pub fn with_file_default_extension(mut self, value: String) -> Self {
+        self.file_default_extension = Some(value);
         self
     }
 
@@ -158,8 +162,8 @@ impl ConfigBuilder {
     }
 
     /// Adds the input path for a template file to the builder.
-    pub fn with_file_template_path(mut self, value: &PathBuf) -> Self {
-        self.file_template_path = Some(value.to_owned());
+    pub fn with_file_template_path(mut self, value: PathBuf) -> Self {
+        self.file_template_path = Some(value);
         self
     }
 
@@ -170,8 +174,8 @@ impl ConfigBuilder {
     }
 
     /// Sets which format to use for the frontmatter to the builder.
-    pub fn with_frontmatter_format(mut self, value: &str) -> Self {
-        self.frontmatter_format = Some(value.to_owned());
+    pub fn with_frontmatter_format(mut self, value: String) -> Self {
+        self.frontmatter_format = Some(value);
         self
     }
 
@@ -206,7 +210,7 @@ impl ConfigBuilder {
             .file_default_extension
             .as_ref()
             .unwrap_or(&base_config.file.default_extension)
-            .to_string();
+            .to_owned();
 
         let regenerate_identifier = if self.file_regenerate_identifier {
             true
@@ -238,7 +242,7 @@ impl ConfigBuilder {
         let format = {
             let format = self
                 .frontmatter_format
-                .clone()
+                .as_ref()
                 .map(|f| string_to_frontmatter_format(&f));
 
             match format {
@@ -532,7 +536,7 @@ mod tests {
                 ..FrontmatterConfig::default()
             },
         };
-        let input = Config::builder().with_base_config(&base_config);
+        let input = Config::builder().with_base_config(base_config.clone());
         let expected_illegal_characters = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
         let expected = Config {
             file: FileConfig {
@@ -560,10 +564,10 @@ mod tests {
         let format = "json".into();
 
         let input = Config::builder()
-            .with_file_default_extension(&default_extension)
-            .with_file_directory(&directory)
+            .with_file_default_extension(default_extension.clone())
+            .with_file_directory(directory.clone())
             .with_file_regenerate_identifier(regenerate_identifier)
-            .with_file_template_path(&template_path.clone().into())
+            .with_file_template_path(template_path.clone().into())
             .with_frontmatter_enabled(enabled)
             .with_frontmatter_format(format);
 
@@ -599,7 +603,7 @@ mod tests {
             },
             ..Config::default()
         };
-        let input = Config::builder().with_base_config(&base_config);
+        let input = Config::builder().with_base_config(base_config);
         let expected = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
 
         // Act
@@ -613,7 +617,7 @@ mod tests {
     fn build_config_fails_with_invalid_frontmatter_format() {
         // Arrange
         let format = "scaml";
-        let input = Config::builder().with_frontmatter_format(format);
+        let input = Config::builder().with_frontmatter_format(format.to_owned());
 
         // Act
         let result = input.build();

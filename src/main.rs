@@ -298,7 +298,7 @@ fn stopgap(cli: &Cli) {
                 });
 
                 if let Some(base) = config_base {
-                    config_builder = config_builder.with_base_config(&base);
+                    config_builder = config_builder.with_base_config(base);
                 }
 
                 if *cli_generate_frontmatter {
@@ -306,19 +306,19 @@ fn stopgap(cli: &Cli) {
                 }
 
                 if let Some(path) = cli_directory_path {
-                    config_builder = config_builder.with_file_directory(path);
+                    config_builder = config_builder.with_file_directory(path.to_owned());
                 }
 
                 if let Some(ext) = cli_extension {
-                    config_builder = config_builder.with_file_default_extension(ext);
+                    config_builder = config_builder.with_file_default_extension(ext.to_owned());
                 }
 
                 if let Some(path) = cli_template_path {
-                    config_builder = config_builder.with_file_template_path(&PathBuf::from(path));
+                    config_builder = config_builder.with_file_template_path(PathBuf::from(path));
                 }
 
                 if let Some(format) = cli_frontmatter_format {
-                    config_builder = config_builder.with_frontmatter_format(format);
+                    config_builder = config_builder.with_frontmatter_format(format.to_owned());
                 }
 
                 config_builder.build().unwrap_or_else(|e| {
