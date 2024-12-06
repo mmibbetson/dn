@@ -342,10 +342,10 @@ pub fn load_config(provided_path: Option<&str>) -> Result<Option<Config>, Error>
         Some(path) => read_config(PathBuf::from(path)).map(Some),
         None => match environment_config_dir() {
             Ok(path) => {
-                let config = path.join("dn.toml");
+                let config_path = path.join("dn.toml");
 
-                if config.exists() && config.is_file() {
-                    read_config(&path).map(Some)
+                if config_path.exists() && config_path.is_file() {
+                    read_config(&config_path).map(Some)
                 } else {
                     Ok(None)
                 }
