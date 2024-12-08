@@ -5,7 +5,7 @@
 
 //! CLI tool for managing notes in a minimalistic, cross-platform, free, extensible manner.
 
-use std::{fs, path::PathBuf};
+use std::{fs, ops::Deref, path::PathBuf};
 
 use clap::Parser;
 use cli::Cli;
@@ -42,34 +42,34 @@ fn main() {
     //         let config = {
     //             let config_builder = Config::builder();
 
-    //             let config_base = load_config(cli_config_path).unwrap_or_else(|e| {
+    //             let config_base = load_config(cli_config_path.as_deref()).unwrap_or_else(|e| {
     //                 eprintln!("Error loading configuration: {e:#?}");
     //                 std::process::exit(1);
     //             });
 
-    //             config_builder = config_base
-    //                 .map(|p| config_builder.with_base_config(&p))
-    //                 .unwrap_or(config_builder);
+    //             if let Some(base) = config_base {
+    //                 config_builder = config_builder.with_base_config(&base);
+    //             }
 
-    //             config_builder = cli_generate_frontmatter
-    //                 .then(|| config_builder.with_frontmatter_enabled(true))
-    //                 .unwrap_or(config_builder);
+    //             if *cli_generate_frontmatter {
+    //                 config_builder = config_builder.with_frontmatter_enabled(true);
+    //             }
 
-    //             config_builder = cli_directory_path
-    //                 .map(|p| config_builder.with_file_directory(&p))
-    //                 .unwrap_or(config_builder);
+    //             if let Some(path) = cli_directory_path {
+    //                 config_builder = config_builder.with_file_directory(path);
+    //             }
 
-    //             config_builder = cli_extension
-    //                 .map(|e| config_builder.with_file_default_extension(&e))
-    //                 .unwrap_or(config_builder);
+    //             if let Some(ext) = cli_extension {
+    //                 config_builder = config_builder.with_file_default_extension(ext);
+    //             }
 
-    //             config_builder = cli_template_path
-    //                 .map(|p| config_builder.with_file_template_path(&p.into()))
-    //                 .unwrap_or(config_builder);
+    //             if let Some(path) = cli_template_path {
+    //                 config_builder = config_builder.with_file_template_path(&PathBuf::from(path));
+    //             }
 
-    //             config_builder = cli_frontmatter_format
-    //                 .map(|f| config_builder.with_frontmatter_format(&f))
-    //                 .unwrap_or(config_builder);
+    //             if let Some(format) = cli_frontmatter_format {
+    //                 config_builder = config_builder.with_frontmatter_format(format);
+    //             }
 
     //             config_builder.build().unwrap_or_else(|e| {
     //                 // ERROR
@@ -79,10 +79,10 @@ fn main() {
     //         };
 
     //         let metadata = FileMetadata::builder()
-    //             .with_signature(cli_signature)
-    //             .with_title(cli_title)
-    //             .with_keywords(cli_keywords)
-    //             .with_extension(cli_extension)
+    //             .with_signature(cli_signature.as_deref())
+    //             .with_title(cli_title.as_deref())
+    //             .with_keywords(cli_keywords.as_deref())
+    //             .with_extension(cli_extension.as_deref())
     //             // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
     //             .build(&config.file);
 
@@ -133,30 +133,30 @@ fn main() {
     //         let config = {
     //             let config_builder = Config::builder();
 
-    //             let config_base = load_config(cli_config_path).unwrap_or_else(|e| {
+    //             let config_base = load_config(cli_config_path.as_deref()).unwrap_or_else(|e| {
     //                 eprintln!("Error loading configuration: {e:#?}");
     //                 std::process::exit(1);
     //             });
 
-    //             config_builder = config_base
-    //                 .map(|p| config_builder.with_base_config(&p))
-    //                 .unwrap_or(config_builder);
+    //             if let Some(base) = config_base {
+    //                 config_builder = config_builder.with_base_config(&base);
+    //             }
 
-    //             config_builder = cli_regenerate_identifier
-    //                 .then(|| config_builder.with_file_regenerate_identifier(true))
-    //                 .unwrap_or(config_builder);
+    //             if *cli_regenerate_identifier {
+    //                 config_builder = config_builder.with_file_regenerate_identifier(true);
+    //             }
 
-    //             config_builder = cli_generate_frontmatter
-    //                 .then(|| config_builder.with_frontmatter_enabled(true))
-    //                 .unwrap_or(config_builder);
+    //             if *cli_generate_frontmatter {
+    //                 config_builder = config_builder.with_frontmatter_enabled(true);
+    //             }
 
-    //             config_builder = cli_extension
-    //                 .map(|e| config_builder.with_file_default_extension(&e))
-    //                 .unwrap_or(config_builder);
+    //             if let Some(ext) = cli_extension {
+    //                 config_builder = config_builder.with_file_default_extension(ext);
+    //             }
 
-    //             config_builder = cli_frontmatter_format
-    //                 .map(|f| config_builder.with_frontmatter_format(&f))
-    //                 .unwrap_or(config_builder);
+    //             if let Some(format) = cli_frontmatter_format {
+    //                 config_builder = config_builder.with_frontmatter_format(format);
+    //             }
 
     //             config_builder.build().unwrap_or_else(|e| {
     //                 // ERROR
@@ -186,54 +186,52 @@ fn main() {
     //             .to_filename(&config.file);
 
     //         let metadata_builder = FileMetadata::builder()
-    //             .with_identifier(&Some(filename_old.identifier))
-    //             .with_signature(&filename_old.signature)
-    //             .with_title(&filename_old.title)
-    //             .with_keywords(&filename_old.keywords)
-    //             .with_extension(&Some(filename_old.extension));
+    //             .with_identifier(Some(filename_old.identifier).as_deref())
+    //             .with_signature(filename_old.signature.as_deref())
+    //             .with_title(filename_old.title.as_deref())
+    //             .with_keywords(filename_old.keywords.as_deref())
+    //             .with_extension(Some(filename_old.extension).as_deref());
 
     //         if *cli_rename_from_frontmatter {
     //             let frontmatter_old = frontmatter_old_str.to_frontmatter();
 
-    //             metadata_builder = frontmatter_old
-    //                 .title
-    //                 .map(|t| metadata_builder.with_title(t))
-    //                 .unwrap_or(metadata_builder);
+    //             if let Some(title) = frontmatter_old.title {
+    //                 metadata_builder = metadata_builder.with_title(title);
+    //             }
 
-    //             metadata_builder = frontmatter_old
-    //                 .keywords
-    //                 .map(|k| metadata_builder.with_keywords(k))
-    //                 .unwrap_or(metadata_builder);
+    //             if let Some(keywords) = frontmatter_old.keywords {
+    //                 metadata_builder = metadata_builder.with_keywords(keywords);
+    //             }
 
-    //             metadata_builder = frontmatter_old
-    //                 .identifier
-    //                 .map(|i| metadata_builder.with_identifier(i))
-    //                 .unwrap_or(metadata_builder);
+    //             if let Some(identifier) = frontmatter_old.identifier {
+    //                 metadata_builder = metadata_builder.with_identifier(identifier);
+    //             }
     //         };
 
-    //         metadata_builder = cli_signature
-    //             .map(|s| metadata_builder.with_signature(&Some(s)))
-    //             .unwrap_or(metadata_builder);
+    //         if cli_signature.is_some() {
+    //             metadata_builder = metadata_builder.with_signature(cli_signature.as_deref())
+    //         }
 
-    //         metadata_builder = cli_title
-    //             .map(|t| metadata_builder.with_title(&Some(t)))
-    //             .unwrap_or(metadata_builder);
+    //         if cli_title.is_some() {
+    //             metadata_builder = metadata_builder.with_title(cli_title.as_deref())
+    //         }
 
-    //         metadata_builder = cli_keywords
-    //             .map(|k| metadata_builder.with_keywords(&Some(k)))
-    //             .unwrap_or(metadata_builder);
+    //         if cli_keywords.is_some() {
+    //             metadata_builder = metadata_builder.with_keywords(cli_keywords.as_deref())
+    //         }
 
-    //         metadata_builder = cli_add_keywords
-    //             .map(|k| metadata_builder.with_added_keywords(&Some(k)))
-    //             .unwrap_or(metadata_builder);
+    //         if cli_add_keywords.is_some() {
+    //             metadata_builder = metadata_builder.with_added_keywords(cli_add_keywords.as_deref())
+    //         }
 
-    //         metadata_builder = cli_remove_keywords
-    //             .map(|k| metadata_builder.with_removed_keywords(&Some(k)))
-    //             .unwrap_or(metadata_builder);
+    //         if cli_remove_keywords.is_some() {
+    //             metadata_builder =
+    //                 metadata_builder.with_removed_keywords(cli_remove_keywords.as_deref())
+    //         }
 
-    //         metadata_builder = cli_extension
-    //             .map(|e| metadata_builder.with_extension(&Some(e)))
-    //             .unwrap_or(metadata_builder);
+    //         if cli_extension.is_some() {
+    //             metadata_builder = metadata_builder.with_extension(cli_extension.as_deref())
+    //         }
 
     //         // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
     //         // Passing the full Config is more conceptually sound but would be passing unnecessary
@@ -272,5 +270,92 @@ fn main() {
     //     }
     // }
 
+    stopgap(&cli);
+
     std::process::exit(0);
+}
+
+fn stopgap(cli: &Cli) {
+    match &cli.command {
+        cli::Commands::New {
+            cli_print,
+            cli_generate_frontmatter,
+            cli_directory_path,
+            cli_config_path,
+            cli_template_path,
+            cli_frontmatter_format,
+            cli_signature,
+            cli_title,
+            cli_extension,
+            cli_keywords,
+        } => {
+            let config = {
+                let mut config_builder = Config::builder();
+
+                let config_base = load_config(cli_config_path.as_deref()).unwrap_or_else(|e| {
+                    eprintln!("Error loading configuration: {e:#?}");
+                    std::process::exit(1);
+                });
+
+                if let Some(base) = config_base {
+                    config_builder = config_builder.with_base_config(base);
+                }
+
+                if *cli_generate_frontmatter {
+                    config_builder = config_builder.with_frontmatter_enabled(true);
+                }
+
+                if let Some(path) = cli_directory_path {
+                    config_builder = config_builder.with_file_directory(path.to_owned());
+                }
+
+                if let Some(ext) = cli_extension {
+                    config_builder = config_builder.with_file_default_extension(ext.to_owned());
+                }
+
+                if let Some(path) = cli_template_path {
+                    config_builder = config_builder.with_file_template_path(PathBuf::from(path));
+                }
+
+                if let Some(format) = cli_frontmatter_format {
+                    config_builder = config_builder.with_frontmatter_format(format.to_owned());
+                }
+
+                config_builder.build().unwrap_or_else(|e| {
+                    // ERROR
+                    eprintln!("Error buildig configuration: {e:#?}");
+                    std::process::exit(1);
+                })
+            };
+
+            let metadata = FileMetadata::builder()
+                .with_signature(cli_signature.as_deref())
+                .with_title(cli_title.as_deref())
+                .with_keywords(cli_keywords.as_deref())
+                .with_extension(cli_extension.as_deref())
+                // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
+                .build(&config.file);
+
+            let filename = metadata.to_filename(&config.file).to_string();
+
+            let output_path = cli_directory_path
+                .clone()
+                .map_or(config.file.directory, PathBuf::from)
+                .join(filename);
+
+            let _ = fs::write(output_path.clone(), "");
+
+            if *cli_print {
+                print!(
+                    "{}",
+                    output_path.to_str().unwrap_or_else(|| {
+                        // ERROR
+                        eprintln!("Error printing new file path");
+                        std::process::exit(1);
+                    })
+                )
+            };
+        }
+        _ => (),
+    }
 }

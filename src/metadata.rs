@@ -32,7 +32,7 @@ pub struct FileMetadata {
 
 /// A `mut self` builder that allows progressively updating an input state for a new `FileMetadata`.
 #[derive(Debug, Default)]
-struct FileMetadataBuilder {
+pub struct FileMetadataBuilder {
     identifier: Option<String>,
     signature: Option<String>,
     title: Option<String>,
@@ -114,7 +114,7 @@ impl FileMetadataBuilder {
         let identifier = self
             .identifier
             .clone()
-            .unwrap_or_else(|| self.datetime.format(DN_IDENTIFIER_FORMAT).to_string());
+            .unwrap_or_else(|| datetime.format(DN_IDENTIFIER_FORMAT).to_string());
 
         let signature = self
             .signature
@@ -353,7 +353,7 @@ mod tests {
 
     fn setup_datetime() -> DateTime<Local> {
         // WARN: Unwrap may panic.
-        Local.with_ymd_and_hms(2024, 1, 1, 12, 0, 0).unwrap()
+        Local.with_ymd_and_hms(2024, 12, 12, 12, 12, 12).unwrap()
     }
 
     #[test]
@@ -380,7 +380,7 @@ mod tests {
         let after_call = Local::now();
 
         // Assert
-        assert!(result >= before_call && result <= after_call,);
+        assert!(result >= before_call && result <= after_call);
     }
 
     #[test]
@@ -486,7 +486,7 @@ mod tests {
         // Arrange
         let config = setup_config();
         let args = FileMetadata::builder()
-            .with_identifier(Some("20240101T120000"))
+            .with_identifier(Some("20241212T121212"))
             .with_signature(Some("test@signature"))
             .with_title(Some("My T3ST Title!"))
             .with_keywords(Some("dn testing"))
@@ -495,7 +495,7 @@ mod tests {
             .with_extension(Some("DJ"));
 
         let expected = FileMetadata {
-            identifier: "20240101T120000".to_owned(),
+            identifier: "20241212T121212".to_owned(),
             signature: Some("testsignature".to_owned()),
             title: Some("my-t3st-title".to_owned()),
             title_raw: Some("My T3ST Title!".to_owned()),
@@ -509,7 +509,12 @@ mod tests {
         let result = args.build(&config);
 
         // Assert
-        assert_eq!(expected.identifier, result.identifier,);
+        assert_eq!(
+            expected.identifier,
+            result.identifier,
+            "Local now is: {}",
+            Local::now().format(DN_IDENTIFIER_FORMAT).to_string()
+        );
         assert_eq!(expected.signature, result.signature,);
         assert_eq!(expected.title, result.title,);
         assert_eq!(expected.title_raw, result.title_raw,);

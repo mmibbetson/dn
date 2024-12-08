@@ -26,7 +26,7 @@ _Identifier_ is the segment which provides a unique key for each note. It allows
 
 ### Signature
 
-_Signature_ is intended to be used to indicate a sequential relationship between notes, for use in things like the [Zettelkasten]() system. Because it is intended to be a kind of index, there is no facility for multi-part signatures. This is why there is no separator for the segment, the entire signature must be one continuous token after the `==`. In the event that a faulty signature such as `==foo=bar` is provided, the `=` will be removed and the rest will be concatenated into `foobar`.
+_Signature_ is intended to be used to indicate a custom sequential or otherwise oredred relationship between notes, for use in things like the [Zettelkasten]() system's [Folgezettel]() method. Because it is intended to be a kind of index, there is no facility for multi-part signatures. This is why there is no separator for the segment - the entire signature must be one continuous token after the `==`. In the event that a faulty signature such as `==foo=bar` is provided, the `=` will be removed and the rest will be concatenated into `foobar`.
 
 ### Title
 
