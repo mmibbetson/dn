@@ -15,6 +15,10 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 
 TODO
 
+## Features
+
+[] - Optionally respect .ignore & .gitignore files
+
 ## Installation
 
 (Add installation instructions here, e.g., through package managers, building from source, etc.)
