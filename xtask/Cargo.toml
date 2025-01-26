@@ -9,6 +9,10 @@ version.workspace = true
 edition.workspace = true
 publish = false
 
+[[bin]]
+name = "cargo-xtask"
+path = "src/main.rs"
+
 [dependencies]
 dn = { path = "../" }
 clap.workspace = true

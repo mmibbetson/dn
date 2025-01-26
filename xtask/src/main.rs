@@ -1,12 +1,9 @@
-// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+// SPDX-FileCopyrightText: 2024-2025 Matthew Mark Ibbetson
 // SPDX-FileContributor: Matthew Mark Ibbetson
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use std::{
-    env,
-    path::{Path, PathBuf},
-};
+use std::{env, error::Error};
 
 use clap::{Parser, Subcommand};
 
@@ -27,23 +24,28 @@ enum Commands {
     Manpages,
 }
 
-fn main() {
-    let Cli { command } = Cli::parse();
+pub fn print_help() {
+    println!(
+        "
+Usage: Run with `cargo xtask <task>`, eg. `cargo xtask manpages`.
 
-    env::set_current_dir(project_root()).unwrap();
-
-    match command {
-        Commands::Completions => completions::gen(),
-        Commands::Manpages => manpages::gen(),
-    }
+Tasks:
+    completions: .
+    manpages: .
+"
+    );
 }
 
-fn project_root() -> PathBuf {
-    Path::new(
-        &env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| env!("CARGO_MANIFEST_DIR").to_owned()),
-    )
-    .ancestors()
-    .nth(1)
-    .unwrap()
-    .to_path_buf()
+fn main() -> Result<(), Box<dyn Error>> {
+    let task = env::args().nth(2);
+    match task {
+        None => print_help(),
+        Some(t) => match t.as_str() {
+            "completions" => completions::gen(),
+            "manpages" => manpages::gen(),
+            invalid => return Err(format!("Invalid task name: {}", invalid).into()),
+        },
+    };
+
+    Ok(())
 }
