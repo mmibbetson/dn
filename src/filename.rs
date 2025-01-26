@@ -197,7 +197,6 @@ fn prefix_segment(value: &str, segment: FilenameSegment) -> String {
 
 #[cfg(test)]
 mod tests {
-    
 
     use super::*;
     use chrono::Local;

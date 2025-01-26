@@ -275,17 +275,18 @@ fn main() {
 
 fn stopgap(cli: &Cli) {
     if let cli::Commands::New {
-            cli_print,
-            cli_generate_frontmatter,
-            cli_directory_path,
-            cli_config_path,
-            cli_template_path,
-            cli_frontmatter_format,
-            cli_signature,
-            cli_title,
-            cli_extension,
-            cli_keywords,
-        } = &cli.command {
+        cli_print,
+        cli_generate_frontmatter,
+        cli_directory_path,
+        cli_config_path,
+        cli_template_path,
+        cli_frontmatter_format,
+        cli_signature,
+        cli_title,
+        cli_extension,
+        cli_keywords,
+    } = &cli.command
+    {
         let config = {
             let mut config_builder = Config::builder();
 
