@@ -8,7 +8,6 @@
 
 use std::collections::HashSet;
 
-use anyhow::{anyhow, Error};
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 use icu_collator::{Collator, CollatorOptions, Strength};
 
@@ -513,7 +512,7 @@ mod tests {
             expected.identifier,
             result.identifier,
             "Local now is: {}",
-            Local::now().format(DN_IDENTIFIER_FORMAT).to_string()
+            Local::now().format(DN_IDENTIFIER_FORMAT)
         );
         assert_eq!(expected.signature, result.signature,);
         assert_eq!(expected.title, result.title,);

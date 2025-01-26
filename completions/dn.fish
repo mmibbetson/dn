@@ -32,7 +32,10 @@ complete -c dn -n "__fish_dn_needs_command" -f -a "help" -d 'Print this message 
 complete -c dn -n "__fish_dn_using_subcommand new" -s d -l directory -d 'Directory in which the note will be created' -r
 complete -c dn -n "__fish_dn_using_subcommand new" -s c -l config -d 'Configuration file path' -r
 complete -c dn -n "__fish_dn_using_subcommand new" -s T -l template -d 'Template file to add contents to new note' -r
-complete -c dn -n "__fish_dn_using_subcommand new" -s F -l frontmatter-format -d 'Frontmatter format' -r -f -a "{text\t'',yaml\t'',toml\t'',json\t''}"
+complete -c dn -n "__fish_dn_using_subcommand new" -s F -l frontmatter-format -d 'Frontmatter format' -r -f -a "text\t''
+yaml\t''
+toml\t''
+json\t''"
 complete -c dn -n "__fish_dn_using_subcommand new" -s s -l signature -d 'Signature for the note' -r
 complete -c dn -n "__fish_dn_using_subcommand new" -s t -l title -d 'Title for the note' -r
 complete -c dn -n "__fish_dn_using_subcommand new" -s e -l extension -d 'File extension for the note' -r
@@ -41,7 +44,10 @@ complete -c dn -n "__fish_dn_using_subcommand new" -s p -l print -d 'Print the a
 complete -c dn -n "__fish_dn_using_subcommand new" -s G -l generate-frontmatter -d 'Generate frontmatter'
 complete -c dn -n "__fish_dn_using_subcommand new" -s h -l help -d 'Print help'
 complete -c dn -n "__fish_dn_using_subcommand rename" -s c -l config -d 'Configuration file path' -r
-complete -c dn -n "__fish_dn_using_subcommand rename" -s F -l frontmatter-format -d 'Frontmatter format' -r -f -a "{text\t'',yaml\t'',toml\t'',json\t''}"
+complete -c dn -n "__fish_dn_using_subcommand rename" -s F -l frontmatter-format -d 'Frontmatter format' -r -f -a "text\t''
+yaml\t''
+toml\t''
+json\t''"
 complete -c dn -n "__fish_dn_using_subcommand rename" -s s -l signature -d 'New signature for the note' -r
 complete -c dn -n "__fish_dn_using_subcommand rename" -s t -l title -d 'New title for the note' -r
 complete -c dn -n "__fish_dn_using_subcommand rename" -s k -l keywords -d 'New keywords for the note' -r

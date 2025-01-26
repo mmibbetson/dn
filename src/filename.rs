@@ -197,7 +197,6 @@ fn prefix_segment(value: &str, segment: FilenameSegment) -> String {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
 
     use super::*;
     use chrono::Local;
@@ -266,7 +265,7 @@ mod tests {
             segment_order: config.segment_order,
         };
 
-        let expected_keywords = vec!("key1", "key2");
+        let expected_keywords = vec!["key1", "key2"];
 
         // Act
         let result = metadata.to_filename(&config);

@@ -243,7 +243,7 @@ impl ConfigBuilder {
             let format = self
                 .frontmatter_format
                 .as_ref()
-                .map(|f| string_to_frontmatter_format(&f));
+                .map(|f| string_to_frontmatter_format(f));
 
             match format {
                 Some(result) => result?,
