@@ -266,7 +266,7 @@ mod tests {
             segment_order: config.segment_order,
         };
 
-        let expected_keywords = vec!("key1", "key2");
+        let expected_keywords = vec!["key1", "key2"];
 
         // Act
         let result = metadata.to_filename(&config);
