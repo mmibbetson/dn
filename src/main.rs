@@ -5,14 +5,12 @@
 
 //! CLI tool for managing notes in a minimalistic, cross-platform, free, extensible manner.
 
-use std::{fs, ops::Deref, path::PathBuf};
+use std::{fs, path::PathBuf};
 
 use clap::Parser;
 use cli::Cli;
 use config::{load_config, Config};
-use content::concatenate_file_content;
 use filename::ToFilename;
-use format::get_first_paragraph;
 use metadata::FileMetadata;
 
 mod cli;
@@ -276,8 +274,7 @@ fn main() {
 }
 
 fn stopgap(cli: &Cli) {
-    match &cli.command {
-        cli::Commands::New {
+    if let cli::Commands::New {
             cli_print,
             cli_generate_frontmatter,
             cli_directory_path,
@@ -288,74 +285,72 @@ fn stopgap(cli: &Cli) {
             cli_title,
             cli_extension,
             cli_keywords,
-        } => {
-            let config = {
-                let mut config_builder = Config::builder();
+        } = &cli.command {
+        let config = {
+            let mut config_builder = Config::builder();
 
-                let config_base = load_config(cli_config_path.as_deref()).unwrap_or_else(|e| {
-                    eprintln!("Error loading configuration: {e:#?}");
-                    std::process::exit(1);
-                });
+            let config_base = load_config(cli_config_path.as_deref()).unwrap_or_else(|e| {
+                eprintln!("Error loading configuration: {e:#?}");
+                std::process::exit(1);
+            });
 
-                if let Some(base) = config_base {
-                    config_builder = config_builder.with_base_config(base);
-                }
+            if let Some(base) = config_base {
+                config_builder = config_builder.with_base_config(base);
+            }
 
-                if *cli_generate_frontmatter {
-                    config_builder = config_builder.with_frontmatter_enabled(true);
-                }
+            if *cli_generate_frontmatter {
+                config_builder = config_builder.with_frontmatter_enabled(true);
+            }
 
-                if let Some(path) = cli_directory_path {
-                    config_builder = config_builder.with_file_directory(path.to_owned());
-                }
+            if let Some(path) = cli_directory_path {
+                config_builder = config_builder.with_file_directory(path.to_owned());
+            }
 
-                if let Some(ext) = cli_extension {
-                    config_builder = config_builder.with_file_default_extension(ext.to_owned());
-                }
+            if let Some(ext) = cli_extension {
+                config_builder = config_builder.with_file_default_extension(ext.to_owned());
+            }
 
-                if let Some(path) = cli_template_path {
-                    config_builder = config_builder.with_file_template_path(PathBuf::from(path));
-                }
+            if let Some(path) = cli_template_path {
+                config_builder = config_builder.with_file_template_path(PathBuf::from(path));
+            }
 
-                if let Some(format) = cli_frontmatter_format {
-                    config_builder = config_builder.with_frontmatter_format(format.to_owned());
-                }
+            if let Some(format) = cli_frontmatter_format {
+                config_builder = config_builder.with_frontmatter_format(format.to_owned());
+            }
 
-                config_builder.build().unwrap_or_else(|e| {
+            config_builder.build().unwrap_or_else(|e| {
+                // ERROR
+                eprintln!("Error buildig configuration: {e:#?}");
+                std::process::exit(1);
+            })
+        };
+
+        let metadata = FileMetadata::builder()
+            .with_signature(cli_signature.as_deref())
+            .with_title(cli_title.as_deref())
+            .with_keywords(cli_keywords.as_deref())
+            .with_extension(cli_extension.as_deref())
+            // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
+            .build(&config.file);
+
+        let filename = metadata.to_filename(&config.file).to_string();
+
+        let output_path = cli_directory_path
+            .clone()
+            .map_or(config.file.directory, PathBuf::from)
+            .join(filename);
+
+        let _ = fs::write(output_path.clone(), "");
+
+        if *cli_print {
+            print!(
+                "{}",
+                output_path.to_str().unwrap_or_else(|| {
                     // ERROR
-                    eprintln!("Error buildig configuration: {e:#?}");
+                    eprintln!("Error printing new file path");
                     std::process::exit(1);
                 })
-            };
-
-            let metadata = FileMetadata::builder()
-                .with_signature(cli_signature.as_deref())
-                .with_title(cli_title.as_deref())
-                .with_keywords(cli_keywords.as_deref())
-                .with_extension(cli_extension.as_deref())
-                // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
-                .build(&config.file);
-
-            let filename = metadata.to_filename(&config.file).to_string();
-
-            let output_path = cli_directory_path
-                .clone()
-                .map_or(config.file.directory, PathBuf::from)
-                .join(filename);
-
-            let _ = fs::write(output_path.clone(), "");
-
-            if *cli_print {
-                print!(
-                    "{}",
-                    output_path.to_str().unwrap_or_else(|| {
-                        // ERROR
-                        eprintln!("Error printing new file path");
-                        std::process::exit(1);
-                    })
-                )
-            };
-        }
-        _ => (),
+            );
+        };
     }
 }

@@ -165,13 +165,13 @@ fn get_frontmatter_format(text: &str) -> Option<FrontmatterFormat> {
     let first = lines.first();
     let last = lines.last();
 
-    let is_text = last.map_or(false, |l| REGEX_FRONTMATTER_TEXT_SUFFIX.is_match(l));
-    let is_yaml = first.map_or(false, |l| REGEX_FRONTMATTER_YAML_CONTAINER.is_match(l))
-        && last.map_or(false, |l| REGEX_FRONTMATTER_YAML_CONTAINER.is_match(l));
-    let is_toml = first.map_or(false, |l| REGEX_FRONTMATTER_TOML_CONTAINER.is_match(l))
-        && last.map_or(false, |l| REGEX_FRONTMATTER_TOML_CONTAINER.is_match(l));
-    let is_json = first.map_or(false, |l| REGEX_FRONTMATTER_JSON_PREFIX.is_match(l))
-        && last.map_or(false, |l| REGEX_FRONTMATTER_JSON_SUFFIX.is_match(l));
+    let is_text = last.is_some_and(|l| REGEX_FRONTMATTER_TEXT_SUFFIX.is_match(l));
+    let is_yaml = first.is_some_and(|l| REGEX_FRONTMATTER_YAML_CONTAINER.is_match(l))
+        && last.is_some_and(|l| REGEX_FRONTMATTER_YAML_CONTAINER.is_match(l));
+    let is_toml = first.is_some_and(|l| REGEX_FRONTMATTER_TOML_CONTAINER.is_match(l))
+        && last.is_some_and(|l| REGEX_FRONTMATTER_TOML_CONTAINER.is_match(l));
+    let is_json = first.is_some_and(|l| REGEX_FRONTMATTER_JSON_PREFIX.is_match(l))
+        && last.is_some_and(|l| REGEX_FRONTMATTER_JSON_SUFFIX.is_match(l));
 
     match (is_text, is_yaml, is_toml, is_json) {
         (true, _, _, _) => Some(FrontmatterFormat::Text),
@@ -193,7 +193,7 @@ mod tests {
         fn separates_normal_paragraph() {
             // Arrange
             let input = "First paragraph.\n\nSecond paragraph.";
-            let expected = Some("First paragraph.".to_string());
+            let expected = Some("First paragraph.".to_owned());
 
             // Act
             let result = get_first_paragraph(input);
@@ -209,7 +209,7 @@ mod tests {
         fn separates_frontmatter_with_empty_line() {
             // Arrange
             let input = "---\ntitle: Example\n---\n\nActual content.";
-            let expected = Some("---\ntitle: Example\n---".to_string());
+            let expected = Some("---\ntitle: Example\n---".to_owned());
 
             // Act
             let result = get_first_paragraph(input);
