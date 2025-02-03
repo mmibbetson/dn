@@ -15,9 +15,6 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 
 TODO
 
-## Features
-
-[] - Optionally respect .ignore & .gitignore files
 
 ## Installation
 
@@ -63,17 +60,18 @@ rg "--dn-example__metanote" $DN_DIRECTORY/$1 --file | nvim
 
 ## Shell Completions
 
-TODO
+Shell completion files are available in the repo for various shells. In the future, we may provide a more convenient method of installing them.
 
 ## Man Pages
 
-TODO
+Manpages are available in the repo. In the future, we may provide a more convenient method of installing them.
 
 ## Inspirations
 
 - [Denote](https://protesilaos.com/emacs/denote)
 - [Zettelkasten](https://zettelkasten.de/introduction/)
 - [GNU Core Utils]()
+- [Cold-Blooded Software]()
 
 ## FAQ
 
@@ -88,3 +86,6 @@ We try to keep dependencies relatively minimal. In time, this project will be fe
 - We follow [Semantic Versioning](https://semver.org/) for version numbering.
 - We use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 - We are [REUSE](https://reuse.software/) compliant.
+
+TODO: Consider refactoring configuration setup to reflect a more modular approach - refrence [jujutsu](https://github.com/jj-vcs/jj) and [helix](https://github.com/helix-editor)
+TODO: Add xtask command to install man pages and completions (as distinct from generating them)

@@ -79,11 +79,11 @@ The _segment order_ determines the order in which file name segments appear in n
 ```toml
 [file]
 segment_order = [
-    "Identifier",
-    "Signature",
-    "Title",
-    "Keywords",
-    "Extension",
+    "identifier",
+    "signature",
+    "title",
+    "keywords",
+    "extension",
 ]
 ```
 
