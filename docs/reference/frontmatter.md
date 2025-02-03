@@ -11,7 +11,7 @@ Front matter is a section at the beginning of a note which contains some additio
 
 ## Title
 
-The title value is the title provided to the note through the dn command, prior to any sanitisation that occurs when generating the file name. As such, it is closest to what one might traditionally conceive of as the title metadata for a note.
+The title value is the title provided to the note through the dn command, prior to any sanitisation that occurs when generating the file name. As such, it is closest to what you think of as the title of a note.
 
 ## Date
 
