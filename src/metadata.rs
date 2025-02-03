@@ -365,7 +365,7 @@ mod tests {
         let result = derive_datetime(input);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -393,7 +393,7 @@ mod tests {
         let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -407,7 +407,7 @@ mod tests {
         let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -421,7 +421,7 @@ mod tests {
         let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -435,7 +435,7 @@ mod tests {
         let result = parse_title(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -449,7 +449,7 @@ mod tests {
         let result = parse_keywords(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -463,7 +463,7 @@ mod tests {
         let result = parse_extension(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -477,7 +477,7 @@ mod tests {
         let result = parse_extension(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -533,6 +533,6 @@ mod tests {
         let result = sanitise(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 }

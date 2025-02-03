@@ -517,7 +517,7 @@ mod tests {
         let result = input.build().unwrap();
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -550,7 +550,7 @@ mod tests {
         let result = input.build().unwrap();
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -590,7 +590,7 @@ mod tests {
         let result = input.build().unwrap();
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -610,7 +610,7 @@ mod tests {
         let result = input.build().unwrap().file.illegal_characters;
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -625,6 +625,6 @@ mod tests {
         // Assert
         assert!(result
             .as_ref()
-            .is_err_and(|e| e.to_string().contains("Invalid frontmatter format")),);
+            .is_err_and(|e| e.to_string().contains("Invalid frontmatter format")));
     }
 }
