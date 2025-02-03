@@ -5,10 +5,9 @@
 
 //! Serialisation and deserialisation of dn-compatible file names.
 
-use std::fmt::Display;
+use std::{fmt::Display, sync::LazyLock};
 
 use chrono::Local;
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::{
@@ -18,25 +17,28 @@ use crate::{
 };
 
 /// Regex to match the `Identifier` segment of a file name.
-static REGEX_SEGMENT_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+static REGEX_SEGMENT_IDENTIFIER: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(\b[0-9]{8}T[0-9]{6}\b)").expect("Invalid identifier segment regex pattern")
 });
 
 /// Regex to match the `Signature` segment of a file name.
-static REGEX_SEGMENT_SIGNATURE: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(==[^\@\-\_\.]*)").expect("Invalid signature segment regex pattern"));
+static REGEX_SEGMENT_SIGNATURE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(==[^\@\-\_\.]*)").expect("Invalid signature segment regex pattern")
+});
 
 /// Regex to match the `Title` segment of a file name.
-static REGEX_SEGMENT_TITLE: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(--[^\@\=\_\.]*)").expect("Invalid title segment regex pattern"));
+static REGEX_SEGMENT_TITLE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(--[^\@\=\_\.]*)").expect("Invalid title segment regex pattern"));
 
 /// Regex to match the `Keywords` segment of a file name.
-static REGEX_SEGMENT_KEYWORDS: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(__[^\@\=\-\.]*)").expect("Invalid keywords segment regex pattern"));
+static REGEX_SEGMENT_KEYWORDS: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(__[^\@\=\-\.]*)").expect("Invalid keywords segment regex pattern")
+});
 
 /// Regex to match the `Extension` segment of a file name.
-static REGEX_SEGMENT_EXTENSION: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(\.[^\@\=\-\_]*)").expect("Invalid extension segment regex pattern"));
+static REGEX_SEGMENT_EXTENSION: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(\.[^\@\=\-\_]*)").expect("Invalid extension segment regex pattern")
+});
 
 /// Represents the possible segments of a dn file name, as well as the order in which
 /// they should be concatenated.
@@ -163,11 +165,11 @@ impl ToFilename for FileMetadata {
 /// # Example
 ///
 /// ```
-/// let regex = Lazy::new(|| Regex::new(r"\d+").unwrap());
+/// let regex = LazyLock::new(|| Regex::new(r"\d+").unwrap());
 /// let result = parse_segment("file123.txt", &regex);
 /// assert_eq!(result, Some("123".to_string()));
 /// ```
-fn parse_segment(filename: &str, regex: &Lazy<Regex>) -> Option<String> {
+fn parse_segment(filename: &str, regex: &LazyLock<Regex>) -> Option<String> {
     regex.find(filename).map(|m| m.as_str().to_owned())
 }
 
@@ -219,7 +221,7 @@ mod tests {
         let result = input.to_filename(&config);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -241,7 +243,7 @@ mod tests {
         let result = input.to_filename(&config);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -278,11 +280,11 @@ mod tests {
             .collect::<Vec<_>>();
 
         // Assert
-        assert_eq!(expected.identifier, result.identifier,);
-        assert_eq!(expected.signature, result.signature,);
-        assert_eq!(expected.title, result.title,);
-        assert_eq!(expected_keywords, result_keywords,);
-        assert_eq!(expected.extension, result.extension,);
+        assert_eq!(expected.identifier, result.identifier);
+        assert_eq!(expected.signature, result.signature);
+        assert_eq!(expected.title, result.title);
+        assert_eq!(expected_keywords, result_keywords);
+        assert_eq!(expected.extension, result.extension);
     }
 
     #[test]
@@ -308,7 +310,7 @@ mod tests {
         let result = filename.to_string();
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -332,7 +334,7 @@ mod tests {
             let pattern = regex.as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
     }
 
@@ -353,7 +355,7 @@ mod tests {
             let result = prefix_segment(input, segment);
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
     }
 }

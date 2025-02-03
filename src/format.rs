@@ -8,7 +8,8 @@
 //! Due to have its components incorporated into the `content.rs` and `frontmatter.rs`
 //! modules soon.
 
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
+
 use regex::Regex;
 
 use crate::config::FrontmatterFormat;
@@ -19,7 +20,7 @@ pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
 
 /// Multiline-pattern regex to match the closing horizontal rule of `Text` front matter,
 /// which should be exactly 27 '-' characters.
-static REGEX_FRONTMATTER_TEXT_SUFFIX: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_TEXT_SUFFIX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?m)^\s*---------------------------\s*$").expect("Invalid text rule regex pattern")
 });
 
@@ -29,7 +30,7 @@ static REGEX_FRONTMATTER_TEXT_SUFFIX: Lazy<Regex> = Lazy::new(|| {
 /// ## Warning
 ///
 /// May also improperly match some `Json` and `Yaml` titles if present.
-static REGEX_FRONTMATTER_TEXT_TITLE: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_TEXT_TITLE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?m)^\s*title\s*:\s*(.+)\s*$").expect("Invalid text title regex pattern")
 });
 
@@ -39,90 +40,91 @@ static REGEX_FRONTMATTER_TEXT_TITLE: Lazy<Regex> = Lazy::new(|| {
 /// ## Warning
 ///
 /// May also improperly match some `Json` keywords if present.
-static REGEX_FRONTMATTER_TEXT_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_TEXT_KEYWORDS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?m)^\s*tags\s*:\s*((?:\S+\s+)*\S+)\s*$")
         .expect("Invalid text keywords regex pattern")
 });
 
 /// Multiline-pattern regex to match the identifier line of `Text` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
-static REGEX_FRONTMATTER_TEXT_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_TEXT_IDENTIFIER: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?m)^\s*identifier\s*:\s*(\d{8}T\d{6})\s*$")
         .expect("Invalid text identifier regex pattern")
 });
 
 /// Multiline-pattern regex to match the opening and closing markers of `Yaml` front matter.
-static REGEX_FRONTMATTER_YAML_CONTAINER: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?m)^\s*---\s*$").expect("Invalid YAML container regex pattern"));
+static REGEX_FRONTMATTER_YAML_CONTAINER: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?m)^\s*---\s*$").expect("Invalid YAML container regex pattern"));
 
 /// Multiline-pattern regex to match the title line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Title` value.
-static REGEX_FRONTMATTER_YAML_TITLE: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_YAML_TITLE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?m)^\s*title\s*:\s+(.+)\s*$").expect("Invalid YAML title regex pattern")
 });
 
 /// Multiline-pattern regex to match the tags line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
-static REGEX_FRONTMATTER_YAML_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_YAML_KEYWORDS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?m)^\s*tags\s*:\s+\[\s*((?:.+\s*,\s+).*".+")\s*\]\s*$"#)
         .expect("Invalid YAML keywords regex pattern")
 });
 
 /// Multiline-pattern regex to match the identifier line of `Yaml` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
-static REGEX_FRONTMATTER_YAML_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_YAML_IDENTIFIER: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?m)^\s*identifier\s*:\s+("\d{8}T\d{6}")\s*$"#)
         .expect("Invalid YAML identifier regex pattern")
 });
 
 /// Multiline-pattern regex to match the opening and closing markers of `Toml` frontmatter.
-static REGEX_FRONTMATTER_TOML_CONTAINER: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?m)^\s*\+\+\+\s*$").expect("Invalid TOML container regex pattern"));
+static REGEX_FRONTMATTER_TOML_CONTAINER: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?m)^\s*\+\+\+\s*$").expect("Invalid TOML container regex pattern")
+});
 
 /// Multiline-pattern regex to match the title line of `Toml` front matter.
 /// Contains a single capture group to extract the `Title` value.
-static REGEX_FRONTMATTER_TOML_TITLE: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_TOML_TITLE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?m)^\s*title\s*=\s*(".+")\s*$"#).expect("Invalid TOML title regex pattern")
 });
 
 /// Multiline-pattern regex to match the tags line of `Toml` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
-static REGEX_FRONTMATTER_TOML_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_TOML_KEYWORDS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?m)^\s*tags\s*=\s*\[\s*((?:".+"\s*,\s+).*".+",{0,1})\s*\]\s*$"#)
         .expect("Invalid TOML keywords regex pattern")
 });
 
 /// Multiline-pattern regex to match the identifier line of `Toml` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
-static REGEX_FRONTMATTER_TOML_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_TOML_IDENTIFIER: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?m)^\s*identifier\s*=\s*("\d{8}T\d{6}")\s*$"#)
         .expect("Invalid TOML identifier regex pattern")
 });
 
 /// Multiline-pattern regex to match the opening marker of `Json` frontmatter.
-static REGEX_FRONTMATTER_JSON_PREFIX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?m)^\s*\{\s*$").expect("Invalid TOML container regex pattern"));
+static REGEX_FRONTMATTER_JSON_PREFIX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?m)^\s*\{\s*$").expect("Invalid TOML container regex pattern"));
 
 /// Multiline-pattern regex to match the opening marker of `Json` frontmatter.
-static REGEX_FRONTMATTER_JSON_SUFFIX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?m)^\s*\}\s*$").expect("Invalid TOML container regex pattern"));
+static REGEX_FRONTMATTER_JSON_SUFFIX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?m)^\s*\}\s*$").expect("Invalid TOML container regex pattern"));
 
 /// Multiline-pattern regex to match the title line of `Json` front matter.
 /// Contains a single capture group to extract the `Title` value.
-static REGEX_FRONTMATTER_JSON_TITLE: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_JSON_TITLE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?m)^\s*\"title\":\s+(.+)\s*$"#).expect("Invalid Json title regex pattern")
 });
 
 /// Multiline-pattern regex to match the tags line of `Json` front matter.
 /// Contains a single capture group to extract the `Keywords` value.
-static REGEX_FRONTMATTER_JSON_KEYWORDS: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_JSON_KEYWORDS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?m)^\s*\"tags\":\s+\[\s*((?:".+"\s*,\s+).*".+")\s*\]\s*$"#)
         .expect("Invalid Json keywords regex pattern")
 });
 
 /// Multiline-pattern regex to match the identifier line of `Json` front matter.
 /// Contains a single capture group to extract the `Identifier` value.
-static REGEX_FRONTMATTER_JSON_IDENTIFIER: Lazy<Regex> = Lazy::new(|| {
+static REGEX_FRONTMATTER_JSON_IDENTIFIER: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?m)^\s*\"identifier\":\s+(\"\d{8}T\d{6}\")\s*$"#)
         .expect("Invalid Json identifier regex pattern")
 });
@@ -199,10 +201,7 @@ mod tests {
             let result = get_first_paragraph(input);
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected paragraph: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -215,10 +214,7 @@ mod tests {
             let result = get_first_paragraph(input);
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected paragraph: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -231,10 +227,7 @@ mod tests {
             let result = get_first_paragraph(input);
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected paragraph: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result);
         }
     }
 
@@ -251,10 +244,7 @@ mod tests {
             let result = get_frontmatter_format(input);
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -267,10 +257,7 @@ mod tests {
             let result = get_frontmatter_format(input);
 
             // Assert
-            assert_eq!(
-                expected, result,
-                "\nInput: {input:#?}\nExpected: {expected:#?}\nReceived: {result:#?}"
-            );
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -283,7 +270,7 @@ mod tests {
             let result = get_frontmatter_format(input);
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -296,7 +283,7 @@ mod tests {
             let result = get_frontmatter_format(input);
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -309,7 +296,7 @@ mod tests {
             let result = get_frontmatter_format(input);
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
     }
 
@@ -340,7 +327,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -358,7 +345,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -376,7 +363,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
     }
 
@@ -405,7 +392,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -423,7 +410,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -441,7 +428,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
     }
 
@@ -470,7 +457,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -488,7 +475,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -506,7 +493,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
     }
 
@@ -542,7 +529,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -560,7 +547,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
 
         #[test]
@@ -578,7 +565,7 @@ mod tests {
                 .as_str();
 
             // Assert
-            assert_eq!(expected, result,);
+            assert_eq!(expected, result);
         }
     }
 }
