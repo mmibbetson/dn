@@ -1,0 +1,3 @@
+[toolchain]
+channel = "stable"  # Can be "nightly", "beta", or a specific version like "1.75.0"
+components = ["rustfmt", "clippy", "rust-src"]  # Additional tools to install
