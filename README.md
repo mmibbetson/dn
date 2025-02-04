@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+SPDX-FileCopyrightText: 2024-2025 Matthew Mark Ibbetson
 SPDX-FileContributor: Matthew Mark Ibbetson
 
 SPDX-License-Identifier: GPL-3.0-or-later
@@ -15,7 +15,6 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 
 TODO
 
-
 ## Installation
 
 (Add installation instructions here, e.g., through package managers, building from source, etc.)
@@ -30,12 +29,40 @@ TODO
 
 ### Binary Download
 
-(Link to releases page)
+The latest binaries are available [here]().
+
+### Cargo Install
+
+#### Crates.io
+
+If you have a Rust environment set up, you can install the binary from [crates.io]() with the following command:
+
+```sh
+cargo install dn
+```
+
+#### Source
+
+```sh
+git clone https://github.com/mmibbetson/dn
+cd dn
+cargo install --path .
+```
 
 ### Build From Source
 
 ```sh
-# clone repo and cargo build w/ some flags
+# clone repo and make install
+git clone https://github.com/mmibbetson/dn
+cd dn
+
+# If you would like to install everything, including manpages and shell completions you can run:
+make
+
+# Or, if you would prefer to only install the binary and opt into the other features:
+make install
+make completions
+make manpages
 ```
 
 ## Quick Start
@@ -53,29 +80,27 @@ dn rename 20241001T121314--oldtitle__foo.md -e dj - # produces something like 20
 # Add and remove keywords on an existing file
 dn rename 20241001T121314--oldtitle__foo.md -A bar_baz -R baz # produces 20241001T121314--oldtitle__foo_bar.md
 
-# Search $DN_DIRECTORY for a note and then open it in neovim
-# this is obviously wrong atm
-rg "--dn-example__metanote" $DN_DIRECTORY/$1 --file | nvim
+# Search $DN_DIRECTORY for a note with fzf and then open it in helix
+rg $DN_DIRECTORY --file | fzf | xargs hx
 ```
 
-## Shell Completions
+## Extras
 
-Shell completion files are available in the repo for various shells. In the future, we may provide a more convenient method of installing them.
+Manpages and shell completions are available, they can be installed manually, with make, or through a package manager alongside the binary. The supported shells are:
 
-## Man Pages
-
-Manpages are available in the repo. In the future, we may provide a more convenient method of installing them.
+- bash
+- zsh
+- fish
+- powershell
+- nushell
+- elvish
 
 ## Inspirations
 
 - [Denote](https://protesilaos.com/emacs/denote)
 - [Zettelkasten](https://zettelkasten.de/introduction/)
-- [GNU Core Utils]()
-- [Cold-Blooded Software]()
-
-## FAQ
-
-TODO
+- [The Unix Philosophy](https://en.wikipedia.org/wiki/Unix_philosophy)
+- [Cold-Blooded Software](https://dubroy.com/blog/cold-blooded-software/)
 
 ## Dependencies
 
@@ -86,6 +111,3 @@ We try to keep dependencies relatively minimal. In time, this project will be fe
 - We follow [Semantic Versioning](https://semver.org/) for version numbering.
 - We use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 - We are [REUSE](https://reuse.software/) compliant.
-
-TODO: Consider refactoring configuration setup to reflect a more modular approach - refrence [jujutsu](https://github.com/jj-vcs/jj) and [helix](https://github.com/helix-editor)
-TODO: Add xtask command to install man pages and completions (as distinct from generating them)

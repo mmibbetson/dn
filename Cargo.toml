@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+# SPDX-FileCopyrightText: 2024-2025 Matthew Mark Ibbetson
 # SPDX-FileContributor: Matthew Mark Ibbetson
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -7,7 +7,7 @@
 name = "dn"
 version = "0.1.0"
 edition = "2021"
-# rust-version = ""
+rust-version = "1.80.0"
 authors = ["Matthew Mark Ibbetson <mmibbetson@gmail.com>", "Adam Stokes"] # TODO: Add email if Adam is comfortable with it.
 description = "A simple, minimal, and flexible command line utility for managing plaintext files."
 keywords = ["cli", "utility", "file", "notes", "pkms"]
@@ -15,7 +15,10 @@ categories = ["command-line-utilities", "filesystem"]
 readme = "README.md"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/mmibbetson/dn"
-homepage = "https://mmibbetson.github.io/projects/dn"
+homepage = "https://mmibbetson.github.io/software/dn"
+
+[[bin]]
+name = "dn"
 
 [workspace]
 members = [".", "xtask"]
