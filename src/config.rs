@@ -344,18 +344,15 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
 pub fn load_config(provided_path: Option<&str>) -> Result<Option<Config>, Error> {
     match provided_path {
         Some(path) => read_config(PathBuf::from(path)).map(Some),
-        None => match environment_config_dir() {
-            Ok(path) => {
-                let config_path = path.join("dn.toml");
+        None => environment_config_dir().map_or(Ok(None), |p| {
+            let config_path = p.join("dn.toml");
 
-                if config_path.exists() && config_path.is_file() {
-                    read_config(&config_path).map(Some)
-                } else {
-                    Ok(None)
-                }
+            if config_path.exists() && config_path.is_file() {
+                read_config(&config_path).map(Some)
+            } else {
+                Ok(None)
             }
-            Err(_) => Ok(None),
-        },
+        }),
     }
 }
 
