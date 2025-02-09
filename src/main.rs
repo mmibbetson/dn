@@ -16,10 +16,8 @@ use metadata::FileMetadata;
 
 mod cli;
 mod config;
-mod content;
 mod directory;
 mod filename;
-mod format;
 mod metadata;
 
 fn main() -> Result<(), Error> {
@@ -58,9 +56,7 @@ fn main() -> Result<(), Error> {
                     config_builder = config_builder.with_file_template_path(PathBuf::from(path));
                 }
 
-                config_builder
-                    .build()
-                    .map_err(|e| anyhow!("Error buildig configuration: {e:#?}"))?
+                config_builder.build()
             };
 
             let metadata = FileMetadata::builder()
@@ -122,9 +118,7 @@ fn main() -> Result<(), Error> {
                     config_builder = config_builder.with_file_default_extension(ext.to_owned());
                 }
 
-                config_builder
-                    .build()
-                    .map_err(|e| anyhow!("Error building configuration: {e:#?}"))?
+                config_builder.build()
             };
 
             let input_path = PathBuf::from(input);
@@ -137,7 +131,8 @@ fn main() -> Result<(), Error> {
                 .to_str()
                 .ok_or_else(|| {
                     anyhow!("Error reading file name: Filename is not in a valid format")
-                })?.to_owned()
+                })?
+                .to_owned()
                 .to_filename(&config.file);
 
             let mut metadata_builder = FileMetadata::builder()
@@ -160,7 +155,8 @@ fn main() -> Result<(), Error> {
             }
 
             if cli_add_keywords.is_some() {
-                metadata_builder = metadata_builder.with_added_keywords(cli_add_keywords.as_deref());
+                metadata_builder =
+                    metadata_builder.with_added_keywords(cli_add_keywords.as_deref());
             }
 
             if cli_remove_keywords.is_some() {

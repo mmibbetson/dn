@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+// SPDX-FileCopyrightText: 2024-2025 Matthew Mark Ibbetson
 // SPDX-FileContributor: Matthew Mark Ibbetson
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
@@ -12,8 +12,7 @@ use regex::Regex;
 
 use crate::{
     config::{FileConfig, FilenameSegment},
-    format::DN_IDENTIFIER_FORMAT,
-    metadata::FileMetadata,
+    metadata::{FileMetadata, DN_IDENTIFIER_FORMAT},
 };
 
 /// Regex to match the `Identifier` segment of a file name.
@@ -331,7 +330,6 @@ mod tests {
         for (regex, expected) in test_cases {
             // Act
             let result = parse_segment(filename, regex);
-            let pattern = regex.as_str();
 
             // Assert
             assert_eq!(expected, result);
