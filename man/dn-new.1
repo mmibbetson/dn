@@ -4,16 +4,13 @@
 .SH NAME
 dn\-new \- Create a new note
 .SH SYNOPSIS
-\fBdn new\fR [\fB\-p\fR|\fB\-\-print\fR] [\fB\-G\fR|\fB\-\-generate\-frontmatter\fR] [\fB\-d\fR|\fB\-\-directory\fR] [\fB\-c\fR|\fB\-\-config\fR] [\fB\-T\fR|\fB\-\-template\fR] [\fB\-F\fR|\fB\-\-frontmatter\-format\fR] [\fB\-s\fR|\fB\-\-signature\fR] [\fB\-t\fR|\fB\-\-title\fR] [\fB\-e\fR|\fB\-\-extension\fR] [\fB\-k\fR|\fB\-\-keywords\fR] [\fB\-h\fR|\fB\-\-help\fR] 
+\fBdn new\fR [\fB\-p\fR|\fB\-\-print\fR] [\fB\-d\fR|\fB\-\-directory\fR] [\fB\-c\fR|\fB\-\-config\fR] [\fB\-T\fR|\fB\-\-template\fR] [\fB\-s\fR|\fB\-\-signature\fR] [\fB\-t\fR|\fB\-\-title\fR] [\fB\-e\fR|\fB\-\-extension\fR] [\fB\-k\fR|\fB\-\-keywords\fR] [\fB\-h\fR|\fB\-\-help\fR] 
 .SH DESCRIPTION
 Create a new note
 .SH OPTIONS
 .TP
 \fB\-p\fR, \fB\-\-print\fR
 Print the absolute path of the created note
-.TP
-\fB\-G\fR, \fB\-\-generate\-frontmatter\fR
-Generate frontmatter
 .TP
 \fB\-d\fR, \fB\-\-directory\fR=\fIPATH\fR
 Directory in which the note will be created
@@ -23,13 +20,6 @@ Configuration file path
 .TP
 \fB\-T\fR, \fB\-\-template\fR=\fIPATH\fR
 Template file to add contents to new note
-.TP
-\fB\-F\fR, \fB\-\-frontmatter\-format\fR=\fIFORMAT\fR
-Frontmatter format
-.br
-
-.br
-[\fIpossible values: \fRtext, yaml, toml, json]
 .TP
 \fB\-s\fR, \fB\-\-signature\fR=\fISIGNATURE\fR
 Signature for the note

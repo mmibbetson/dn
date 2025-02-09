@@ -107,7 +107,7 @@ _dn() {
             return 0
             ;;
         dn__new)
-            opts="-p -G -d -c -T -F -s -t -e -k -h --print --generate-frontmatter --directory --config --template --frontmatter-format --signature --title --extension --keywords --help"
+            opts="-p -d -c -T -s -t -e -k -h --print --directory --config --template --signature --title --extension --keywords --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -135,14 +135,6 @@ _dn() {
                     ;;
                 -T)
                     COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --frontmatter-format)
-                    COMPREPLY=($(compgen -W "text yaml toml json" -- "${cur}"))
-                    return 0
-                    ;;
-                -F)
-                    COMPREPLY=($(compgen -W "text yaml toml json" -- "${cur}"))
                     return 0
                     ;;
                 --signature)
@@ -185,7 +177,7 @@ _dn() {
             return 0
             ;;
         dn__rename)
-            opts="-p -I -f -G -c -F -s -t -k -A -R -e -h --print --regenerate-identifier --from-frontmatter --generate-frontmatter --config --frontmatter-format --signature --title --keywords --add-keywords --remove-keywords --extension --help <INPUT>"
+            opts="-p -I -c -s -t -k -A -R -e -h --print --regenerate-identifier --config --signature --title --keywords --add-keywords --remove-keywords --extension --help <INPUT>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -197,14 +189,6 @@ _dn() {
                     ;;
                 -c)
                     COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --frontmatter-format)
-                    COMPREPLY=($(compgen -W "text yaml toml json" -- "${cur}"))
-                    return 0
-                    ;;
-                -F)
-                    COMPREPLY=($(compgen -W "text yaml toml json" -- "${cur}"))
                     return 0
                     ;;
                 --signature)

@@ -30,8 +30,8 @@ pub fn print_help() {
 Usage: Run with `cargo xtask <task>`, eg. `cargo xtask manpages`.
 
 Tasks:
-    completions: .
-    manpages: .
+    completions: Generate shell completion files.
+    manpages: Generate manual pages.
 "
     );
 }
