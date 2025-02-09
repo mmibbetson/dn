@@ -14,6 +14,18 @@ SPDX-FileCopyrightText = "2024 Matthew Mark Ibbetson"
 SPDX-License-Identifier = "GPL-3.0-or-later"
 
 [[annotations]]
+path = "rust-toolchain.toml"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Matthew Mark Ibbetson"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
+path = ".gitattributes"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Matthew Mark Ibbetson"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+[[annotations]]
 path = "docs/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2024 Matthew Mark Ibbetson"
