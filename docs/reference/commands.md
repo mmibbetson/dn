@@ -16,7 +16,6 @@ By default, the note will be created in `~/Documents/notes` with the following c
 
 - A timestamp identifier
 - `.txt` extension
-- No frontmatter
 
 ### `new` Options
 
@@ -33,8 +32,6 @@ By default, the note will be created in `~/Documents/notes` with the following c
 
 | Option                   | Short | Argument | Description                                     | Example                   |
 | :----------------------- | :---: | :------- | :---------------------------------------------- | :------------------------ |
-| `--generate-frontmatter` | `-G`  | None     | Add frontmatter to note                         | `dn new -G`               |
-| `--frontmatter-format`   | `-F`  | Format   | Set frontmatter format (text\|yaml\|toml\|json) | `dn new -F toml`          |
 | `--template`             | `-T`  | Path     | Use template file for note content              | `dn new -T ./example.txt` |
 
 #### Other Options
@@ -74,31 +71,6 @@ dn new --signature 1a1 \
 # 20241117T105000==1a1--my-first-note__demo_example.md.bak
 ```
 
-#### Using Front Matter
-
-If you want to generate front matter for a note you can pass the `--generate-frontmatter` flag and information provided will be used to fill the front matter segments. If no front matter format is provided with `--frontmatter-format`, the default format of `text` will be used.
-
-```sh
-# Generate YAML frontmatter
-dn new --generate-frontmatter \
-       --frontmatter-format yaml \
-       -t 'My Note 2: This Time with Front Matter' \
-       -k example_kwrds
-
-# 20241117T105000--my-note-2-this-time-with-front-matter__example_kwrds.txt
-```
-
-The front matter generated in this new file would look something like the following:
-
-```yaml
----
-title: "My Note 2: This Time with Front Matter"
-date: 2024-11-20T21:57:00+02:00
-tags: ["example", "kwrds"]
-identifier: "20241120T215700"
----
-```
-
 #### Templates
 
 Sometimes, you may want to repeatedly create notes with the same initial structure. The `--template` flag is a convenient way to fill a new note with text from another file.
@@ -125,35 +97,6 @@ Signing out.
 ```
 
 Then the newly created note would also contain this same content upon creation.
-
-If you also want to add front matter while dealing with templates, the template will be inserted after a line break below the frontmatter. Continuing with the prior example, this command:
-
-```sh
-# Combine template with front matter
-dn new --generate-frontmatter \
-       --template ./journal-template.md \
-       --keywords journal \
-       --extension md
-
-# 20241117T105000__journal.md
-```
-
-Would create a note with the following contents:
-
-```md
-date: 2024-11-17
-tags: journal
-identifier: 20241117T105000
----------------------------
-
-# Journal Entry No. ID
-
-Captain's log, -DATE-.
-
-BODY
-
-Signing out.
-```
 
 #### Location and Output
 
@@ -215,14 +158,6 @@ By default, the renamed note will preserve the existing segments if it was previ
 | `--add-keywords`          | `-A`  | Keywords  | Add keywords to existing set      | `dn rename ./demo.md -A more_added`      |
 | `--remove-keywords`       | `-R`  | Keywords  | Remove keywords from set          | `dn rename ./demo.md -R added`           |
 | `--extension`             | `-e`  | Extension | Change file extension             | `dn rename ./demo.md -e md`              |
-
-#### Frontmatter Renaming Options
-
-| Option                   | Short | Argument | Description                         | Example                       |
-| :----------------------- | :---: | :------- | :---------------------------------- | :---------------------------- |
-| `--from-frontmatter`     | `-f`  | None     | Use frontmatter values for renaming | `dn rename ./demo.md -f`      |
-| `--generate-frontmatter` | `-G`  | None     | Generate/regenerate frontmatter     | `dn rename ./demo.md -G`      |
-| `--frontmatter-format`   | `-F`  | Format   | Set format (text\|yaml\|toml\|json) | `dn rename ./demo.md -f json` |
 
 #### Other Renaming Options
 
@@ -316,40 +251,6 @@ dn rename 20241117T105000--note.txt \
           --remove-keywords "oldtag moretag"
 
 # 20241117T105000--note__newtag.txt
-```
-
-#### Front Matter Operations
-
-The front matter values that dn can generate interact with the `rename` command in various ways. One useful option is to rename a file based on the contents of its front matter. If one were to adjust the contents of an existing note and then change its tags, for example, in the front matter, it may be most convenient to run a command to just adjust the existing file name to match.
-
-```sh
-# Rename based on frontmatter values
-dn rename note.txt \
-          --from-frontmatter
-```
-
-> NOTE: When there are multiple sources of metadata they follow a precedence hierarchy: `CLI Options > Frontmatter > Existing Metadata > Defaults`.
-
-Sometimes you may not have existing front matter for a note and want to add it programmatically. This can be achieved with the `--generate-frontmatter` option. Like all other options, it can be combined trivially with the others.
-
-```sh
-# Generate new frontmatter during rename
-dn rename note.txt \
-          --generate-frontmatter \
-          --frontmatter-format toml \
-          --title "New Title"
-
-# 20241122T085100--new-title.txt
-```
-
-This renamed file will now have the following front matter:
-
-```md
-+++
-title      = "New Title"
-date       = 2024-11-22T08:51:00+02:00
-identifier = "20241122T085100"
-+++
 ```
 
 #### Other Usage
