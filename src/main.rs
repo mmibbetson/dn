@@ -89,7 +89,7 @@ fn main() -> Result<(), Error> {
                     output_path
                         .to_str()
                         .ok_or_else(|| anyhow!("Error printing new file path"))?
-                )
+                );
             };
         }
         cli::Commands::Rename {
@@ -111,7 +111,7 @@ fn main() -> Result<(), Error> {
                     .map_err(|e| anyhow!("Error loading configuration: {e:#?}"))?;
 
                 if let Some(base) = config_base {
-                    config_builder = config_builder.with_base_config(base.to_owned());
+                    config_builder = config_builder.with_base_config(base.clone());
                 }
 
                 if *cli_regenerate_identifier {
@@ -137,8 +137,7 @@ fn main() -> Result<(), Error> {
                 .to_str()
                 .ok_or_else(|| {
                     anyhow!("Error reading file name: Filename is not in a valid format")
-                })?
-                .to_string()
+                })?.to_owned()
                 .to_filename(&config.file);
 
             let mut metadata_builder = FileMetadata::builder()
@@ -149,28 +148,28 @@ fn main() -> Result<(), Error> {
                 .with_extension(Some(filename_old.extension).as_deref());
 
             if cli_signature.is_some() {
-                metadata_builder = metadata_builder.with_signature(cli_signature.as_deref())
+                metadata_builder = metadata_builder.with_signature(cli_signature.as_deref());
             }
 
             if cli_title.is_some() {
-                metadata_builder = metadata_builder.with_title(cli_title.as_deref())
+                metadata_builder = metadata_builder.with_title(cli_title.as_deref());
             }
 
             if cli_keywords.is_some() {
-                metadata_builder = metadata_builder.with_keywords(cli_keywords.as_deref())
+                metadata_builder = metadata_builder.with_keywords(cli_keywords.as_deref());
             }
 
             if cli_add_keywords.is_some() {
-                metadata_builder = metadata_builder.with_added_keywords(cli_add_keywords.as_deref())
+                metadata_builder = metadata_builder.with_added_keywords(cli_add_keywords.as_deref());
             }
 
             if cli_remove_keywords.is_some() {
                 metadata_builder =
-                    metadata_builder.with_removed_keywords(cli_remove_keywords.as_deref())
+                    metadata_builder.with_removed_keywords(cli_remove_keywords.as_deref());
             }
 
             if cli_extension.is_some() {
-                metadata_builder = metadata_builder.with_extension(cli_extension.as_deref())
+                metadata_builder = metadata_builder.with_extension(cli_extension.as_deref());
             }
 
             // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
@@ -198,7 +197,7 @@ fn main() -> Result<(), Error> {
                     output_path
                         .to_str()
                         .ok_or_else(|| anyhow!("Error printing new file path"))?
-                )
+                );
             };
         }
     }
