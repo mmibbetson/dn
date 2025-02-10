@@ -24,6 +24,7 @@ use crate::{
 /// Represents the configuration state for dn as a whole.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Config {
+    // TODO: Add serde default? Or find other way to handle empty config gracefully.
     pub file: FileConfig,
 }
 
@@ -299,7 +300,7 @@ fn default_segment_order() -> [FilenameSegment; 5] {
     ]
 }
 
-/// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
+/// Returns the default value for front matter segment order in `FileConfig`. For use in serde macros.
 ///
 /// # Value
 ///

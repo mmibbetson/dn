@@ -11,6 +11,7 @@ use anyhow::{anyhow, Error};
 use clap::Parser;
 use cli::Cli;
 use config::{load_config, Config};
+use directory::safe_write;
 use filename::ToFilename;
 use metadata::FileMetadata;
 
@@ -38,7 +39,7 @@ fn main() -> Result<(), Error> {
                 let mut config_builder = Config::builder();
 
                 let config_base = load_config(cli_config_path.as_deref())
-                    .map_err(|e| anyhow!("Error loading configuration: {e:#?}"))?;
+                    .map_err(|e| anyhow!(e).context("Error loading configuration"))?;
 
                 if let Some(base) = config_base {
                     config_builder = config_builder.with_base_config(base);
@@ -69,7 +70,7 @@ fn main() -> Result<(), Error> {
 
             let filename = metadata.to_filename(&config.file).to_string();
             let template = cli_template_path.as_ref().map_or(Ok(Vec::new()), |p| {
-                fs::read(p).map_err(|e| anyhow!("Error reading template file: {e:#?}"))
+                fs::read(p).map_err(|e| anyhow!(e).context("Error reading template file"))
             })?;
 
             let output_path = cli_directory_path
@@ -77,7 +78,7 @@ fn main() -> Result<(), Error> {
                 .map_or(config.file.directory, PathBuf::from)
                 .join(filename);
 
-            fs::write(&output_path, &template)?;
+            safe_write(&output_path, &template)?;
 
             if *cli_print {
                 print!(
@@ -104,7 +105,7 @@ fn main() -> Result<(), Error> {
                 let mut config_builder = Config::builder();
 
                 let config_base = load_config(cli_config_path.as_deref())
-                    .map_err(|e| anyhow!("Error loading configuration: {e:#?}"))?;
+                    .map_err(|e| anyhow!(e).context("Error loading configuration"))?;
 
                 if let Some(base) = config_base {
                     config_builder = config_builder.with_base_config(base.clone());
@@ -123,7 +124,7 @@ fn main() -> Result<(), Error> {
 
             let input_path = PathBuf::from(input);
             let input_content = fs::read_to_string(&input_path)
-                .map_err(|e| anyhow!("Error reading input file: {e:#?}"))?;
+                .map_err(|e| anyhow!(e).context("Error reading input file"))?;
 
             let filename_old = PathBuf::from(input)
                 .file_name()
@@ -185,7 +186,7 @@ fn main() -> Result<(), Error> {
                 .join(filename_new);
 
             fs::rename(&input_path, &output_path)?;
-            fs::write(&output_path, &input_content)?;
+            safe_write(&output_path, &input_content)?;
 
             if *cli_print {
                 print!(
