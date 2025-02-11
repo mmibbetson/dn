@@ -16,8 +16,6 @@ _default:
 
 # Build the project.
 build: fix test _compile _doc extras
-    cargo doc
-    cargo build --release
 
 # Enforce styling and linting.
 fix:
