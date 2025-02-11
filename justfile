@@ -3,54 +3,77 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# List all recipes by default
-default:
+os := os_family()
+home_dir := home_directory()
+conf_dir := config_directory()
+man_dir := "/usr/local/share/man/man1"
+bin_dir := executable_directory()
+bin_name := "dn"
+
+# List all recipes by default.
+_default:
     @just --list
 
-install-xtask:
-    cargo install --path xtask
+# Build the project.
+build: fix test _compile _doc extras
+    cargo doc
+    cargo build --release
 
-xtasks:
-    cargo xtask completions
-    cargo xtask manpages
+# Enforce styling and linting.
+fix:
+    cargo fmt
+    cargo clippy --fix
 
-# Build the project
-build:
-    cargo build
-
-# Run tests with optional filter
+# Run tests.
 test filter="":
     cargo test {{filter}}
 
-# Clean build artifacts
+# Build in release mode.
+_compile:
+    cargo build --release
+
+# Compile documentation.
+_doc:
+    cargo doc
+
+# Recipe with dependencies.
+publish: test build
+    cargo publish
+
+# Clean build artifacts.
 clean:
     cargo clean
 
-# Install project dependencies
+# Install binary via cargo.
 install:
-    npm install
     cargo install --path .
 
-# Run multiple commands in sequence
-setup: install build
+# Uninstall binary via cargo.
+uninstall:
+    cargo uninstall {{bin_name}}
 
-# Recipe with arguments
-say-hello name:
-    echo "Hello, {{name}}!"
+# Install the cargo-xtask dev utility.
+_install-xtask:
+    cargo install --path xtask
 
-# Recipe with environment variable
-deploy env="staging":
-    echo "Deploying to {{env}}"
-    
-# Recipe with dependencies
-publish: build test
-    cargo publish
+# Generate manpage files.
+_gen-manpages:
+    cargo xtask manpages
 
-# Recipe with conditional
-lint:
-    #!/usr/bin/env sh
-    if [ -f ".eslintrc" ]; then
-        npm run lint
-    else
-        echo "No ESLint config found"
-    fi
+# Generate shell completion files.
+_gen-completions:
+    cargo xtask completions
+
+# Generate extra files like manpages and shell completions.
+extras: _install-xtask _gen-manpages _gen-completions
+
+# Install manpages.
+manpages: _gen-manpages
+    mkdir -p {{man_dir}}
+    cp ./man/* {{man_dir}}
+
+# Uninstall manpages.
+uninstall-manpages:
+    rm {{man_dir}}/dn.1
+    rm {{man_dir}}/dn-rename.1
+    rm {{man_dir}}/dn-new.1
