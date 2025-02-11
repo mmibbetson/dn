@@ -63,7 +63,7 @@ _gen-completions:
     cargo xtask completions
 
 # Generate extra files like manpages and shell completions.
-extras: _install-xtask _gen-manpages _gen-completions
+extras: install-xtask _gen-manpages _gen-completions
 
 # Install manpages.
 manpages: _gen-manpages
