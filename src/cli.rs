@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+// SPDX-FileCopyrightText: 2024-2025 Matthew Mark Ibbetson
 // SPDX-FileContributor: Matthew Mark Ibbetson
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
@@ -30,14 +30,6 @@ pub enum Commands {
         )]
         cli_print: bool,
 
-        /// Generate frontmatter
-        #[arg(
-            short = 'G',
-            long = "generate-frontmatter",
-            action = ArgAction::SetTrue,
-        )]
-        cli_generate_frontmatter: bool,
-
         /// Directory in which the note will be created
         #[arg(
             short = 'd',
@@ -64,21 +56,6 @@ pub enum Commands {
             action = ArgAction::Set,
         )]
         cli_template_path: Option<String>,
-
-        /// Frontmatter format
-        #[arg(
-            short = 'F',
-            long = "frontmatter-format",
-            action = ArgAction::Set,
-            value_name = "FORMAT",
-            value_parser = [
-                "text",
-                "yaml",
-                "toml",
-                "json",
-            ],
-        )]
-        cli_frontmatter_format: Option<String>,
 
         /// Signature for the note
         #[arg(
@@ -138,22 +115,6 @@ pub enum Commands {
         )]
         cli_regenerate_identifier: bool,
 
-        /// Rename based on frontmatter values
-        #[arg(
-            short = 'f',
-            long = "from-frontmatter",
-            action = ArgAction::SetTrue,
-        )]
-        cli_rename_from_frontmatter: bool,
-
-        /// Generate or regenerate frontmatter
-        #[arg(
-            short = 'G',
-            long = "generate-frontmatter",
-            action = ArgAction::SetTrue,
-        )]
-        cli_generate_frontmatter: bool,
-
         /// Configuration file path
         #[arg(
             short = 'c',
@@ -162,21 +123,6 @@ pub enum Commands {
             action = ArgAction::Set,
         )]
         cli_config_path: Option<String>,
-
-        /// Frontmatter format
-        #[arg(
-            short = 'F',
-            long = "frontmatter-format",
-            action = ArgAction::Set,
-            value_name = "FORMAT",
-            value_parser = [
-                "text",
-                "yaml",
-                "toml",
-                "json",
-            ],
-        )]
-        cli_frontmatter_format: Option<String>,
 
         /// New signature for the note
         #[arg(

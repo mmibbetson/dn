@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+// SPDX-FileCopyrightText: 2024-2025 Matthew Mark Ibbetson
 // SPDX-FileContributor: Matthew Mark Ibbetson
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
@@ -12,20 +12,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Error};
+use anyhow::Error;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     directory::{environment_config_dir, environment_notes_dir},
     metadata::SEGMENT_SEPARATORS,
 };
-
-/// Represents the configuration state for dn as a whole.
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct Config {
-    pub file: FileConfig,
-    pub frontmatter: FrontmatterConfig,
-}
 
 /// A `mut self` builder that allows progressively updating an input state for a new `Config`.
 #[derive(Debug, Default)]
@@ -35,13 +28,11 @@ pub struct ConfigBuilder {
     file_default_extension: Option<String>,
     file_regenerate_identifier: bool,
     file_template_path: Option<PathBuf>,
-    frontmatter_enabled: bool,
-    frontmatter_format: Option<String>,
 }
 
 /// The configuration values for the file name, directory, template, and general metadata.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct FileConfig {
+pub struct Config {
     /// The directory in which notes will be created.
     #[serde(default = "default_notes_directory")]
     pub directory: PathBuf,
@@ -83,52 +74,6 @@ pub enum FilenameSegment {
     Extension,
 }
 
-/// The configuration values for the front matter.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct FrontmatterConfig {
-    /// Whether or not to generate front matter on file creation.
-    #[serde(default = "r#false")]
-    pub enabled: bool,
-
-    /// Which format to use for generated front matter.
-    #[serde(default = "default_frontmatter_format")]
-    pub format: FrontmatterFormat,
-
-    /// Which time style to be used in the date segment of generated front matter.
-    #[serde(default = "none")]
-    pub time_style: Option<String>,
-
-    /// The order in which generated front matter segments appear.
-    #[serde(default = "default_frontmatter_segment_order")]
-    pub order: Vec<FrontmatterSegment>,
-}
-
-/// The possible valid formats for front matter.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum FrontmatterFormat {
-    #[serde(alias = "text")]
-    Text,
-    #[serde(alias = "yaml")]
-    Yaml,
-    #[serde(alias = "toml")]
-    Toml,
-    #[serde(alias = "json")]
-    Json,
-}
-
-/// The valid front matter segments which dn concerns itself with.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum FrontmatterSegment {
-    #[serde(alias = "title")]
-    Title,
-    #[serde(alias = "date")]
-    Date,
-    #[serde(alias = "keywords")]
-    Keywords,
-    #[serde(alias = "identifier")]
-    Identifier,
-}
-
 impl Config {
     /// Creates a new builder initialised with default values.
     pub fn builder() -> ConfigBuilder {
@@ -167,18 +112,6 @@ impl ConfigBuilder {
         self
     }
 
-    /// Sets whether or not to generate and/or replace frontmatter for a file on the builder.
-    pub fn with_frontmatter_enabled(mut self, value: bool) -> Self {
-        self.frontmatter_enabled = value;
-        self
-    }
-
-    /// Sets which format to use for the frontmatter to the builder.
-    pub fn with_frontmatter_format(mut self, value: String) -> Self {
-        self.frontmatter_format = Some(value);
-        self
-    }
-
     /// Builds the final `Config` state, falling back to the base configuration file
     /// values where no builder value has been specified.
     ///
@@ -197,79 +130,53 @@ impl ConfigBuilder {
     /// metadata = builder.build(config)
     /// assert_eq!(metadata.title, Some("example-title".to_owned()))
     /// ```
-    pub fn build(&self) -> Result<Config, Error> {
+    pub fn build(&self) -> Config {
         let base_config = self.base_config.clone().unwrap_or_default();
 
         let directory = self
             .file_directory
             .as_ref()
             .map(PathBuf::from)
-            .unwrap_or(base_config.file.directory);
+            .unwrap_or(base_config.directory);
 
         let default_extension = self
             .file_default_extension
             .as_ref()
-            .unwrap_or(&base_config.file.default_extension)
+            .unwrap_or(&base_config.default_extension)
             .to_owned();
 
         let regenerate_identifier = if self.file_regenerate_identifier {
             true
         } else {
-            base_config.file.regenerate_identifier
+            base_config.regenerate_identifier
         };
 
         let template_path = self
             .file_template_path
             .as_ref()
-            .or(base_config.file.template_path.as_ref())
+            .or(base_config.template_path.as_ref())
             .cloned();
 
         // NOTE: It is essential that @=-_. are ALWAYS in the illegal characters,
         // even when overwritten by users.
         let illegal_characters = base_config
-            .file
             .illegal_characters
             .into_iter()
             .chain(SEGMENT_SEPARATORS)
             .collect::<HashSet<_>>();
 
-        let enabled = if self.frontmatter_enabled {
-            true
-        } else {
-            base_config.frontmatter.enabled
-        };
-
-        let format = {
-            let format = self
-                .frontmatter_format
-                .as_ref()
-                .map(|f| string_to_frontmatter_format(f));
-
-            match format {
-                Some(result) => result?,
-                None => base_config.frontmatter.format,
-            }
-        };
-
-        Ok(Config {
-            file: FileConfig {
-                directory,
-                default_extension,
-                regenerate_identifier,
-                template_path,
-                illegal_characters,
-                ..base_config.file
-            },
-            frontmatter: FrontmatterConfig {
-                enabled,
-                format,
-                ..base_config.frontmatter
-            },
-        })
+        Config {
+            directory,
+            default_extension,
+            regenerate_identifier,
+            template_path,
+            illegal_characters,
+            ..base_config
+        }
     }
 }
 
-impl Default for FileConfig {
+impl Default for Config {
     fn default() -> Self {
         Self {
             directory: default_notes_directory(),
@@ -278,17 +185,6 @@ impl Default for FileConfig {
             regenerate_identifier: r#false(),
             template_path: none::<PathBuf>(),
             illegal_characters: default_illegal_characters(),
-        }
-    }
-}
-
-impl Default for FrontmatterConfig {
-    fn default() -> Self {
-        Self {
-            enabled: Default::default(),
-            format: default_frontmatter_format(),
-            time_style: none::<String>(),
-            order: Vec::default(),
         }
     }
 }
@@ -306,7 +202,7 @@ impl Default for FrontmatterConfig {
 /// let builder = FileMetadata::builder();
 /// let config = read_config("path/to/config.toml")?;
 ///
-/// builder.build(&config.file);
+/// builder.build(&config);
 /// ```
 pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let contents = fs::read_to_string(path)?;
@@ -344,45 +240,15 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
 pub fn load_config(provided_path: Option<&str>) -> Result<Option<Config>, Error> {
     match provided_path {
         Some(path) => read_config(PathBuf::from(path)).map(Some),
-        None => match environment_config_dir() {
-            Ok(path) => {
-                let config_path = path.join("dn.toml");
+        None => environment_config_dir().map_or(Ok(None), |p| {
+            let config_path = p.join("dn.toml");
 
-                if config_path.exists() && config_path.is_file() {
-                    read_config(&config_path).map(Some)
-                } else {
-                    Ok(None)
-                }
+            if config_path.exists() && config_path.is_file() {
+                read_config(&config_path).map(Some)
+            } else {
+                Ok(None)
             }
-            Err(_) => Ok(None),
-        },
-    }
-}
-
-/// Attempts to parse a string slice into a `FrontmatterFormat`. The string is lowercased before
-/// being matched on.
-///
-/// # Errors
-///
-/// This function will return an error if the input string does not match one of the valid frontmatter
-/// format names: `Text`, `Yaml`, `Toml`, or `Json`.
-///
-/// # Example
-///
-/// ```
-/// let format = string_to_frontmatter_format("toml")?;
-///
-/// assert_eq!(format, FrontmatterFormat::Toml);
-/// ```
-fn string_to_frontmatter_format(format_arg: &str) -> Result<FrontmatterFormat, Error> {
-    match format_arg.to_lowercase().as_str() {
-        "text" => Ok(FrontmatterFormat::Text),
-        "yaml" => Ok(FrontmatterFormat::Yaml),
-        "toml" => Ok(FrontmatterFormat::Toml),
-        "json" => Ok(FrontmatterFormat::Json),
-        _ => Err(anyhow!(
-            "Invalid frontmatter format provided, must be one of: text, yaml, toml, json.\nGot: {format_arg:#?}"
-        )),
+        }),
     }
 }
 
@@ -423,7 +289,7 @@ fn default_segment_order() -> [FilenameSegment; 5] {
     ]
 }
 
-/// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
+/// Returns the default value for front matter segment order in `FileConfig`. For use in serde macros.
 ///
 /// # Value
 ///
@@ -434,37 +300,6 @@ fn default_file_extension() -> String {
     "txt".to_owned()
 }
 
-/// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
-///
-/// # Value
-///
-/// ```rust
-/// FrontmatterFormat::Text
-/// ```
-fn default_frontmatter_format() -> FrontmatterFormat {
-    FrontmatterFormat::Text
-}
-
-/// Returns the default value for front matter segment order in `FrontmatterConfig`. For use in serde macros.
-///
-/// # Value
-///
-/// ```rust
-/// vec![
-///     FrontmatterSegment::Title,
-///     FrontmatterSegment::Date,
-///     FrontmatterSegment::Keywords,
-///     FrontmatterSegment::Identifier,
-/// ]
-/// ```
-fn default_frontmatter_segment_order() -> Vec<FrontmatterSegment> {
-    vec![
-        FrontmatterSegment::Title,
-        FrontmatterSegment::Date,
-        FrontmatterSegment::Keywords,
-        FrontmatterSegment::Identifier,
-    ]
-}
 /// Returns the default value for illegal characters in `FileConfig`. For use in serde macros.
 ///
 /// # Value
@@ -480,11 +315,6 @@ fn default_illegal_characters() -> HashSet<char> {
         '[', ']', '{', '}', '(', ')', '!', '#', '$', '%', '^', '&', '*', '+', '\'', '\\', '"', '?',
         ',', '|', ';', ':', '~', '`', '‘', '’', '“', '”', '/', '*', ' ', '@', '=', '-', '_', '.',
     ])
-}
-
-/// Returns `true`. For use in serde macros.
-fn r#true() -> bool {
-    true
 }
 
 /// Returns `false`. For use in serde macros.
@@ -505,7 +335,7 @@ fn none<T>() -> Option<T> {
 mod tests {
     use std::collections::HashSet;
 
-    use crate::config::{Config, FileConfig, FrontmatterConfig, FrontmatterFormat};
+    use crate::config::Config;
 
     #[test]
     fn builder_builds_defaults_if_unconfigured() {
@@ -514,43 +344,33 @@ mod tests {
         let expected = Config::default();
 
         // Act
-        let result = input.build().unwrap();
+        let result = input.build();
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
     fn builder_builds_base_config_defaults_if_provided() {
         // Arrange
         let base_config = Config {
-            file: FileConfig {
-                default_extension: "dj".to_owned(),
-                regenerate_identifier: true,
-                illegal_characters: HashSet::from(['a', '2', '@']),
-                ..FileConfig::default()
-            },
-            frontmatter: FrontmatterConfig {
-                enabled: true,
-                format: FrontmatterFormat::Toml,
-                ..FrontmatterConfig::default()
-            },
+            default_extension: "dj".to_owned(),
+            regenerate_identifier: true,
+            illegal_characters: HashSet::from(['a', '2', '@']),
+            ..Default::default()
         };
         let input = Config::builder().with_base_config(base_config.clone());
         let expected_illegal_characters = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
         let expected = Config {
-            file: FileConfig {
-                illegal_characters: expected_illegal_characters,
-                ..base_config.file
-            },
+            illegal_characters: expected_illegal_characters,
             ..base_config
         };
 
         // Act
-        let result = input.build().unwrap();
+        let result = input.build();
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -560,71 +380,42 @@ mod tests {
         let directory = ".".to_owned();
         let regenerate_identifier = true;
         let template_path = "./template.txt".to_owned();
-        let enabled = true;
-        let format = "json".into();
 
         let input = Config::builder()
             .with_file_default_extension(default_extension.clone())
             .with_file_directory(directory.clone())
             .with_file_regenerate_identifier(regenerate_identifier)
-            .with_file_template_path(template_path.clone().into())
-            .with_frontmatter_enabled(enabled)
-            .with_frontmatter_format(format);
+            .with_file_template_path(template_path.clone().into());
 
         let expected = Config {
-            file: FileConfig {
-                directory: directory.into(),
-                default_extension,
-                regenerate_identifier,
-                template_path: Some(template_path.into()),
-                ..Default::default()
-            },
-            frontmatter: FrontmatterConfig {
-                enabled,
-                format: FrontmatterFormat::Json,
-                ..Default::default()
-            },
+            directory: directory.into(),
+            default_extension,
+            regenerate_identifier,
+            template_path: Some(template_path.into()),
+            ..Default::default()
         };
 
         // Act
-        let result = input.build().unwrap();
+        let result = input.build();
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
     fn built_config_illegal_characters_always_contains_path_separators() {
         // Arrange
         let base_config = Config {
-            file: FileConfig {
-                illegal_characters: HashSet::from(['a', '2', '@']),
-                ..FileConfig::default()
-            },
-            ..Config::default()
+            illegal_characters: HashSet::from(['a', '2', '@']),
+            ..Default::default()
         };
         let input = Config::builder().with_base_config(base_config);
         let expected = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
 
         // Act
-        let result = input.build().unwrap().file.illegal_characters;
+        let result = input.build().illegal_characters;
 
         // Assert
-        assert_eq!(expected, result,);
-    }
-
-    #[test]
-    fn build_config_fails_with_invalid_frontmatter_format() {
-        // Arrange
-        let format = "scaml";
-        let input = Config::builder().with_frontmatter_format(format.to_owned());
-
-        // Act
-        let result = input.build();
-
-        // Assert
-        assert!(result
-            .as_ref()
-            .is_err_and(|e| e.to_string().contains("Invalid frontmatter format")),);
+        assert_eq!(expected, result);
     }
 }

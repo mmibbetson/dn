@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+// SPDX-FileCopyrightText: 2024-2025 Matthew Mark Ibbetson
 // SPDX-FileContributor: Matthew Mark Ibbetson
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
@@ -8,10 +8,14 @@
 
 use std::collections::HashSet;
 
-use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
+use chrono::Local;
 use icu_collator::{Collator, CollatorOptions, Strength};
 
-use crate::{config::FileConfig, format::DN_IDENTIFIER_FORMAT};
+use crate::config::Config;
+
+/// Format string for use with `chrono`'s `format` function.
+/// Represents the structure of a dn `Identifier`.
+pub const DN_IDENTIFIER_FORMAT: &str = "%Y%m%dT%H%M%S";
 
 /// The unique separator characters for each segment of a dn file name.
 pub const SEGMENT_SEPARATORS: [char; 5] = ['@', '=', '-', '_', '.'];
@@ -23,10 +27,8 @@ pub struct FileMetadata {
     pub identifier: String,
     pub signature: Option<String>,
     pub title: Option<String>,
-    pub title_raw: Option<String>,
     pub keywords: Option<Vec<String>>,
     pub extension: String,
-    pub datetime: DateTime<Local>,
 }
 
 /// A `mut self` builder that allows progressively updating an input state for a new `FileMetadata`.
@@ -39,7 +41,6 @@ pub struct FileMetadataBuilder {
     added_keywords: Option<String>,
     removed_keywords: Option<String>,
     extension: Option<String>,
-    datetime: DateTime<Local>,
 }
 
 impl FileMetadata {
@@ -107,13 +108,11 @@ impl FileMetadataBuilder {
     /// metadata = builder.build(config)
     /// assert_eq!(metadata.title, Some("example-title".to_owned()))
     /// ```
-    pub fn build(&self, config: &FileConfig) -> FileMetadata {
-        let datetime = derive_datetime(self.identifier.as_deref());
-
+    pub fn build(&self, config: &Config) -> FileMetadata {
         let identifier = self
             .identifier
             .clone()
-            .unwrap_or_else(|| datetime.format(DN_IDENTIFIER_FORMAT).to_string());
+            .unwrap_or_else(|| Local::now().format(DN_IDENTIFIER_FORMAT).to_string());
 
         let signature = self
             .signature
@@ -124,8 +123,6 @@ impl FileMetadataBuilder {
             .title
             .as_ref()
             .and_then(|t| parse_title(t, &config.illegal_characters));
-
-        let title_raw = self.title.as_ref().map(String::from);
 
         let keywords = {
             let base_keywords = self
@@ -184,33 +181,9 @@ impl FileMetadataBuilder {
             identifier,
             signature,
             title,
-            title_raw,
             keywords,
             extension,
-            datetime,
         }
-    }
-}
-
-/// Derives a `DateTime<Local>` from an optional dn identifier string.
-/// If parsing fails, defaults to the current local time (`Local::now()`).
-///
-/// # Example
-///
-/// ```
-/// let identifier = Some("20241212T121212".to_string());
-/// let datetime = derive_datetime(&identifier);
-/// assert_eq!(datetime.year(), 2024);
-/// ```
-fn derive_datetime(identifier: Option<&str>) -> DateTime<Local> {
-    match identifier {
-        Some(identifier) => match NaiveDateTime::parse_from_str(identifier, DN_IDENTIFIER_FORMAT) {
-            Ok(naive) => TimeZone::from_local_datetime(&Local, &naive)
-                .single()
-                .unwrap_or_else(Local::now),
-            Err(_) => Local::now(),
-        },
-        None => Local::now(),
     }
 }
 
@@ -340,46 +313,13 @@ fn sanitise(dirty: &str, illegal_characters: &HashSet<char>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::TimeZone;
 
-    fn setup_config() -> FileConfig {
-        FileConfig {
+    fn setup_config() -> Config {
+        Config {
             illegal_characters: HashSet::from(['#', '@', '!']),
             default_extension: String::from("md"),
             ..Default::default()
         }
-    }
-
-    fn setup_datetime() -> DateTime<Local> {
-        // WARN: Unwrap may panic.
-        Local.with_ymd_and_hms(2024, 12, 12, 12, 12, 12).unwrap()
-    }
-
-    #[test]
-    fn derive_datetime_with_identifier() {
-        // Arrange
-        let input = Some("20241212T121212");
-        let expected = Local.with_ymd_and_hms(2024, 12, 12, 12, 12, 12).unwrap();
-
-        // Act
-        let result = derive_datetime(input);
-
-        // Assert
-        assert_eq!(expected, result,);
-    }
-
-    #[test]
-    fn derive_datetime_without_identifier() {
-        // Arrange
-        let input = None;
-        let before_call = Local::now();
-
-        // Act
-        let result = derive_datetime(input);
-        let after_call = Local::now();
-
-        // Assert
-        assert!(result >= before_call && result <= after_call);
     }
 
     #[test]
@@ -393,7 +333,7 @@ mod tests {
         let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -407,7 +347,7 @@ mod tests {
         let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -421,7 +361,7 @@ mod tests {
         let result = parse_signature(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -435,7 +375,7 @@ mod tests {
         let result = parse_title(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -449,7 +389,7 @@ mod tests {
         let result = parse_keywords(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -463,7 +403,7 @@ mod tests {
         let result = parse_extension(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -477,7 +417,7 @@ mod tests {
         let result = parse_extension(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 
     #[test]
@@ -497,10 +437,8 @@ mod tests {
             identifier: "20241212T121212".to_owned(),
             signature: Some("testsignature".to_owned()),
             title: Some("my-t3st-title".to_owned()),
-            title_raw: Some("My T3ST Title!".to_owned()),
             keywords: Some(vec!["changes".to_owned(), "testing".to_owned()]),
             extension: "dj".to_owned(),
-            datetime: setup_datetime(),
             ..Default::default()
         };
 
@@ -516,10 +454,8 @@ mod tests {
         );
         assert_eq!(expected.signature, result.signature,);
         assert_eq!(expected.title, result.title,);
-        assert_eq!(expected.title_raw, result.title_raw,);
         assert_eq!(expected.keywords, result.keywords,);
         assert_eq!(expected.extension, result.extension,);
-        assert_eq!(expected.datetime, result.datetime,);
     }
 
     #[test]
@@ -533,6 +469,6 @@ mod tests {
         let result = sanitise(input, &config.illegal_characters);
 
         // Assert
-        assert_eq!(expected, result,);
+        assert_eq!(expected, result);
     }
 }

@@ -36,8 +36,6 @@ _arguments "${_arguments_options[@]}" : \
 '--config=[Configuration file path]:PATH:_default' \
 '-T+[Template file to add contents to new note]:PATH:_default' \
 '--template=[Template file to add contents to new note]:PATH:_default' \
-'-F+[Frontmatter format]:FORMAT:(text yaml toml json)' \
-'--frontmatter-format=[Frontmatter format]:FORMAT:(text yaml toml json)' \
 '-s+[Signature for the note]:SIGNATURE:_default' \
 '--signature=[Signature for the note]:SIGNATURE:_default' \
 '-t+[Title for the note]:TITLE:_default' \
@@ -48,8 +46,6 @@ _arguments "${_arguments_options[@]}" : \
 '--keywords=[Keywords for the note]:KEYWORD(S):_default' \
 '-p[Print the absolute path of the created note]' \
 '--print[Print the absolute path of the created note]' \
-'-G[Generate frontmatter]' \
-'--generate-frontmatter[Generate frontmatter]' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
@@ -58,8 +54,6 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-c+[Configuration file path]:PATH:_default' \
 '--config=[Configuration file path]:PATH:_default' \
-'-F+[Frontmatter format]:FORMAT:(text yaml toml json)' \
-'--frontmatter-format=[Frontmatter format]:FORMAT:(text yaml toml json)' \
 '-s+[New signature for the note]:SIGNATURE:_default' \
 '--signature=[New signature for the note]:SIGNATURE:_default' \
 '-t+[New title for the note]:TITLE:_default' \
@@ -76,10 +70,6 @@ _arguments "${_arguments_options[@]}" : \
 '--print[Print the absolute path of the created file]' \
 '-I[Generate an identifier even if there is an existing one]' \
 '--regenerate-identifier[Generate an identifier even if there is an existing one]' \
-'-f[Rename based on frontmatter values]' \
-'--from-frontmatter[Rename based on frontmatter values]' \
-'-G[Generate or regenerate frontmatter]' \
-'--generate-frontmatter[Generate or regenerate frontmatter]' \
 '-h[Print help]' \
 '--help[Print help]' \
 ':input -- Path to the input file to be renamed:_default' \

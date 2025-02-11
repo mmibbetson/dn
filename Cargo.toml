@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+# SPDX-FileCopyrightText: 2024-2025 Matthew Mark Ibbetson
 # SPDX-FileContributor: Matthew Mark Ibbetson
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -7,15 +7,18 @@
 name = "dn"
 version = "0.1.0"
 edition = "2021"
-# rust-version = ""
-authors = ["Matthew Mark Ibbetson <mmibbetson@gmail.com>", "Adam Stokes"] # TODO: Add email if Adam is comfortable with it.
+rust-version = "1.80.0"
+authors = ["Matthew Mark Ibbetson <mmibbetson@gmail.com>"]
 description = "A simple, minimal, and flexible command line utility for managing plaintext files."
 keywords = ["cli", "utility", "file", "notes", "pkms"]
 categories = ["command-line-utilities", "filesystem"]
 readme = "README.md"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/mmibbetson/dn"
-homepage = "https://mmibbetson.github.io/projects/dn"
+homepage = "https://mmibbetson.github.io/software/dn"
+
+[[bin]]
+name = "dn"
 
 [workspace]
 members = [".", "xtask"]
@@ -36,7 +39,6 @@ path = "src/lib.rs"
 anyhow = "1.0.92"                                      # MIT or Apache-2.0
 chrono = "0.4.38"                                      # MIT or Apache-2.0
 icu_collator = "1.5.0"                                 # Unicode-3.0
-once_cell = "1.20.2"                                   # MIT or Apache-2.0 - When Lazy is in Rust Stable, can remove this.
 regex = "1.11.1"                                       # MIT or Apache-2.0
 serde = { version = "1.0.214", features = ["derive"] } # MIT or Apache-2.0
 toml = "0.8.19"                                        # MIT or Apache-2.0
@@ -89,6 +91,7 @@ string_add = "deny"
 string_to_string = "deny"
 tests_outside_test_module = "deny"
 todo = "deny"
+too_many_lines = "allow"
 try_err = "deny"
 undocumented_unsafe_blocks = "deny"
 unnecessary_self_imports = "deny"

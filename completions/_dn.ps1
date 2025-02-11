@@ -37,8 +37,6 @@ Register-ArgumentCompleter -Native -CommandName 'dn' -ScriptBlock {
             [CompletionResult]::new('--config', '--config', [CompletionResultType]::ParameterName, 'Configuration file path')
             [CompletionResult]::new('-T', '-T ', [CompletionResultType]::ParameterName, 'Template file to add contents to new note')
             [CompletionResult]::new('--template', '--template', [CompletionResultType]::ParameterName, 'Template file to add contents to new note')
-            [CompletionResult]::new('-F', '-F ', [CompletionResultType]::ParameterName, 'Frontmatter format')
-            [CompletionResult]::new('--frontmatter-format', '--frontmatter-format', [CompletionResultType]::ParameterName, 'Frontmatter format')
             [CompletionResult]::new('-s', '-s', [CompletionResultType]::ParameterName, 'Signature for the note')
             [CompletionResult]::new('--signature', '--signature', [CompletionResultType]::ParameterName, 'Signature for the note')
             [CompletionResult]::new('-t', '-t', [CompletionResultType]::ParameterName, 'Title for the note')
@@ -49,8 +47,6 @@ Register-ArgumentCompleter -Native -CommandName 'dn' -ScriptBlock {
             [CompletionResult]::new('--keywords', '--keywords', [CompletionResultType]::ParameterName, 'Keywords for the note')
             [CompletionResult]::new('-p', '-p', [CompletionResultType]::ParameterName, 'Print the absolute path of the created note')
             [CompletionResult]::new('--print', '--print', [CompletionResultType]::ParameterName, 'Print the absolute path of the created note')
-            [CompletionResult]::new('-G', '-G ', [CompletionResultType]::ParameterName, 'Generate frontmatter')
-            [CompletionResult]::new('--generate-frontmatter', '--generate-frontmatter', [CompletionResultType]::ParameterName, 'Generate frontmatter')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help')
             break
@@ -58,8 +54,6 @@ Register-ArgumentCompleter -Native -CommandName 'dn' -ScriptBlock {
         'dn;rename' {
             [CompletionResult]::new('-c', '-c', [CompletionResultType]::ParameterName, 'Configuration file path')
             [CompletionResult]::new('--config', '--config', [CompletionResultType]::ParameterName, 'Configuration file path')
-            [CompletionResult]::new('-F', '-F ', [CompletionResultType]::ParameterName, 'Frontmatter format')
-            [CompletionResult]::new('--frontmatter-format', '--frontmatter-format', [CompletionResultType]::ParameterName, 'Frontmatter format')
             [CompletionResult]::new('-s', '-s', [CompletionResultType]::ParameterName, 'New signature for the note')
             [CompletionResult]::new('--signature', '--signature', [CompletionResultType]::ParameterName, 'New signature for the note')
             [CompletionResult]::new('-t', '-t', [CompletionResultType]::ParameterName, 'New title for the note')
@@ -76,10 +70,6 @@ Register-ArgumentCompleter -Native -CommandName 'dn' -ScriptBlock {
             [CompletionResult]::new('--print', '--print', [CompletionResultType]::ParameterName, 'Print the absolute path of the created file')
             [CompletionResult]::new('-I', '-I ', [CompletionResultType]::ParameterName, 'Generate an identifier even if there is an existing one')
             [CompletionResult]::new('--regenerate-identifier', '--regenerate-identifier', [CompletionResultType]::ParameterName, 'Generate an identifier even if there is an existing one')
-            [CompletionResult]::new('-f', '-f', [CompletionResultType]::ParameterName, 'Rename based on frontmatter values')
-            [CompletionResult]::new('--from-frontmatter', '--from-frontmatter', [CompletionResultType]::ParameterName, 'Rename based on frontmatter values')
-            [CompletionResult]::new('-G', '-G ', [CompletionResultType]::ParameterName, 'Generate or regenerate frontmatter')
-            [CompletionResult]::new('--generate-frontmatter', '--generate-frontmatter', [CompletionResultType]::ParameterName, 'Generate or regenerate frontmatter')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help')
             break

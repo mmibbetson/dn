@@ -5,9 +5,12 @@
 
 //! Utilities for accessing and/or creating necessary directories.
 
-use std::{env, fs, path::PathBuf};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
 
 /// Retrieves the path to the "notes" directory inside the user's "Documents" directory.
 ///
@@ -39,6 +42,33 @@ pub fn environment_notes_dir() -> Result<PathBuf, Error> {
             Ok(path)
         }
     }
+}
+
+const HOME_INDICATOR: &str = "~";
+
+pub fn safe_write<P: AsRef<Path>, T: AsRef<[u8]>>(path: P, template: T) -> Result<(), Error> {
+    let output_path = {
+        let path_ref = path.as_ref();
+
+        if path_ref.starts_with(HOME_INDICATOR) {
+            #[cfg(unix)]
+            let home_dir = env::var("HOME")?;
+            #[cfg(windows)]
+            let home_dir = env::var("USERPROFILE")?;
+
+            let stripped_path = path_ref
+                .strip_prefix(HOME_INDICATOR)
+                .map_err(|e| anyhow!(e).context("Path does not begin with home indicator"))?;
+
+            PathBuf::from(home_dir).join(stripped_path)
+        } else {
+            path_ref.into()
+        }
+    };
+
+    fs::create_dir_all(output_path.parent().unwrap_or(&output_path))?;
+    fs::write(&output_path, template)
+        .map_err(|e| anyhow!(e).context(format!("Failed to write to {}", output_path.display())))
 }
 
 /// Retrieves the path to the "dn" directory inside the user's configuration folder.
