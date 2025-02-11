@@ -1,6 +1,6 @@
 [file]
 default_extension = "txt"
-directory = "~/Documents/dn"
+directory = "~/Documents/notes"
 illegal_characters = [
     '[',
     ']',

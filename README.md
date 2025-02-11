@@ -17,16 +17,6 @@ TODO
 
 ## Installation
 
-(Add installation instructions here, e.g., through package managers, building from source, etc.)
-
-### Package Manager
-
-TODO: Repology
-
-### Container Image
-
-TODO
-
 ### Binary Download
 
 The latest binaries are available [here]().
@@ -38,15 +28,7 @@ The latest binaries are available [here]().
 If you have a Rust environment set up, you can install the binary from [crates.io]() with the following command:
 
 ```sh
-cargo install dn
-```
-
-#### Source
-
-```sh
-git clone https://github.com/mmibbetson/dn
-cd dn
-cargo install --path .
+cargo install dn-cli
 ```
 
 ### Build From Source
@@ -55,14 +37,7 @@ cargo install --path .
 # clone repo and make install
 git clone https://github.com/mmibbetson/dn
 cd dn
-
-# If you would like to install everything, including manpages and shell completions you can run:
-make
-
-# Or, if you would prefer to only install the binary and opt into the other features:
-make install
-make completions
-make manpages
+just install
 ```
 
 ## Quick Start
@@ -94,6 +69,11 @@ Manpages and shell completions are available, they can be installed manually, wi
 - powershell
 - nushell
 - elvish
+
+## Editor Support
+
+- [ ] Helix
+- [ ] Visual Studio Code
 
 ## Inspirations
 

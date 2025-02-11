@@ -289,7 +289,7 @@ fn default_segment_order() -> [FilenameSegment; 5] {
     ]
 }
 
-/// Returns the default value for front matter segment order in `FileConfig`. For use in serde macros.
+/// Returns the default value for file extension in `Config`. For use in serde macros.
 ///
 /// # Value
 ///
@@ -300,7 +300,7 @@ fn default_file_extension() -> String {
     "txt".to_owned()
 }
 
-/// Returns the default value for illegal characters in `FileConfig`. For use in serde macros.
+/// Returns the default value for illegal characters in `Config`. For use in serde macros.
 ///
 /// # Value
 ///
