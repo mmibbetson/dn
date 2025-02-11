@@ -439,7 +439,6 @@ mod tests {
             title: Some("my-t3st-title".to_owned()),
             keywords: Some(vec!["changes".to_owned(), "testing".to_owned()]),
             extension: "dj".to_owned(),
-            ..Default::default()
         };
 
         // Act
