@@ -255,7 +255,6 @@ mod tests {
             title: Some("test-title".to_owned()),
             keywords: Some(vec!["key1".to_owned(), "key2".to_owned()]),
             extension: "txt".to_owned(),
-            ..Default::default()
         };
         let expected = Filename {
             identifier: "20240101T120000".to_owned(),
@@ -270,6 +269,8 @@ mod tests {
 
         // Act
         let result = metadata.to_filename(&config);
+
+        #[allow(clippy::unwrap_used)]
         let result_keywords = result
             .keywords
             .as_ref()
