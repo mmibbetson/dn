@@ -11,7 +11,7 @@ use chrono::Local;
 use regex::Regex;
 
 use crate::{
-    config::{FileConfig, FilenameSegment},
+    config::{Config, FilenameSegment},
     metadata::{FileMetadata, DN_IDENTIFIER_FORMAT},
 };
 
@@ -69,7 +69,7 @@ pub struct Filename {
 /// ```
 pub trait ToFilename {
     /// Converts the value to a `Filename`.
-    fn to_filename(&self, config: &FileConfig) -> Filename;
+    fn to_filename(&self, config: &Config) -> Filename;
 }
 
 impl Display for Filename {
@@ -90,7 +90,7 @@ impl Display for Filename {
 }
 
 impl ToFilename for String {
-    fn to_filename(&self, config: &FileConfig) -> Filename {
+    fn to_filename(&self, config: &Config) -> Filename {
         let (identifier, signature, title, keywords) =
             if let Some(identifier) = parse_segment(self, &REGEX_SEGMENT_IDENTIFIER) {
                 let signature = parse_segment(self, &REGEX_SEGMENT_SIGNATURE);
@@ -124,7 +124,7 @@ impl ToFilename for String {
 }
 
 impl ToFilename for FileMetadata {
-    fn to_filename(&self, config: &FileConfig) -> Filename {
+    fn to_filename(&self, config: &Config) -> Filename {
         let identifier = match config.segment_order[0] {
             FilenameSegment::Identifier => self.identifier.clone(),
             _ => prefix_segment(&self.identifier, FilenameSegment::Identifier),
@@ -206,7 +206,7 @@ mod tests {
     fn string_to_filename_with_all_segments() {
         // Arrange
         let input = "20240101T120000==signature--title__keywords.txt".to_owned();
-        let config = FileConfig::default();
+        let config = Config::default();
         let expected = Filename {
             identifier: "20240101T120000".to_owned(),
             signature: Some("==signature".to_owned()),
@@ -227,7 +227,7 @@ mod tests {
     fn string_to_filename_non_dn_format() {
         // Arrange
         let input = "@@I am a nau==ghty __STR1NG!.txt".to_owned();
-        let config = FileConfig::default();
+        let config = Config::default();
         let now = Local::now();
         let expected = Filename {
             identifier: now.format(DN_IDENTIFIER_FORMAT).to_string(),
@@ -248,7 +248,7 @@ mod tests {
     #[test]
     fn metadata_to_filename_full() {
         // Arrange
-        let config = FileConfig::default();
+        let config = Config::default();
         let metadata = FileMetadata {
             identifier: "20240101T120000".to_owned(),
             signature: Some("test-sig".to_owned()),

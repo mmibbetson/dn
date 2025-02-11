@@ -11,7 +11,7 @@ use std::collections::HashSet;
 use chrono::Local;
 use icu_collator::{Collator, CollatorOptions, Strength};
 
-use crate::config::FileConfig;
+use crate::config::Config;
 
 /// Format string for use with `chrono`'s `format` function.
 /// Represents the structure of a dn `Identifier`.
@@ -108,7 +108,7 @@ impl FileMetadataBuilder {
     /// metadata = builder.build(config)
     /// assert_eq!(metadata.title, Some("example-title".to_owned()))
     /// ```
-    pub fn build(&self, config: &FileConfig) -> FileMetadata {
+    pub fn build(&self, config: &Config) -> FileMetadata {
         let identifier = self
             .identifier
             .clone()
@@ -314,8 +314,8 @@ fn sanitise(dirty: &str, illegal_characters: &HashSet<char>) -> String {
 mod tests {
     use super::*;
 
-    fn setup_config() -> FileConfig {
-        FileConfig {
+    fn setup_config() -> Config {
+        Config {
             illegal_characters: HashSet::from(['#', '@', '!']),
             default_extension: String::from("md"),
             ..Default::default()

@@ -20,14 +20,6 @@ use crate::{
     metadata::SEGMENT_SEPARATORS,
 };
 
-// TODO: Remove unnecessary extra config struct, maybe.
-/// Represents the configuration state for dn as a whole.
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct Config {
-    // TODO: Add serde default? Or find other way to handle empty config gracefully.
-    pub file: FileConfig,
-}
-
 /// A `mut self` builder that allows progressively updating an input state for a new `Config`.
 #[derive(Debug, Default)]
 pub struct ConfigBuilder {
@@ -40,7 +32,7 @@ pub struct ConfigBuilder {
 
 /// The configuration values for the file name, directory, template, and general metadata.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct FileConfig {
+pub struct Config {
     /// The directory in which notes will be created.
     #[serde(default = "default_notes_directory")]
     pub directory: PathBuf,
@@ -145,49 +137,46 @@ impl ConfigBuilder {
             .file_directory
             .as_ref()
             .map(PathBuf::from)
-            .unwrap_or(base_config.file.directory);
+            .unwrap_or(base_config.directory);
 
         let default_extension = self
             .file_default_extension
             .as_ref()
-            .unwrap_or(&base_config.file.default_extension)
+            .unwrap_or(&base_config.default_extension)
             .to_owned();
 
         let regenerate_identifier = if self.file_regenerate_identifier {
             true
         } else {
-            base_config.file.regenerate_identifier
+            base_config.regenerate_identifier
         };
 
         let template_path = self
             .file_template_path
             .as_ref()
-            .or(base_config.file.template_path.as_ref())
+            .or(base_config.template_path.as_ref())
             .cloned();
 
         // NOTE: It is essential that @=-_. are ALWAYS in the illegal characters,
         // even when overwritten by users.
         let illegal_characters = base_config
-            .file
             .illegal_characters
             .into_iter()
             .chain(SEGMENT_SEPARATORS)
             .collect::<HashSet<_>>();
 
         Config {
-            file: FileConfig {
-                directory,
-                default_extension,
-                regenerate_identifier,
-                template_path,
-                illegal_characters,
-                ..base_config.file
-            },
+            directory,
+            default_extension,
+            regenerate_identifier,
+            template_path,
+            illegal_characters,
+            ..base_config
         }
     }
 }
 
-impl Default for FileConfig {
+impl Default for Config {
     fn default() -> Self {
         Self {
             directory: default_notes_directory(),
@@ -213,7 +202,7 @@ impl Default for FileConfig {
 /// let builder = FileMetadata::builder();
 /// let config = read_config("path/to/config.toml")?;
 ///
-/// builder.build(&config.file);
+/// builder.build(&config);
 /// ```
 pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
     let contents = fs::read_to_string(path)?;
@@ -346,7 +335,7 @@ fn none<T>() -> Option<T> {
 mod tests {
     use std::collections::HashSet;
 
-    use crate::config::{Config, FileConfig};
+    use crate::config::Config;
 
     #[test]
     fn builder_builds_defaults_if_unconfigured() {
@@ -365,20 +354,15 @@ mod tests {
     fn builder_builds_base_config_defaults_if_provided() {
         // Arrange
         let base_config = Config {
-            file: FileConfig {
-                default_extension: "dj".to_owned(),
-                regenerate_identifier: true,
-                illegal_characters: HashSet::from(['a', '2', '@']),
-                ..FileConfig::default()
-            },
+            default_extension: "dj".to_owned(),
+            regenerate_identifier: true,
+            illegal_characters: HashSet::from(['a', '2', '@']),
+            ..Default::default()
         };
         let input = Config::builder().with_base_config(base_config.clone());
         let expected_illegal_characters = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
         let expected = Config {
-            file: FileConfig {
-                illegal_characters: expected_illegal_characters,
-                ..base_config.file
-            },
+            illegal_characters: expected_illegal_characters,
             ..base_config
         };
 
@@ -404,13 +388,11 @@ mod tests {
             .with_file_template_path(template_path.clone().into());
 
         let expected = Config {
-            file: FileConfig {
-                directory: directory.into(),
-                default_extension,
-                regenerate_identifier,
-                template_path: Some(template_path.into()),
-                ..Default::default()
-            },
+            directory: directory.into(),
+            default_extension,
+            regenerate_identifier,
+            template_path: Some(template_path.into()),
+            ..Default::default()
         };
 
         // Act
@@ -424,17 +406,14 @@ mod tests {
     fn built_config_illegal_characters_always_contains_path_separators() {
         // Arrange
         let base_config = Config {
-            file: FileConfig {
-                illegal_characters: HashSet::from(['a', '2', '@']),
-                ..FileConfig::default()
-            },
-            ..Config::default()
+            illegal_characters: HashSet::from(['a', '2', '@']),
+            ..Default::default()
         };
         let input = Config::builder().with_base_config(base_config);
         let expected = HashSet::from(['a', '2', '@', '=', '-', '_', '.']);
 
         // Act
-        let result = input.build().file.illegal_characters;
+        let result = input.build().illegal_characters;
 
         // Assert
         assert_eq!(expected, result);

@@ -66,16 +66,16 @@ fn main() -> Result<(), Error> {
                 .with_keywords(cli_keywords.as_deref())
                 .with_extension(cli_extension.as_deref())
                 // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
-                .build(&config.file);
+                .build(&config);
 
-            let filename = metadata.to_filename(&config.file).to_string();
+            let filename = metadata.to_filename(&config).to_string();
             let template = cli_template_path.as_ref().map_or(Ok(Vec::new()), |p| {
                 fs::read(p).map_err(|e| anyhow!(e).context("Error reading template file"))
             })?;
 
             let output_path = cli_directory_path
                 .as_ref()
-                .map_or(config.file.directory, PathBuf::from)
+                .map_or(config.directory, PathBuf::from)
                 .join(filename);
 
             safe_write(&output_path, &template)?;
@@ -134,7 +134,7 @@ fn main() -> Result<(), Error> {
                     anyhow!("Error reading file name: Filename is not in a valid format")
                 })?
                 .to_owned()
-                .to_filename(&config.file);
+                .to_filename(&config);
 
             let mut metadata_builder = FileMetadata::builder()
                 .with_identifier(Some(filename_old.identifier).as_deref())
@@ -172,9 +172,9 @@ fn main() -> Result<(), Error> {
             // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
             // INFO: Passing the full Config is more conceptually sound but would be passing
             // unnecessary information, currently.
-            let metadata = metadata_builder.build(&config.file);
+            let metadata = metadata_builder.build(&config);
 
-            let filename_new = metadata.to_filename(&config.file).to_string();
+            let filename_new = metadata.to_filename(&config).to_string();
 
             let output_path = input_path
                 .parent()
