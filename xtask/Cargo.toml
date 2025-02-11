@@ -14,7 +14,7 @@ name = "cargo-xtask"
 path = "src/main.rs"
 
 [dependencies]
-dn = { path = "../" }
+dn-cli = { path = "../" }
 clap.workspace = true
 clap_complete = "4.5.38"        # MIT or Apache-2.0
 clap_complete_nushell = "4.5.4" # MIT or Apache-2.0

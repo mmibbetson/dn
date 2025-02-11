@@ -19,6 +19,7 @@ homepage = "https://mmibbetson.github.io/software/dn"
 
 [[bin]]
 name = "dn"
+path = "src/main.rs"
 
 [workspace]
 members = [".", "xtask"]
