@@ -44,33 +44,6 @@ pub fn environment_notes_dir() -> Result<PathBuf, Error> {
     }
 }
 
-const HOME_INDICATOR: &str = "~";
-
-pub fn safe_write<P: AsRef<Path>, T: AsRef<[u8]>>(path: P, template: T) -> Result<(), Error> {
-    let output_path = {
-        let path_ref = path.as_ref();
-
-        if path_ref.starts_with(HOME_INDICATOR) {
-            #[cfg(unix)]
-            let home_dir = env::var("HOME")?;
-            #[cfg(windows)]
-            let home_dir = env::var("USERPROFILE")?;
-
-            let stripped_path = path_ref
-                .strip_prefix(HOME_INDICATOR)
-                .map_err(|e| anyhow!(e).context("Path does not begin with home indicator"))?;
-
-            PathBuf::from(home_dir).join(stripped_path)
-        } else {
-            path_ref.into()
-        }
-    };
-
-    fs::create_dir_all(output_path.parent().unwrap_or(&output_path))?;
-    fs::write(&output_path, template)
-        .map_err(|e| anyhow!(e).context(format!("Failed to write to {}", output_path.display())))
-}
-
 /// Retrieves the path to the "dn" directory inside the user's configuration folder.
 ///
 /// This function looks for the user's configuration directory and attempts to locate the "dn" subdirectory,
@@ -108,6 +81,46 @@ pub fn environment_config_dir() -> Result<PathBuf, Error> {
             Ok(path)
         }
     }
+}
+
+/// Safely attempts to write to a file, expanding paths relative to the home indicating character, "~".
+///
+/// # Errors
+///
+/// This function may return an error if environment variables (`XDG_CONFIG_HOME`, `HOME`, `USERPROFILE`) cannot
+/// be accessed, or if there is an issue expanding the relative path into an absolute path.
+///
+/// # Example
+/// ```
+/// let path = ???;
+/// let content = ???;
+/// safe_write();
+/// ```
+pub fn safe_write<P: AsRef<Path>, T: AsRef<[u8]>>(path: P, template: T) -> Result<(), Error> {
+    const HOME_INDICATOR: &str = "~";
+
+    let output_path = {
+        let path_ref = path.as_ref();
+
+        if path_ref.starts_with(HOME_INDICATOR) {
+            #[cfg(unix)]
+            let home_dir = env::var("HOME")?;
+            #[cfg(windows)]
+            let home_dir = env::var("USERPROFILE")?;
+
+            let stripped_path = path_ref
+                .strip_prefix(HOME_INDICATOR)
+                .map_err(|e| anyhow!(e).context("Path does not begin with home indicator"))?;
+
+            PathBuf::from(home_dir).join(stripped_path)
+        } else {
+            path_ref.into()
+        }
+    };
+
+    fs::create_dir_all(output_path.parent().unwrap_or(&output_path))?;
+    fs::write(&output_path, template)
+        .map_err(|e| anyhow!(e).context(format!("Failed to write to {}", output_path.display())))
 }
 
 ///////////

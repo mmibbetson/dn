@@ -64,7 +64,7 @@ pub struct Filename {
 ///
 /// # Example
 /// ```
-/// let config = FileConfig::default();
+/// let config = Config::default();
 /// let filename = "--example__tag1.txt".to_filename(&config);
 /// ```
 pub trait ToFilename {

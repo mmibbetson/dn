@@ -65,7 +65,6 @@ fn main() -> Result<(), Error> {
                 .with_title(cli_title.as_deref())
                 .with_keywords(cli_keywords.as_deref())
                 .with_extension(cli_extension.as_deref())
-                // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
                 .build(&config);
 
             let filename = metadata.to_filename(&config).to_string();
@@ -169,9 +168,6 @@ fn main() -> Result<(), Error> {
                 metadata_builder = metadata_builder.with_extension(cli_extension.as_deref());
             }
 
-            // WARN: Possible code smell. Why does metadata take a &FileConfig specifically?
-            // INFO: Passing the full Config is more conceptually sound but would be passing
-            // unnecessary information, currently.
             let metadata = metadata_builder.build(&config);
 
             let filename_new = metadata.to_filename(&config).to_string();

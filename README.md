@@ -9,23 +9,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 dn is a CLI tool for creating and renaming plaintext notes with a predictable, timestamped naming format. It is inspired by the amazing Emacs package [Denote](https://protesilaos.com/emacs/denote) created by [Prot](https://protesilaos.com/). dn creates files that can be easily queried using standard tools like `find`, `sed`, `grep`, `awk`, `ripgrep`, `fzf`, etc.
 
-dn aims to reproduce the file naming functionality of Denote, while being entirely editor agnostic and scriptable in any language. It deviates in several ways from the behaviour of Denote, both due to the reduced scope (much of Denote's functionality is best suited for editor integrations) and different concerns (we feel that Emacs & Org already have a complete, quality solution to practically all of the goals dn addresses, i.e. Denote).
-
-## Summary
-
-TODO
+dn aims to reproduce the file naming functionality of Denote, while being entirely editor agnostic and scriptable in any language. It deviates in several ways from the behaviour of Denote, both due to the reduced scope (much of Denote's functionality is best suited for editor integrations) and different concerns (Emacs & Org already have a complete, quality solution to practically all of the goals dn addresses, i.e. Denote).
 
 ## Installation
-
-(Add installation instructions here, e.g., through package managers, building from source, etc.)
-
-### Package Manager
-
-TODO: Repology
-
-### Container Image
-
-TODO
 
 ### Binary Download
 
@@ -38,15 +24,7 @@ The latest binaries are available [here]().
 If you have a Rust environment set up, you can install the binary from [crates.io]() with the following command:
 
 ```sh
-cargo install dn
-```
-
-#### Source
-
-```sh
-git clone https://github.com/mmibbetson/dn
-cd dn
-cargo install --path .
+cargo install dn-cli
 ```
 
 ### Build From Source
@@ -55,14 +33,7 @@ cargo install --path .
 # clone repo and make install
 git clone https://github.com/mmibbetson/dn
 cd dn
-
-# If you would like to install everything, including manpages and shell completions you can run:
-make
-
-# Or, if you would prefer to only install the binary and opt into the other features:
-make install
-make completions
-make manpages
+just install
 ```
 
 ## Quick Start
@@ -72,13 +43,13 @@ make manpages
 dn new -k personal_ideas -t "My First Note"
 
 # Rename an existing note
-dn rename oldfile.txt -k converted -e md # produces something like 20241006T145030--oldfile__converted.md
+dn rename -k converted -e md oldfile.txt # produces something like 20241006T145030--oldfile__converted.md
 
 # Remove the title and change extension of an existing note
-dn rename 20241001T121314--oldtitle__foo.md -e dj - # produces something like 20241001T121314__foo.dj
+dn rename -e dj 20241001T121314--oldtitle__foo.md # produces something like 20241001T121314--oldtitle__foo.dj
 
 # Add and remove keywords on an existing file
-dn rename 20241001T121314--oldtitle__foo.md -A bar_baz -R baz # produces 20241001T121314--oldtitle__foo_bar.md
+dn rename 20241001T121314--oldtitle__foo.dj -A bar_baz -R baz # produces 20241001T121314--oldtitle__foo_bar.dj
 
 # Search $DN_DIRECTORY for a note with fzf and then open it in helix
 rg $DN_DIRECTORY --file | fzf | xargs hx
@@ -86,7 +57,7 @@ rg $DN_DIRECTORY --file | fzf | xargs hx
 
 ## Extras
 
-Manpages and shell completions are available, they can be installed manually, with make, or through a package manager alongside the binary. The supported shells are:
+Manpages and shell completions are available, they can be installed manually. The supported shells are:
 
 - bash
 - zsh
@@ -94,6 +65,13 @@ Manpages and shell completions are available, they can be installed manually, wi
 - powershell
 - nushell
 - elvish
+
+## Editor Support
+
+dn is designed with the intention that it will be integrated into text editors via extensions. When Helix's plugin system is implemented, the intention is to provide an ergonomic set of extensions as specified in the [integration docs](./docs/dev/integrations.md). A VSCode extension is also being considered.
+
+- [ ] Helix
+- [ ] Visual Studio Code
 
 ## Inspirations
 
@@ -104,10 +82,10 @@ Manpages and shell completions are available, they can be installed manually, wi
 
 ## Dependencies
 
-We try to keep dependencies relatively minimal. In time, this project will be feature-complete, and enter maintenance mode. A primary concern for dn is to minimise churn and maximise long-term stability. Eventually, all dependencies will be vendored and the program will be considered "finished", outside of necessary bug fixes and/or emergency patches.
+Dependencies are relatively minimal. In time, this project will be feature-complete, and enter maintenance mode. A primary concern for dn is to minimise churn and maximise long-term stability. Eventually, all dependencies will be vendored and the program will be considered "finished", outside of necessary bug fixes and/or emergency patches.
 
 ## Development
 
-- We follow [Semantic Versioning](https://semver.org/) for version numbering.
-- We use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
-- We are [REUSE](https://reuse.software/) compliant.
+- dn follows [Semantic Versioning](https://semver.org/) for version numbering.
+- dn uses [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+- dn is [REUSE](https://reuse.software/) compliant.

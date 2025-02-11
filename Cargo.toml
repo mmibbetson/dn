@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 [package]
-name = "dn"
+name = "dn-cli"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.80.0"

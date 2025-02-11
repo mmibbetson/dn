@@ -51,7 +51,7 @@ uninstall:
     cargo uninstall {{bin_name}}
 
 # Install the cargo-xtask dev utility.
-_install-xtask:
+install-xtask:
     cargo install --path xtask
 
 # Generate manpage files.
