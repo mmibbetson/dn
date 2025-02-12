@@ -21,7 +21,7 @@ The latest binaries are available [here]().
 
 #### Crates.io
 
-If you have a Rust environment set up, you can install the binary from [crates.io]() with the following command:
+If you have a Rust environment set up, you can install the binary from [crates.io](https://crates.io/crates/dn-cli) with the following command:
 
 ```sh
 cargo install dn-cli
