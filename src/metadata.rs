@@ -109,10 +109,15 @@ impl FileMetadataBuilder {
     /// assert_eq!(metadata.title, Some("example-title".to_owned()))
     /// ```
     pub fn build(&self, config: &Config) -> FileMetadata {
-        let identifier = self
-            .identifier
-            .clone()
-            .unwrap_or_else(|| Local::now().format(DN_IDENTIFIER_FORMAT).to_string());
+        let identifier = {
+            let identifier_new = Local::now().format(DN_IDENTIFIER_FORMAT).to_string();
+
+            if config.regenerate_identifier {
+                identifier_new
+            } else {
+                self.identifier.clone().unwrap_or_else(|| identifier_new)
+            }
+        };
 
         let signature = self
             .signature
