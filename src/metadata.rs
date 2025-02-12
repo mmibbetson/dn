@@ -115,7 +115,7 @@ impl FileMetadataBuilder {
             if config.regenerate_identifier {
                 identifier_new
             } else {
-                self.identifier.clone().unwrap_or_else(|| identifier_new)
+                self.identifier.clone().unwrap_or(identifier_new)
             }
         };
 
