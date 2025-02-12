@@ -76,6 +76,6 @@ manpages: _gen-manpages
 
 # Uninstall manpages.
 uninstall-manpages:
-    rm {{man_dir}}/dn.1
-    rm {{man_dir}}/dn-rename.1
-    rm {{man_dir}}/dn-new.1
+    rm {{man_dir}}/{{bin_name}}.1
+    rm {{man_dir}}/{{bin_name}}-rename.1
+    rm {{man_dir}}/{{bin_name}}-new.1
