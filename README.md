@@ -36,6 +36,20 @@ cd dn
 just install
 ```
 
+### Nix
+
+#### Download From Nixpkgs
+
+```sh
+
+```
+
+#### Build Derivation
+
+```sh
+
+```
+
 ## Quick Start
 
 ```bash
