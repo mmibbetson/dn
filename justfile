@@ -34,6 +34,10 @@ _compile:
 _doc:
     cargo doc
 
+# Open developer documentation.
+docs:
+    cargo doc --open
+
 # Recipe with dependencies.
 publish: test build
     cargo publish
