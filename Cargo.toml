@@ -20,6 +20,7 @@ homepage = "https://mmibbetson.github.io/software/dn"
 [[bin]]
 name = "dn"
 path = "src/main.rs"
+doc = true
 
 [workspace]
 members = [".", "xtask"]
@@ -33,8 +34,9 @@ edition = "2021"
 version = "1.0.0"
 
 [lib]
-name = "dn"
+name = "dn_lib"
 path = "src/lib.rs"
+doc = false
 
 [dependencies]
 anyhow = "1.0.92"                                      # MIT or Apache-2.0

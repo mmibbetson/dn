@@ -5,7 +5,7 @@
 
 use std::{fs, path::Path};
 
-use dn::cli::Cli;
+use dn_lib::cli::Cli;
 
 use clap::CommandFactory;
 use clap_mangen::generate_to;
