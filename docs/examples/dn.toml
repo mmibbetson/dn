@@ -1,4 +1,3 @@
-[file]
 default_extension = "txt"
 directory = "~/Documents/notes"
 illegal_characters = [
