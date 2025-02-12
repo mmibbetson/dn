@@ -13,10 +13,6 @@ dn aims to reproduce the file naming functionality of Denote, while being entire
 
 ## Installation
 
-### Binary Download
-
-The latest binaries are available [here]().
-
 ### Cargo Install
 
 #### Crates.io
