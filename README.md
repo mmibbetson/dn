@@ -21,7 +21,7 @@ The latest binaries are available [here]().
 
 #### Crates.io
 
-If you have a Rust environment set up, you can install the binary from [crates.io]() with the following command:
+If you have a Rust environment set up, you can install the binary from [crates.io](https://crates.io/crates/dn-cli) with the following command:
 
 ```sh
 cargo install dn-cli
@@ -43,10 +43,10 @@ just install
 dn new -k personal_ideas -t "My First Note"
 
 # Rename an existing note
-dn rename -k converted -e md oldfile.txt # produces something like 20241006T145030--oldfile__converted.md
+dn rename oldfile.txt -k converted -e md # produces something like 20241006T145030--oldfile__converted.md
 
 # Remove the title and change extension of an existing note
-dn rename -e dj 20241001T121314--oldtitle__foo.md # produces something like 20241001T121314--oldtitle__foo.dj
+dn rename 20241001T121314--oldtitle__foo.md -e dj # produces something like 20241001T121314--oldtitle__foo.dj
 
 # Add and remove keywords on an existing file
 dn rename 20241001T121314--oldtitle__foo.dj -A bar_baz -R baz # produces 20241001T121314--oldtitle__foo_bar.dj
