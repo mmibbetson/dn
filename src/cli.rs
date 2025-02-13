@@ -10,7 +10,7 @@ use clap::{ArgAction, Parser, Subcommand};
 #[derive(Parser)]
 #[command(
     name = "dn",
-    version = "0.1.0",
+    version = "0.1.2",
     about = "A command to manage notes following the Denote naming scheme"
 )]
 pub struct Cli {
