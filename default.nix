@@ -20,10 +20,10 @@ rustPlatform.buildRustPackage rec {
     owner = "mmibbetson";
     repo = "dn";
     rev = "v${version}";
-    sha256 = lib.fakeSha256;
+    sha256 = "sha256-8NZtCr3amrehw679eZmSqFiaXnplx4fdLxkilm8sU9w=";
   };
 
-  cargoHash = lib.fakeSha256;
+  cargoHash = "sha256-3JYcdRC16BIHeBk/AePC+6XorV1MWlpeZl2AlqoQmHI=";
 
   nativeBuildInputs = [
     pkg-config
