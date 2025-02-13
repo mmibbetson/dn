@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2024 Matthew Mark Ibbetson
+SPDX-FileContributor: Matthew Mark Ibbetson
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -43,5 +50,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Initial release
 
+[0.1.2]: https://crates.io/crates/dn-cli/0.1.2
 [0.1.1]: https://crates.io/crates/dn-cli/0.1.1
 [0.1.0]: https://crates.io/crates/dn-cli/0.1.0

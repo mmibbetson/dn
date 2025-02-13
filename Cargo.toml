@@ -5,7 +5,7 @@
 
 [package]
 name = "dn-cli"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 rust-version = "1.80.0"
 authors = ["Matthew Mark Ibbetson <mmibbetson@gmail.com>"]
