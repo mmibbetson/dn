@@ -10,6 +10,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+## [0.1.2] - 2025-02-13
+
+### Added
+
+- default.nix package definition
+- Nix install section to README.md
+
+### Changed
+
+- Moved changelog to more discoverable place in repo root
+
+### Fixed
+
+- Genericised justfile manpages command
+
 ## [0.1.1] - 2025-02-12
 
 ### Added

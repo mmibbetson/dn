@@ -26,7 +26,6 @@ cargo install dn-cli
 ### Build From Source
 
 ```sh
-# clone repo and make install
 git clone https://github.com/mmibbetson/dn
 cd dn
 just install
@@ -36,15 +35,32 @@ just install
 
 #### Download From Nixpkgs
 
-```sh
+In configuration.nix, you can add the package as `dn` --- for example:
 
+```nix
+  users.users.yourUsername = {
+    packages = with pkgs; [
+      dn
+    ]
 ```
 
 #### Build Derivation
 
 ```sh
-
+git clone https://github.com/mmibbetson/dn
+cd dn
+nix-build
 ```
+
+You can then add the package in your configuration.nix with the following:
+
+```nix
+nixpkgs.config.packageOverrides = pkgs: {
+  dn = pkgs.callPackage <route-to-dn-repository>/default.nix { };
+}
+```
+
+From there you can install the package as `dn` at the system level or user level by including it in your packages.
 
 ## Quick Start
 
