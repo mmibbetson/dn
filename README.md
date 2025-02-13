@@ -48,8 +48,6 @@ In configuration.nix, you can add the package as `dn` --- for example:
 
 ```sh
 git clone https://github.com/mmibbetson/dn
-cd dn
-nix-build
 ```
 
 You can then add the package in your configuration.nix with the following:
