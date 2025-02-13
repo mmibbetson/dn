@@ -17,6 +17,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+## [0.1.3] - 2025-02-14
+
+### Fixed
+
+- Various versioning inconsistencies across configuration and CLI definitions
+
 ## [0.1.2] - 2025-02-13
 
 ### Added
@@ -50,6 +56,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Initial release
 
+[0.1.3]: https://crates.io/crates/dn-cli/0.1.3
 [0.1.2]: https://crates.io/crates/dn-cli/0.1.2
 [0.1.1]: https://crates.io/crates/dn-cli/0.1.1
 [0.1.0]: https://crates.io/crates/dn-cli/0.1.0

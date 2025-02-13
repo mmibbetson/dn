@@ -14,13 +14,13 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "dn";
-  version = "0.1.2";
+  version = "0.1.3";
 
   src = fetchFromGitHub {
     owner = "mmibbetson";
     repo = "dn";
     rev = "v${version}";
-    sha256 = "sha256-8NZtCr3amrehw679eZmSqFiaXnplx4fdLxkilm8sU9w=";
+    sha256 = lib.fakeSha256;
   };
 
   cargoHash = "sha256-3JYcdRC16BIHeBk/AePC+6XorV1MWlpeZl2AlqoQmHI=";
